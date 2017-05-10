@@ -1,3 +1,10 @@
+// NanoWin32
+// -----------------------------------------------------------------------
+// Simple library to subset Win32(64) API functions implemenation on POSIX
+// This software distributed by MIT license
+
+// INTERNAL: wchat_t to char conversion functions
+
 #ifndef __NANOWINSTRCONVERT_H__
 #define __NANOWINSTRCONVERT_H__
 
@@ -5,16 +12,15 @@
 #include <wchar.h>
 #include <string>
 
-namespace NanoWin {
-
+namespace NanoWin
+{
   class StrConverter
   {
-  public:
+    public:
 
     class Error
     {
-    public:
-
+      public:
       virtual const char *what() const;
     };
 
