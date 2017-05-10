@@ -241,7 +241,7 @@ typedef unsigned char boolean;
 
 #if !defined(NW_ERRNO_T_DEFINED)
 #define NW_ERRNO_T_DEFINED
-typedef int errno_t;		// Not defined by GNU C (standard assumed errno is int always)
+typedef int errno_t; // Not defined by GNU C (standard assumed errno is int always)
 #endif
 
 // Other usefull stuff
@@ -249,20 +249,22 @@ typedef int errno_t;		// Not defined by GNU C (standard assumed errno is int alw
 
 #define NW_WIDE_STR(s)                 L##s
 #define NW_FORCE_COMPILE_ERROR         ....|....<....>....|.... // This will force compile error
+// More macroses like BUILD_BUG() used on linux
+#define NW_BUILD_BUG()                 NW_FORCE_COMPILE_ERROR
 
 // Some aux macroses (maybe later we have to add refix to them?)
 // -----------------------------------------------------------------------
 
 // Security attribures
 typedef void SECURITY_ATTRIBUTES; // Not supported as var
-typedef SECURITY_ATTRIBUTES FAR	*LPSECURITY_ATTRIBUTES;
-typedef SECURITY_ATTRIBUTES		*PSECURITY_ATTRIBUTES;
+typedef SECURITY_ATTRIBUTES FAR  *LPSECURITY_ATTRIBUTES;
+typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 
 // Constants for sync. objects
-#define WAIT_OBJECT_0			(0x0)  // STATUS_WAIT+0
-#define WAIT_ABANDONED_0	(0x80)
-#define WAIT_FAILED				(0xFFFFFFFF)
-#define WAIT_TIMEOUT			(0x102)
+#define WAIT_OBJECT_0      (0x0)  // STATUS_WAIT+0
+#define WAIT_ABANDONED_0   (0x80)
+#define WAIT_FAILED        (0xFFFFFFFF)
+#define WAIT_TIMEOUT       (0x102)
 
 #ifdef __cplusplus
 #define EXTERN_C_BEGIN  extern "C" {
