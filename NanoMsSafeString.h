@@ -10,8 +10,8 @@
 
 #if defined(__GNUC__)
 
-#if !defined(errno_t_defined)
-#define errno_t_defined
+#if !defined(NW_ERRNO_T_DEFINED)
+#define NW_ERRNO_T_DEFINED
 typedef int errno_t;		// Not defined by GNU C (standard assumed errno is int always)
 #endif
 
