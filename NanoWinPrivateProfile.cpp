@@ -1,3 +1,5 @@
+#include "NanoWinPrivateProfile.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -9,8 +11,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
-
-#include "NanoWinPrivateProfile.h"
 
 #define GetProfXMaxLineLength         (1024)
 
@@ -36,17 +36,18 @@
 #define TRUE     (1)
 #endif
 
-namespace {
+namespace 
+{
   class MBCSStorage
   {
-  public:
+    public:
 
     MBCSStorage(const wchar_t *src);
     ~MBCSStorage();
 
     const char *get_mbstr() const;
 
-  private:
+    private:
 
     enum { PREALLOCATED_STRING_LEN = 256 };
 
@@ -375,8 +376,9 @@ static bool ReplaceValueInLineWithKey(char *line, size_t lineMaxLen, const char 
   return result;
 }
 
-extern DWORD ProfGetPrivateProfileStringA(const char *lpszSection, const char *plszEntry,
-  const char *lpszDefault, char *lpReturnedString, DWORD nSize, const char *lpszFilename)
+extern DWORD NanoWinGetPrivateProfileStringA
+                                      (const char *lpszSection, const char *plszEntry,
+                                       const char *lpszDefault, char *lpReturnedString, DWORD nSize, const char *lpszFilename)
 {
   FILE  *srcFile = fopen(lpszFilename, "rt");
   bool   keyFound = false;
@@ -400,8 +402,9 @@ extern DWORD ProfGetPrivateProfileStringA(const char *lpszSection, const char *p
   return (DWORD)valueLen;
 }
 
-extern DWORD ProfGetPrivateProfileStringW(const wchar_t *lpszSection, const wchar_t *lpszEntry,
-  const wchar_t *lpszDefault, wchar_t *lpReturnedString, DWORD nSize, const wchar_t *lpszFilename)
+extern DWORD NanoWinGetPrivateProfileStringW
+                                      (const wchar_t *lpszSection, const wchar_t *lpszEntry,
+                                       const wchar_t *lpszDefault, wchar_t *lpReturnedString, DWORD nSize, const wchar_t *lpszFilename)
 {
   size_t result = 0;
 
@@ -448,8 +451,9 @@ extern DWORD ProfGetPrivateProfileStringW(const wchar_t *lpszSection, const wcha
   return result;
 }
 
-extern DWORD ProfGetPrivateProfileSectionA(const char *lpszSection, char *lpReturnedString,
-  DWORD nSize, const char *lpszFilename)
+extern DWORD NanoWinGetPrivateProfileSectionA
+                                      (const char *lpszSection, char *lpReturnedString,
+                                       DWORD nSize, const char *lpszFilename)
 {
   FILE *srcFile = fopen(lpszFilename, "rt");
   DWORD result = 0;
@@ -478,8 +482,9 @@ extern DWORD ProfGetPrivateProfileSectionA(const char *lpszSection, char *lpRetu
   return result;
 }
 
-extern UINT ProfGetPrivateProfileIntA(const char *lpszSection,
-  const char *lpszEntry, int nDefault, const char *lpszFilename)
+extern UINT NanoWinGetPrivateProfileIntA
+                                      (const char *lpszSection,
+                                       const char *lpszEntry, int nDefault, const char *lpszFilename)
 {
   char  buffer[GetProfXMaxLineLength + 1];
 
@@ -616,8 +621,9 @@ static bool	GetProfReplaceFile(const char *dstFileName, const char *srcFileName)
 }
 #endif
 
-extern BOOL ProfWritePrivateProfileStringA(const char *lpszSection,
-  const char *lpszEntry, const char *lpszString, const char *lpszFilename)
+extern BOOL NanoWinWritePrivateProfileStringA
+                                      (const char *lpszSection,
+                                       const char *lpszEntry, const char *lpszString, const char *lpszFilename)
 {
   bool ok = false;
   FILE *srcFile = fopen(lpszFilename, "rt");
@@ -736,8 +742,9 @@ extern BOOL ProfWritePrivateProfileStringA(const char *lpszSection,
   return ok ? TRUE : FALSE;
 }
 
-extern BOOL ProfWritePrivateProfileStringW(const wchar_t *lpszSection,
-  const wchar_t *lpszEntry, const wchar_t *lpszString, const wchar_t *lpszFileName)
+extern BOOL NanoWinWritePrivateProfileStringW
+                                      (const wchar_t *lpszSection,
+                                       const wchar_t *lpszEntry, const wchar_t *lpszString, const wchar_t *lpszFileName)
 {
   BOOL ok;
 
@@ -748,7 +755,7 @@ extern BOOL ProfWritePrivateProfileStringW(const wchar_t *lpszSection,
     MBCSStorage value(lpszString);
     MBCSStorage fileName(lpszFileName);
 
-    ok = WritePrivateProfileStringA(section.get_mbstr(), entry.get_mbstr(), value.get_mbstr(), fileName.get_mbstr());
+    ok = NanoWinWritePrivateProfileStringA(section.get_mbstr(), entry.get_mbstr(), value.get_mbstr(), fileName.get_mbstr());
   }
   catch (...)
   {
