@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "NanoMsSafeString.h"
+#include "NanoWinError.h"
 
 NW_EXTERN_C_BEGIN
 
@@ -29,6 +30,7 @@ DWORD GetEnvironmentVariableA
   LPCSTR result = getenv(lpName);
   if (result == NULL)
   {
+    NanoWinSetLastError(ERROR_ENVVAR_NOT_FOUND);
     return(0);
   }
 

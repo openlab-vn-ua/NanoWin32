@@ -20,6 +20,7 @@
 
 #define ERROR_INVALID_FUNCTION         (0x1)
 #define ERROR_NOT_SUPPORTED            (0x50)
+#define ERROR_ENVVAR_NOT_FOUND         (0XCB) // 203
 
 // Error functions
 // -----------------------------------------------------------------------
