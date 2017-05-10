@@ -8,7 +8,7 @@
 #include <windows.h>"
 #endif
 
-EXTERN_C_BEGIN
+NW_EXTERN_C_BEGIN
 
 extern DWORD NanoWinGetPrivateProfileStringA 
                                       (const char *lpszSection, const char *plszEntry,
@@ -42,7 +42,7 @@ extern BOOL NanoWinWritePrivateProfileStringW
                                        const wchar_t *lpszString,
                                        const wchar_t *lpszFileName);
 
-EXTERN_C_END
+NW_EXTERN_C_END
 
 #if defined(LINUX)
 

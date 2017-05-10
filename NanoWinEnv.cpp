@@ -12,7 +12,7 @@
 
 #include "NanoMsSafeString.h"
 
-EXTERN_C_BEGIN
+NW_EXTERN_C_BEGIN
 
 DWORD GetEnvironmentVariableA
               (
@@ -39,4 +39,4 @@ DWORD GetEnvironmentVariableA
   return(resultlen);
 }
 
-EXTERN_C_END
+NW_EXTERN_C_END

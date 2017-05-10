@@ -12,7 +12,7 @@
 
 #if defined LINUX
 
-EXTERN_C_BEGIN
+NW_EXTERN_C_BEGIN
 
 extern  DWORD GetEnvironmentVariableA
               (
@@ -27,7 +27,7 @@ extern  DWORD GetEnvironmentVariableA
 #define	GetEnvironmentVariable	GetEnvironmentVariableA
 #endif
 
-EXTERN_C_END
+NW_EXTERN_C_END
 
 #endif // linux
 #endif // ...Included

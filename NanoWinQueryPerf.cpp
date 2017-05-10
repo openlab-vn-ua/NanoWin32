@@ -9,7 +9,7 @@
 
 #include <time.h>
 
-EXTERN_C_BEGIN
+NW_EXTERN_C_BEGIN
 
 /* Implementation notes:
 1. CLOCK_MONOTONIC is used to get high-resolution timer value
@@ -84,4 +84,4 @@ BOOL QueryPerformanceCounter(LARGE_INTEGER *lpPerformanceCount)
   }
 }
 
-EXTERN_C_END
+NW_EXTERN_C_END

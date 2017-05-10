@@ -5,7 +5,7 @@
 
 #if defined LINUX
 
-EXTERN_C_BEGIN
+NW_EXTERN_C_BEGIN
 
 typedef DWORD(*PTHREAD_START_ROUTINE) (LPVOID lpThreadParameter);
 
@@ -31,7 +31,7 @@ extern BOOL CloseThreadHandle(HANDLE hThread);
 
 extern DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds);
 
-EXTERN_C_END
+NW_EXTERN_C_END
 
 #endif
 

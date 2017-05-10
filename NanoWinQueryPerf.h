@@ -15,12 +15,12 @@
 #define PERFORMANCE_COUNTER_NANOSECONDS_IN_SECOND   1000000000LL
 #define PERFORMANCE_COUNTER_FREQUENCY               PERFORMANCE_COUNTER_NANOSECONDS_IN_SECOND
 
-EXTERN_C_BEGIN
+NW_EXTERN_C_BEGIN
 
 extern BOOL QueryPerformanceFrequency(LARGE_INTEGER *lpFrequency);
 extern BOOL QueryPerformanceCounter(LARGE_INTEGER *lpPerformanceCount);
 
-EXTERN_C_END
+NW_EXTERN_C_END
 
 #endif // linux
 #endif // ...Included

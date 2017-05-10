@@ -267,11 +267,11 @@ typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 #define WAIT_TIMEOUT       (0x102)
 
 #ifdef __cplusplus
-#define EXTERN_C_BEGIN  extern "C" {
-#define EXTERN_C_END    }
+#define NW_EXTERN_C_BEGIN  extern "C" {
+#define NW_EXTERN_C_END    }
 #else
-#define EXTERN_C_BEGIN  // None
-#define EXTERN_C_END    // None
+#define NW_EXTERN_C_BEGIN  // None
+#define NW_EXTERN_C_END    // None
 #endif
 
 #endif // linux
