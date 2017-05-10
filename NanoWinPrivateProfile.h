@@ -3,6 +3,11 @@
 
 #include "NanoWinTypes.h"
 
+#if defined(LINUX)
+#else
+#include <windows.h>"
+#endif
+
 EXTERN_C_BEGIN
 
 extern DWORD NanoWinGetPrivateProfileStringA 
@@ -39,6 +44,8 @@ extern BOOL NanoWinWritePrivateProfileStringW
 
 EXTERN_C_END
 
+#if defined(LINUX)
+
 #define GetPrivateProfileStringA       NanoWinGetPrivateProfileStringA
 #define GetPrivateProfileStringW       NanoWinGetPrivateProfileStringW
 #define GetPrivateProfileSectionA      NanoWinGetPrivateProfileSectionA
@@ -56,6 +63,8 @@ EXTERN_C_END
 #define GetPrivateProfileSection       GetPrivateProfileSectionA
 #define GetPrivateProfileInt           GetPrivateProfileIntA
 #define WritePrivateProfileString      WritePrivateProfileStringA
+#endif
+
 #endif
 
 #endif

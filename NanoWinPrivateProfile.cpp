@@ -6,7 +6,7 @@
 #include <wchar.h>
 #include <stdlib.h>
 
-#if defined(__linux) || defined(__unix)
+#if defined(LINUX)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -24,7 +24,7 @@
 #define GetProfXUnixLineEndingStrLen  (1)
 #define GetProfXDosLineEndingStrLen   (2)
 
-#if defined(__linux) || defined(__unix)
+#if defined(LINUX)
 #define GetProfXIniFileDefaultPermissions (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH)
 #endif
 
@@ -502,7 +502,7 @@ extern UINT NanoWinGetPrivateProfileIntA
   return result;
 }
 
-#if defined(__linux) || defined(__unix)
+#if defined(LINUX)
 static FILE *CreateTempFile(char **tempFileName, const char *baseFileName)
 {
   FILE        *tmpFile = NULL;
@@ -578,7 +578,7 @@ static bool WriteKeyValueLine(FILE *dstFile, const char *key, const char *value)
   return fprintf(dstFile, "%s=%s\n", key, value) >= 0;
 }
 
-#if defined(__linux) || defined(__unix)
+#if defined(LINUX)
 // this function tries to replace file dstFileName with file srcFileName
 // without changing owner,group and mode of original file, note that
 // errors during setting owner,group or mode are ignored, it is much more
