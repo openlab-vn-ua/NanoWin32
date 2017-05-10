@@ -5,7 +5,7 @@
 
 #if defined(LINUX)
 #else
-#include <windows.h>"
+#include <windows.h>
 #endif
 
 NW_EXTERN_C_BEGIN
