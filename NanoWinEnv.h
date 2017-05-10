@@ -21,10 +21,10 @@ extern  DWORD GetEnvironmentVariableA
                 DWORD  nSize
               );
 
-#if defined(UNICODE)
-#define	GetEnvironmentVariable	GetEnvironmentVariableW // TODO: Impement me
+#if defined(UNICODE) || defined(_UNICODE)
+#define	GetEnvironmentVariable  NW_FORCE_COMPILE_ERROR  // Not implemented (yet)
 #else
-#define	GetEnvironmentVariable	GetEnvironmentVariableA
+#define GetEnvironmentVariable  GetEnvironmentVariableA
 #endif
 
 NW_EXTERN_C_END
