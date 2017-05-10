@@ -153,6 +153,12 @@ typedef const wchar_t FAR             *LPCWSTR;
 
 typedef float                          FLOAT;    MAKE_PLP_TYPES_BY(FLOAT);   // WinDef.h
 
+// Dll types
+typedef void*                          HINSTANCE;
+typedef void*                          HMODULE;
+typedef void*                          HANDLE;
+typedef void*                          FARPROC;
+
 // Boolean types
 
 typedef int                            BOOL;     MAKE_PLP_TYPES_BY(BOOL);    // WinDef.h
@@ -220,6 +226,17 @@ typedef union _LARGE_INTEGER
 } LARGE_INTEGER;
 
 MAKE_PLP_TYPES_BY(LARGE_INTEGER);
+
+// Security attribures
+typedef void SECURITY_ATTRIBUTES; // Not supported as var
+typedef SECURITY_ATTRIBUTES FAR	*LPSECURITY_ATTRIBUTES;
+typedef SECURITY_ATTRIBUTES		*PSECURITY_ATTRIBUTES;
+
+// Constants for sync. objects
+#define WAIT_OBJECT_0			(0x0)  // STATUS_WAIT+0
+#define WAIT_ABANDONED_0	(0x80)
+#define WAIT_FAILED				(0xFFFFFFFF)
+#define WAIT_TIMEOUT			(0x102)
 
 #ifdef __cplusplus
 #define EXTERN_C_BEGIN  extern "C" {
