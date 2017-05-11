@@ -31,6 +31,10 @@ extern UINT NanoWinGetPrivateProfileIntA
                                       (const char *lpszSection, const char *lpszEntry, int vdefault,
                                        const char *lpszFilename);
 
+extern UINT NanoWinGetPrivateProfileIntW
+                                      (const wchar_t *lpszSection, const wchar_t *lpszEntry, int vdefault,
+                                       const wchar_t *lpszFilename);
+
 // NOTE: current Write... functions implementation doesn't support section or value removal
 extern BOOL NanoWinWritePrivateProfileStringA
                                       (const char *lpszSection, const char *lpszEntry,
@@ -44,26 +48,32 @@ extern BOOL NanoWinWritePrivateProfileStringW
 
 NW_EXTERN_C_END
 
+#if defined(UNICODE) || defined(_UNICODE)
+#define NanoWinGetPrivateProfileString      NanoWinGetPrivateProfileStringW
+#define NanoWinGetPrivateProfileSection     NW_FORCE_COMPILE_ERROR // Not implemented (yet)
+#define NanoWinGetPrivateProfileInt         NanoWinGetPrivateProfileIntW
+#define NanoWinWritePrivateProfileString    NanoWinWritePrivateProfileStringW
+#else
+#define NanoWinGetPrivateProfileString      NanoWinGetPrivateProfileStringA
+#define NanoWinGetPrivateProfileSection     NanoWinGetPrivateProfileSectionA
+#define NanoWinGetPrivateProfileInt         NanoWinGetPrivateProfileIntA
+#define NanoWinWritePrivateProfileString    NanoWinWritePrivateProfileStringA
+#endif
+
+
 #if defined(LINUX)
 
 #define GetPrivateProfileStringA       NanoWinGetPrivateProfileStringA
 #define GetPrivateProfileStringW       NanoWinGetPrivateProfileStringW
+#define GetPrivateProfileString        NanoWinGetPrivateProfileString 
 #define GetPrivateProfileSectionA      NanoWinGetPrivateProfileSectionA
+#define GetPrivateProfileSection       NanoWinGetPrivateProfileSection
 #define GetPrivateProfileIntA          NanoWinGetPrivateProfileIntA
+#define GetPrivateProfileIntW          NanoWinGetPrivateProfileIntW
+#define GetPrivateProfileInt           NanoWinGetPrivateProfileInt
 #define WritePrivateProfileStringA     NanoWinWritePrivateProfileStringA
 #define WritePrivateProfileStringW     NanoWinWritePrivateProfileStringW
-
-#if defined(UNICODE) || defined(_UNICODE)
-#define GetPrivateProfileString        GetPrivateProfileStringW
-#define GetPrivateProfileSection       NW_FORCE_COMPILE_ERROR // Not implemented (yet)
-#define GetPrivateProfileInt           NW_FORCE_COMPILE_ERROR // Not implemented (yet)
-#define WritePrivateProfileString      WritePrivateProfileStringW
-#else
-#define GetPrivateProfileString        GetPrivateProfileStringA
-#define GetPrivateProfileSection       GetPrivateProfileSectionA
-#define GetPrivateProfileInt           GetPrivateProfileIntA
-#define WritePrivateProfileString      WritePrivateProfileStringA
-#endif
+#define WritePrivateProfileString      NanoWinWritePrivateProfileString
 
 #endif
 

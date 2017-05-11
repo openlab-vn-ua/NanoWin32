@@ -36,6 +36,8 @@
 #define TRUE     (1)
 #endif
 
+// Copy of MBCSStorage to make this module fully autonomous
+
 namespace 
 {
   class MBCSStorage
@@ -497,6 +499,28 @@ extern UINT NanoWinGetPrivateProfileIntA
     {
       result = nDefault;
     }
+  }
+
+  return result;
+}
+
+extern UINT NanoWinGetPrivateProfileIntW
+                                      (const wchar_t *lpszSection, const wchar_t *lpszEntry, int vdefault,
+                                       const wchar_t *lpszFilename)
+{
+  UINT result;
+
+  try
+  {
+    MBCSStorage section(lpszSection);
+    MBCSStorage entry(lpszEntry);
+    MBCSStorage fileName(lpszFilename);
+
+	result = NanoWinGetPrivateProfileIntA(section.get_mbstr(), entry.get_mbstr(), vdefault, fileName.get_mbstr());
+  }
+  catch (...)
+  {
+    result = vdefault;
   }
 
   return result;
