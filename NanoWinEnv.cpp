@@ -13,6 +13,9 @@
 #include "NanoMsSafeString.h"
 #include "NanoWinError.h"
 
+#include "NanoWinStrConvert.h"
+using namespace NanoWin;
+
 NW_EXTERN_C_BEGIN
 
 DWORD GetEnvironmentVariableA
@@ -36,9 +39,27 @@ DWORD GetEnvironmentVariableA
 
   int resultlen = strlen(result);
 
-  strcpy_s(lpBuffer, nSize, result);
+  if ((nSize > 0) && (lpBuffer != NULL))
+  {
+    strcpy_s(lpBuffer, nSize, result);
+  }
 
   return(resultlen);
+}
+
+DWORD GetEnvironmentVariableW
+              (
+                LPCWSTR lpName,
+                LPWSTR  lpBuffer,
+                DWORD   nSize
+              )
+{
+  // Note: will return number of char, not wchar_t required to store value (this seems not a big problem since the value returned is bigger wchar_t count then need)
+  DWORD result;
+  WStrToStrClone     sName(lpName);
+  WStrByStrResultBag sBuffer(nSize, lpBuffer);
+  result = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize());
+  return(result);
 }
 
 NW_EXTERN_C_END

@@ -16,13 +16,20 @@ NW_EXTERN_C_BEGIN
 
 extern  DWORD GetEnvironmentVariableA
               (
-                LPCSTR lpName,
-                LPSTR  lpBuffer,
-                DWORD  nSize
+                LPCSTR  lpName,
+                LPSTR   lpBuffer,
+                DWORD   nSize
+              );
+
+extern  DWORD GetEnvironmentVariableW
+              (
+                LPCWSTR lpName,
+                LPWSTR  lpBuffer,
+                DWORD   nSize
               );
 
 #if defined(UNICODE) || defined(_UNICODE)
-#define	GetEnvironmentVariable  NW_FORCE_COMPILE_ERROR  // Not implemented (yet)
+#define	GetEnvironmentVariable  GetEnvironmentVariableW
 #else
 #define GetEnvironmentVariable  GetEnvironmentVariableA
 #endif
