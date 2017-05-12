@@ -16,11 +16,20 @@
 // -----------------------------------------------------------------------
 // Ordered by error code value, values match values in Win32 API
 
-#define ERROR_SUCCESS                  (0x0)
+#define ERROR_SUCCESS                  (0x0)     //     0 // OK, no error
 
-#define ERROR_INVALID_FUNCTION         (0x1)
-#define ERROR_NOT_SUPPORTED            (0x50)
-#define ERROR_ENVVAR_NOT_FOUND         (0XCB) // 203
+#define ERROR_INVALID_FUNCTION         (0x1)     //     1 // Incorrect function
+
+#define ERROR_FILE_NOT_FOUND           (0x2)     //     2 // The system cannot find the file specified
+#define ERROR_PATH_NOT_FOUND           (0x3)     //     3 // The system cannot find the path specified
+#define ERROR_TOO_MANY_OPEN_FILES      (0x4)     //     4 // The system cannot open the file
+#define ERROR_ACCESS_DENIED            (0x5)     //     5 // Access is denied
+#define ERROR_INVALID_HANDLE           (0x6)     //     6 // The handle is invalid
+#define ERROR_NOT_ENOUGH_MEMORY        (0x8)     //     8 // Not enough storage is available to process this command
+#define ERROR_INVALID_DATA             (0xd)     //    13 // The data is invalid
+
+#define ERROR_NOT_SUPPORTED            (0x32)    //    50 // The request is not supported
+#define ERROR_ENVVAR_NOT_FOUND         (0XCB)    //   203 // The system could not find the environment option that was entered
 
 // Error functions
 // -----------------------------------------------------------------------
