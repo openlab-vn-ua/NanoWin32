@@ -50,7 +50,7 @@ NW_EXTERN_C_END
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define NanoWinGetPrivateProfileString      NanoWinGetPrivateProfileStringW
-#define NanoWinGetPrivateProfileSection     NW_FORCE_COMPILE_ERROR // Not implemented (yet)
+#define NanoWinGetPrivateProfileSection     NW_FORCE_COMPILE_ERROR // TODO: Not implemented (yet)
 #define NanoWinGetPrivateProfileInt         NanoWinGetPrivateProfileIntW
 #define NanoWinWritePrivateProfileString    NanoWinWritePrivateProfileStringW
 #else
