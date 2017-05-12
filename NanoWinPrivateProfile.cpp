@@ -28,6 +28,10 @@
 #define GetProfXIniFileDefaultPermissions (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH)
 #endif
 
+#include "NanoWinStrConvert.h"
+using namespace NanoWin;
+
+/*
 #ifndef FALSE
 #define FALSE    (0)
 #endif
@@ -35,78 +39,7 @@
 #ifndef TRUE
 #define TRUE     (1)
 #endif
-
-// Copy of MBCSStorage to make this module fully autonomous
-
-namespace 
-{
-  class MBCSStorage
-  {
-    public:
-
-    MBCSStorage(const wchar_t *src);
-    ~MBCSStorage();
-
-    const char *get_mbstr() const;
-
-    private:
-
-    enum { PREALLOCATED_STRING_LEN = 256 };
-
-    char  preallocatedBuffer[PREALLOCATED_STRING_LEN + 1];
-    char *buffer;
-  };
-
-  MBCSStorage::MBCSStorage(const wchar_t *src)
-  {
-    buffer = preallocatedBuffer;
-
-    if (src == NULL)
-    {
-      buffer = NULL;
-
-      return;
-    }
-
-    mbstate_t state;
-
-    memset(&state, 0, sizeof(state));
-
-    const wchar_t *srcCopy = src;
-
-    size_t requiredLen = wcsrtombs(NULL, &srcCopy, 0, &state);
-
-    if (requiredLen != (size_t)-1)
-    {
-      if (requiredLen > PREALLOCATED_STRING_LEN)
-      {
-        buffer = new char[requiredLen + 1];
-      }
-
-      memset(&state, 0, sizeof(state));
-      srcCopy = src;
-
-      wcsrtombs(buffer, &srcCopy, requiredLen + 1, &state);
-    }
-    else
-    {
-      buffer[0] = '\0';
-    }
-  }
-
-  MBCSStorage::~MBCSStorage()
-  {
-    if (buffer != preallocatedBuffer && buffer != NULL)
-    {
-      delete[] buffer;
-    }
-  }
-
-  const char *MBCSStorage::get_mbstr() const
-  {
-    return buffer;
-  }
-}
+*/
 
 static bool IsEmptyChar(char c)
 {
@@ -412,14 +345,14 @@ extern DWORD NanoWinGetPrivateProfileStringW
 
   try
   {
-    MBCSStorage section(lpszSection);
-    MBCSStorage entry(lpszEntry);
-    MBCSStorage defaultValue(lpszDefault);
-    MBCSStorage fileName(lpszFilename);
+    WStrToStrClone section(lpszSection);
+    WStrToStrClone entry(lpszEntry);
+    WStrToStrClone defaultValue(lpszDefault);
+    WStrToStrClone fileName(lpszFilename);
     char        resultBuffer[GetProfXMaxLineLength + 1];
 
-    result = GetPrivateProfileStringA(section.get_mbstr(), entry.get_mbstr(), defaultValue.get_mbstr(),
-      resultBuffer, sizeof(resultBuffer), fileName.get_mbstr());
+    result = GetPrivateProfileStringA(section.c_str(), entry.c_str(), defaultValue.c_str(),
+                                      resultBuffer, sizeof(resultBuffer), fileName.c_str());
 
     if (result > 0)
     {
@@ -512,11 +445,11 @@ extern UINT NanoWinGetPrivateProfileIntW
 
   try
   {
-    MBCSStorage section(lpszSection);
-    MBCSStorage entry(lpszEntry);
-    MBCSStorage fileName(lpszFilename);
+    WStrToStrClone section(lpszSection);
+    WStrToStrClone entry(lpszEntry);
+    WStrToStrClone fileName(lpszFilename);
 
-	result = NanoWinGetPrivateProfileIntA(section.get_mbstr(), entry.get_mbstr(), vdefault, fileName.get_mbstr());
+    result = NanoWinGetPrivateProfileIntA(section.c_str(), entry.c_str(), vdefault, fileName.c_str());
   }
   catch (...)
   {
@@ -774,12 +707,12 @@ extern BOOL NanoWinWritePrivateProfileStringW
 
   try
   {
-    MBCSStorage section(lpszSection);
-    MBCSStorage entry(lpszEntry);
-    MBCSStorage value(lpszString);
-    MBCSStorage fileName(lpszFileName);
+    WStrToStrClone section(lpszSection);
+    WStrToStrClone entry(lpszEntry);
+    WStrToStrClone value(lpszString);
+    WStrToStrClone fileName(lpszFileName);
 
-    ok = NanoWinWritePrivateProfileStringA(section.get_mbstr(), entry.get_mbstr(), value.get_mbstr(), fileName.get_mbstr());
+    ok = NanoWinWritePrivateProfileStringA(section.c_str(), entry.c_str(), value.c_str(), fileName.c_str());
   }
   catch (...)
   {
