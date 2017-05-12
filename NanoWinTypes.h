@@ -157,12 +157,6 @@ typedef const wchar_t FAR             *LPCWSTR;
 
 typedef float                          FLOAT;    NW_MAKE_PLP_TYPES_BY(FLOAT);   // WinDef.h
 
-// Dll types
-typedef void*                          HINSTANCE;
-typedef void*                          HMODULE;
-typedef void*                          HANDLE;
-typedef void*                          FARPROC;
-
 // Boolean types
 
 typedef int                            BOOL;     NW_MAKE_PLP_TYPES_BY(BOOL);    // WinDef.h
@@ -192,6 +186,15 @@ typedef intptr_t                       SSIZE_T;  NW_MAKE_PLP_TYPES_BY(SSIZE_T); 
 #define MAXBYTE                 (0xff)
 #define MAXWORD                 (0xffff)
 #define MAXDWORD                (0xffffffff)
+
+// Handle types
+// -----------------------------------------------------------------------
+#define INVALID_HANDLE_VALUE           NULL    // Note: Under win32 defibed as "-1"
+typedef void*                          HANDLE;
+// Dll types
+typedef void*                          HINSTANCE;
+typedef void*                          HMODULE;
+typedef void*                          FARPROC;
 
 // Win32 Interface compiller
 // -----------------------------------------------------------------------
