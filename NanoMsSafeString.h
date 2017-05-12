@@ -10,6 +10,10 @@
 
 #if defined(__GNUC__)
 
+#if !defined(_countof)
+#define _countof(arr)		(sizeof(arr)/sizeof(arr[0]))
+#endif
+
 #if !defined(NW_ERRNO_T_DEFINED)
 #define NW_ERRNO_T_DEFINED
 typedef int errno_t;		// Not defined by GNU C (standard assumed errno is int always)
