@@ -12,7 +12,16 @@ NW_EXTERN_C_BEGIN
 extern BOOL IsRectEmpty(const RECT *lprc)
 {
   if (lprc == NULL) { return TRUE; }
-  return(FALSE); // TODO: Implement me!
+
+  if (
+      (lprc->left  == lprc->right) &&
+      (lprc->top   == lprc->bottom)
+     )
+  {
+    return(TRUE);
+  }
+
+  return(FALSE);
 }
 
 extern BOOL EqualRect  (const RECT *lprc1, const RECT *lprc2)
