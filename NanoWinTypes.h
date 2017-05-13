@@ -264,12 +264,19 @@ typedef SECURITY_ATTRIBUTES FAR  *LPSECURITY_ATTRIBUTES;
 typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 
 // Constants for sync. objects
-#define WAIT_OBJECT_0      (0x0)  // STATUS_WAIT+0
-#define WAIT_ABANDONED_0   (0x80)
-#define WAIT_FAILED        (0xFFFFFFFF)
-#define WAIT_TIMEOUT       (0x102)
+// -----------------------------------------------------------------------
 
-#define INFINITE           (0xFFFFFFFF)
+#define MAXIMUM_WAIT_OBJECTS      (64)
+
+#define WAIT_OBJECT_0             (0x0)  // STATUS_WAIT+0
+#define WAIT_ABANDONED_0          (0x80)
+#define WAIT_FAILED               (0xFFFFFFFF)
+#define WAIT_TIMEOUT              (0x102)
+
+#define INFINITE                  (0xFFFFFFFF)
+
+// Other misc stuff
+// -----------------------------------------------------------------------
 
 #ifdef __cplusplus
 #define NW_EXTERN_C_BEGIN  extern "C" {
