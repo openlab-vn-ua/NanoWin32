@@ -49,6 +49,15 @@ extern  DWORD NanoWinSetLastErrorEx // Set last error code (Returns dwErrCode)
                 DWORD  dwType     // Ignored (as in Win32)
               );
 
+#define NW_DEFAULT_ERROR_AT_FAIL   ERROR_INVALID_DATA
+
+// Converts errno to Win32Error, converts errno=0 to specified value win32 error value
+extern  DWORD NanoWinErrorByErrnoRaw (errno_t errno_value, DWORD winErrorForZeroErrno);  
+
+// Converts errno to Win32Error, converts errno=0 to NW_DEFAULT_ERROR_AT_FAIL(ERROR_INVALID_DATA)
+// equvalent to call NanoWinErrorByErrnoRaw (errno_value, NW_DEFAULT_ERROR_AT_FAIL)
+extern  DWORD NanoWinErrorByErrnoAtFail(errno_t errno_value); 
+
 // Windows gates
 
 #define GetLastError         NanoWinGetLastError
