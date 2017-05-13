@@ -25,7 +25,7 @@ static void *NW32ThreadsThreadFunc(void *params)
 
   DWORD result = startFunc(parameter);
 
-  return (void*)result;
+  return (void*)(intptr_t)result;
 }
 
 static void GenerateThreadIdByThreadHandle(LPDWORD lpThreadId, pthread_t threadHandle)
@@ -108,22 +108,31 @@ static void TimeSpecAddTimeInMillis(struct timespec *ts, DWORD millis)
 DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds)
 {
   void           *threadResult;
-  struct timespec timeout;
+  int             join_status;
 
-  if (clock_gettime(CLOCK_REALTIME, &timeout) != 0)
+  if (dwMilliseconds != INFINITE)
   {
-    return WAIT_FAILED;
+    struct timespec timeout;
+
+    if (clock_gettime(CLOCK_REALTIME, &timeout) != 0)
+    {
+      return WAIT_FAILED;
+    }
+
+    TimeSpecAddTimeInMillis(&timeout, dwMilliseconds);
+
+    join_status = pthread_timedjoin_np((pthread_t)hThread, &threadResult, &timeout);
+  }
+  else
+  {
+    join_status = pthread_join((pthread_t)hThread, &threadResult);
   }
 
-  TimeSpecAddTimeInMillis(&timeout, dwMilliseconds);
-
-  int status = pthread_timedjoin_np((pthread_t)hThread, &threadResult, &timeout);
-
-  if (status == 0)
+  if      (join_status == 0)
   {
     return WAIT_OBJECT_0;
   }
-  else if (status == ETIMEDOUT)
+  else if (join_status == ETIMEDOUT)
   {
     return WAIT_TIMEOUT;
   }
@@ -142,5 +151,10 @@ BOOL TerminateThread(HANDLE hThread, DWORD dwExitCode)
 
 BOOL CloseThreadHandle(HANDLE hThread)
 {
-  return pthread_detach((pthread_t)hThread) == 0 ? TRUE : FALSE;
+  //FIXME: simplified implementation - just trying to detach the thread
+  //       without tracking if it was already joined in WaitForSingleThread call
+
+  pthread_detach((pthread_t)hThread);
+
+  return TRUE;
 }
