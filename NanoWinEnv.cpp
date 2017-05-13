@@ -58,7 +58,7 @@ DWORD GetEnvironmentVariableW
   DWORD result;
   WStrToStrClone     sName(lpName);
   WStrByStrResultBag sBuffer(nSize, lpBuffer);
-  result = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize());
+  result = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize()); // TODO: Adjust result length
   return(result);
 }
 

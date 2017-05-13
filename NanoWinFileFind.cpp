@@ -11,6 +11,8 @@
 
 NW_EXTERN_C_BEGIN
 
+// TODO: Implement me
+
 extern HANDLE FindFirstFileA(const char *Mask, WIN32_FIND_DATAA *state)
 { 
   return INVALID_HANDLE_VALUE; 
