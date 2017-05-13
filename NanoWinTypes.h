@@ -269,6 +269,8 @@ typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 #define WAIT_FAILED        (0xFFFFFFFF)
 #define WAIT_TIMEOUT       (0x102)
 
+#define INFINITE           (0xFFFFFFFF)
+
 #ifdef __cplusplus
 #define NW_EXTERN_C_BEGIN  extern "C" {
 #define NW_EXTERN_C_END    }
