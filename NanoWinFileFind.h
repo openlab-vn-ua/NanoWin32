@@ -13,23 +13,43 @@
 
 #if defined LINUX
 
-struct WIN32_FIND_DATAA
+#define WIN32_FIND_DATA_FNAME_MAX  MAX_PATH // _MAX_FNAME ?
+
+typedef struct _WIN32_FIND_DATAA
 {
-  char cFileName[MAX_PATH]; // _MAX_FNAME ?
-};
+  char     cFileName[WIN32_FIND_DATA_FNAME_MAX];
+  DWORD    nFileSizeHigh;
+  DWORD    nFileSizeLow;
+} WIN32_FIND_DATAA; NW_MAKE_PLP_TYPES_BY(WIN32_FIND_DATAA);
+
+typedef struct _WIN32_FIND_DATAW
+{
+  wchar_t  cFileName[WIN32_FIND_DATA_FNAME_MAX];
+  DWORD    nFileSizeHigh;
+  DWORD    nFileSizeLow;
+} WIN32_FIND_DATAW; NW_MAKE_PLP_TYPES_BY(WIN32_FIND_DATAW);
 
 NW_EXTERN_C_BEGIN
 
-inline HANDLE FindFirstFileA(const char *Mask, WIN32_FIND_DATAA *state) { return INVALID_HANDLE_VALUE; }
-inline BOOL   FindNextFileA(HANDLE handle, WIN32_FIND_DATAA *state) { return FALSE; }
-inline BOOL   FindClose(HANDLE hFindFile) { return TRUE; }
+extern HANDLE FindFirstFileA(const char *Mask, WIN32_FIND_DATAA *state);
+extern BOOL   FindNextFileA (HANDLE handle, WIN32_FIND_DATAA *state);
+
+extern HANDLE FindFirstFileW(const char *Mask, WIN32_FIND_DATAW *state);
+extern BOOL   FindNextFileW (HANDLE handle, WIN32_FIND_DATAW *state);
+
+extern BOOL   FindClose(HANDLE hFindFile);
 
 #if defined(UNICODE) || defined(_UNICODE)
+#define WIN32_FIND_DATA      WIN32_FIND_DATAW
+#define FindFirstFile        FindFirstFileW
+#define FindNextFile         FindNextFileW
 #else
-#define WIN32_FIND_DATA WIN32_FIND_DATAA
-#define FindFirstFile   FindFirstFileA
-#define FindNextFile    FindNextFileA
+#define WIN32_FIND_DATA      WIN32_FIND_DATAA
+#define FindFirstFile        FindFirstFileA
+#define FindNextFile         FindNextFileA
 #endif
+
+NW_MAKE_PLP_TYPES_BY(WIN32_FIND_DATA);
 
 NW_EXTERN_C_END
 
