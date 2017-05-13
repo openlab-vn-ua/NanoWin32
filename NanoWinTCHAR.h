@@ -28,7 +28,7 @@ What about _T? Okay, I don't know about that one. Maybe it was just to save some
 */
 
 #if defined(UNICODE) || defined(_UNICODE)
-typedef wchat_t              TCHAR;
+typedef wchar_t              TCHAR;
 typedef LPCWSTR              LPCTSTR;
 typedef LPWSTR               LPTSTR;
 #define __T(text)            L##text
