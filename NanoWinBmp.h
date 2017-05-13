@@ -20,8 +20,6 @@ NW_EXTERN_C_BEGIN
 #define NW_PACKED_ATTR   // nothing
 #endif
 
-#if defined LINUX
-
 // Win32 Bitmap structures
 // -------------------------------------------------
 
@@ -74,14 +72,14 @@ typedef struct tagCIEXYZ
   FXPT2DOT30 ciexyzX;
   FXPT2DOT30 ciexyzY;
   FXPT2DOT30 ciexyzZ;
-} CIEXYZ;  NW_MAKE_PLP_TYPES_BY(CIEXYZ);
+} NW_PACKED_ATTR CIEXYZ;  NW_MAKE_PLP_TYPES_BY(CIEXYZ);
 
 typedef struct tagCIEXYZTRIPLE
 {
   CIEXYZ ciexyzRed;
   CIEXYZ ciexyzGreen;
   CIEXYZ ciexyzBlue;
-} CIEXYZTRIPLE;  NW_MAKE_PLP_TYPES_BY(CIEXYZTRIPLE);
+} NW_PACKED_ATTR CIEXYZTRIPLE;  NW_MAKE_PLP_TYPES_BY(CIEXYZTRIPLE);
 
 typedef struct
 {
@@ -106,7 +104,7 @@ typedef struct
   DWORD        bV4GammaRed;
   DWORD        bV4GammaGreen;
   DWORD        bV4GammaBlue;
-} BITMAPV4HEADER;  NW_MAKE_PLP_TYPES_BY(BITMAPV4HEADER);
+} NW_PACKED_ATTR BITMAPV4HEADER;  NW_MAKE_PLP_TYPES_BY(BITMAPV4HEADER);
 
 // V5 header
 
@@ -138,7 +136,7 @@ typedef struct
   DWORD        bV5ProfileData;
   DWORD        bV5ProfileSize;
   DWORD        bV5Reserved;
-} BITMAPV5HEADER; NW_MAKE_PLP_TYPES_BY(BITMAPV5HEADER);
+} NW_PACKED_ATTR BITMAPV5HEADER; NW_MAKE_PLP_TYPES_BY(BITMAPV5HEADER);
 
 // MS COLORREF type and related macroses
 // -------------------------------------------------
