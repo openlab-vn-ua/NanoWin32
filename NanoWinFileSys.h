@@ -54,6 +54,7 @@ extern BOOL PathFileExistsW         (const wchar_t *lpPath);
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define PathFileExists             PathFileExistsW
+#define CreateDirectory            CreateDirectoryW
 #else
 #define GetCurrentDirectory        GetCurrentDirectoryA
 #define PathFileExists             PathFileExistsA
