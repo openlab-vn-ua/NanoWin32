@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "NanoMsSafeString.h"
+#include "NanoWinMsSafeString.h"
 #include "NanoWinError.h"
 
 #include "NanoWinStrConvert.h"

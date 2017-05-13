@@ -5,8 +5,8 @@
 
 // Microsoft safe string extensions
 
-#if !defined(NanoMsvcSafeStringIncluded)
-#define NanoMsvcSafeStringIncluded
+#if !defined(NanoWinMsvcSafeStringIncluded)
+#define NanoWinMsvcSafeStringIncluded
 
 #if defined(__GNUC__)
 
