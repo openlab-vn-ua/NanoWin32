@@ -1,4 +1,5 @@
 #include "NanoWinPrivateProfile.h"
+#include "NanoWinError.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -318,6 +319,7 @@ extern DWORD NanoWinGetPrivateProfileStringA
   FILE  *srcFile = fopen(lpszFilename, "rt");
   bool   keyFound = false;
   size_t valueLen = 0;
+  DWORD  errorCode = ERROR_SUCCESS;
 
   if (srcFile != NULL)
   {
@@ -328,10 +330,19 @@ extern DWORD NanoWinGetPrivateProfileStringA
 
     fclose(srcFile);
   }
+  else
+  {
+    errorCode = NanoWinErrorByErrnoAtFail(errno);
+  }
 
   if (!keyFound)
   {
     valueLen = CopyDefaultProfileStringValue(lpReturnedString, nSize, lpszDefault);
+
+    if (valueLen == 0)
+    {
+      NanoWinSetLastError(errorCode != ERROR_SUCCESS ? errorCode : NW_DEFAULT_ERROR_AT_FAIL);
+    }
   }
 
   return (DWORD)valueLen;
@@ -367,12 +378,16 @@ extern DWORD NanoWinGetPrivateProfileStringW
       if (result == (size_t)-1)
       {
         result = 0;
+
+        NanoWinSetLastError(NanoWinErrorByErrnoAtFail(EILSEQ));
       }
     }
   }
   catch (...)
   {
     // exceptions during string conversions are treated as errors (zero is returned)
+
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(EILSEQ));
   }
 
   if (result == 0)
@@ -404,9 +419,17 @@ extern DWORD NanoWinGetPrivateProfileSectionA
 
         result = 1;
       }
+      else
+      {
+        NanoWinSetLastError(NW_DEFAULT_ERROR_AT_FAIL);
+      }
     }
 
     fclose(srcFile);
+  }
+  else
+  {
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
   }
 
   if (result == 0)
@@ -483,8 +506,14 @@ static FILE *CreateTempFile(char **tempFileName, const char *baseFileName)
 
       if (tmpFile == NULL)
       {
+        NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
+
         close(tmpFileHandle);
       }
+    }
+    else
+    {
+      NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
     }
 
     if (tmpFile != NULL)
@@ -495,6 +524,10 @@ static FILE *CreateTempFile(char **tempFileName, const char *baseFileName)
     {
       free(fileNameTemplate);
     }
+  }
+  else
+  {
+    NanoWinSetLastError(ERROR_NOT_ENOUGH_MEMORY);
   }
 
   return tmpFile;
@@ -552,6 +585,8 @@ static bool	GetProfReplaceFile(const char *dstFileName, const char *srcFileName)
   if (rename(srcFileName, dstFileName) != 0)
   {
     ok = false;
+
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
 
     unlink(srcFileName);
   }
@@ -678,6 +713,11 @@ extern BOOL NanoWinWritePrivateProfileStringA
       }
     }
 
+    if (!ok)
+    {
+      NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
+    }
+
     fclose(tmpFile);
   }
 
@@ -717,6 +757,8 @@ extern BOOL NanoWinWritePrivateProfileStringW
   catch (...)
   {
     ok = FALSE;
+
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(EILSEQ));
   }
 
   return ok;
