@@ -14,8 +14,21 @@
 
 NW_EXTERN_C_BEGIN
 
-// Definitions from WinDef.h & Winnt.h [graph primitives]
+// Defined in Winnt.h & WinDef.h [basic graph primitives]
 
+typedef struct _POINT
+{
+  LONG x;
+  LONG y;
+} POINT; NW_MAKE_PLP_TYPES_BY(POINT);
+
+/*
+https://msdn.microsoft.com/en-us/library/windows/desktop/dd162897(v=vs.85).aspx
+By convention, the right and bottom edges of the rectangle are normally considered exclusive.
+In other words, the pixel whose coordinates are ( right, bottom ) lies immediately outside of the rectangle.
+For example, when RECT is passed to the FillRect function, the rectangle is filled up to, but not including, the right column and bottom row of pixels.
+This structure is identical to the RECTL structure.
+*/
 typedef struct _RECT
 {
   LONG left;
@@ -24,12 +37,7 @@ typedef struct _RECT
   LONG bottom;
 } RECT; NW_MAKE_PLP_TYPES_BY(RECT);
 
-typedef struct _POINT
-{
-  LONG x;
-  LONG y;
-} POINT; NW_MAKE_PLP_TYPES_BY(POINT);
-
+typedef RECT RECTL; NW_MAKE_PLP_TYPES_BY(RECTL);
 
 extern BOOL IsRectEmpty(const RECT *lprc);
 extern BOOL EqualRect  (const RECT *lprc1, const RECT *lprc2);
