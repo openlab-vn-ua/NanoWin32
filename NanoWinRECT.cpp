@@ -88,6 +88,8 @@ extern BOOL IntersectRect (      RECT *lprcDst, const RECT *lprcSrc1, const RECT
 
   #undef MIN
   #undef MAX
+
+  return(TRUE);
 }
 
 NW_EXTERN_C_END
