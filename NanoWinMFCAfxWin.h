@@ -6,8 +6,8 @@
 // MFCApp functions
 // Micro stubs to allow code just to compile for command line run (no UI)
 
-#if !defined(NanoWinMFCAppIncluded)
-#define NanoWinMFCAppIncluded
+#if !defined(NanoWinMFCAfxWinIncluded)
+#define NanoWinMFCAfxWinIncluded
 
 #include "NanoWinTypes.h"
 

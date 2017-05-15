@@ -3,9 +3,9 @@
 // Simple library to subset Win32(64) API functions implemenation on POSIX
 // This software distributed by MIT license
 
-// MFCStr functions
+// MFCApp functions
 
-#include "NanoWinMFCStr.h"
+#include "NanoWinMFCAfxWin.h"
 
 #include "NanoWinError.h"
 

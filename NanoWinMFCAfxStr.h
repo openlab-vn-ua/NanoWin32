@@ -5,8 +5,8 @@
 
 // MFCStr functions
 
-#if !defined(NanoWinMFCStrIncluded)
-#define NanoWinMFCStrIncluded
+#if !defined(NanoWinMFCAfxStrIncluded)
+#define NanoWinMFCAfxStrIncluded
 
 #include "NanoWinTypes.h"
 
