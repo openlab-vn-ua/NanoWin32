@@ -43,7 +43,8 @@ extern BOOL PathFileExistsA         (const char    *lpPath);
 extern BOOL PathFileExistsW         (const wchar_t *lpPath);
 
 // Win32 API: Directory stuff
-#define GetCurrentDirectoryA( a,b)	getcwd(b,a)
+#define GetCurrentDirectoryA( a,b)  getcwd(b,a)
+#define GetCurrentDirectoryW( a,b)  (0) // TODO: Implement me
 
 #define CreateDirectoryA(p,s)      (mkdir((p),(s) == NULL ? \
                                                (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |  S_IROTH | S_IWOTH) : (S_IRUSR | S_IWUSR) \
@@ -53,6 +54,7 @@ extern BOOL PathFileExistsW         (const wchar_t *lpPath);
 #define DeleteFile                 unlink // TODO: LINUX: Verify return value policy
 
 #if defined(UNICODE) || defined(_UNICODE)
+#define GetCurrentDirectory        GetCurrentDirectoryW
 #define PathFileExists             PathFileExistsW
 #define CreateDirectory            CreateDirectoryW
 #else
