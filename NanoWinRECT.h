@@ -22,6 +22,12 @@ typedef struct _POINT
   LONG y;
 } POINT; NW_MAKE_PLP_TYPES_BY(POINT);
 
+typedef struct _SIZE
+{
+  LONG cx;
+  LONG cy;
+} SIZE;  NW_MAKE_PLP_TYPES_BY(SIZE);
+
 /*
 https://msdn.microsoft.com/en-us/library/windows/desktop/dd162897(v=vs.85).aspx
 By convention, the right and bottom edges of the rectangle are normally considered exclusive.
@@ -39,8 +45,12 @@ typedef struct _RECT
 
 typedef RECT RECTL; NW_MAKE_PLP_TYPES_BY(RECTL);
 
-extern BOOL IsRectEmpty(const RECT *lprc);
-extern BOOL EqualRect  (const RECT *lprc1, const RECT *lprc2);
+extern BOOL IsRectEmpty   (const RECT *lprc);
+extern BOOL EqualRect     (const RECT *lprc1, const RECT *lprc2);
+extern BOOL CopyRec       (      RECT *lprcDst, const RECT *lprcSrc);
+extern BOOL SetRectEmpty  (      RECT *lprcDst);
+extern BOOL SetRect       (      RECT *lprcDst, int xLeft, int yTop, int xRight, int yBottom);
+extern BOOL IntersectRect (      RECT *lprcDst, const RECT *lprcSrc1, const RECT *lprcSrc2);
 
 NW_EXTERN_C_END
 
