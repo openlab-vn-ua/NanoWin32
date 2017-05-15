@@ -187,6 +187,22 @@ typedef intptr_t                       SSIZE_T;  NW_MAKE_PLP_TYPES_BY(SSIZE_T); 
 #define MAXWORD                 (0xffff)
 #define MAXDWORD                (0xffffffff)
 
+// BaseTsd.h (?)
+
+#define MAXUINT8                (0xff)
+#define MAXUINT16               (0xffff)
+#define MAXUINT32               (0xffffffff)
+#define MININT8                 MINCHAR
+#define MAXINT8                 MAXCHAR
+#define MININT16                MINSHORT
+#define MAXINT16                MAXSHORT
+#define MININT32                MINLONG   // same 32 bit size
+#define MAXINT32                MAXLONG   // same 32 bit size
+
+#define MAXUINT                 MAXUINT32
+#define MININT                  MININT32
+#define MAXUINT                 MAXINT32
+
 // Handle types
 // -----------------------------------------------------------------------
 #define INVALID_HANDLE_VALUE           NULL    // Note: Under win32 defibed as "-1"
