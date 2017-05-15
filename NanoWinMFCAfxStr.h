@@ -177,7 +177,7 @@ class CString
   int Find (LPCTSTR sub, int startPos = 0)
   const
   {
-    int result = strBuf.find(sub, startPos);
+    std::string::size_type result = strBuf.find(sub, startPos);
 	if (result == strBuf.npos)
 	{
       return(-1);
@@ -191,7 +191,7 @@ class CString
   int Find (TCHAR sch, int startPos = 0)
   const
   {
-    int result = strBuf.find(sch, startPos);
+    std::string::size_type result = strBuf.find(sch, startPos);
 	if (result == strBuf.npos)
 	{
       return(-1);
