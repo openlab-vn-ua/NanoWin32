@@ -20,9 +20,8 @@ namespace {
                                bool                auto_reset);
     void             Set();
     void             Reset();
-    void             AddWaiter(NW32EventWaiter    *waiter);
+    bool             AddWaiter(NW32EventWaiter    *waiter);
     void             RemoveWaiter(NW32EventWaiter    *waiter);
-    bool             IsSignaled();
 
     void             IncRefSafe();
     void             DecRefSafe();
@@ -43,7 +42,6 @@ namespace {
 
     bool                                 auto_reset;
 
-    pthread_mutex_t                      waiters_lock;
     WaiterList                           waiters;
   };
 
@@ -54,8 +52,7 @@ namespace {
     NW32EventWaiter();
     ~NW32EventWaiter();
 
-    // called with mutex locked on signaled event's lock
-    void             Signal(NW32Event          *sourceEvent);
+    void             Signal(NW32Event        *sourceEvent);
     DWORD            Wait(NW32Event         **events,
                           unsigned int        eventCount,
                           bool                waitAll,
@@ -88,19 +85,11 @@ namespace {
       throw NW32EventError();
     }
 
-    if (pthread_mutex_init(&waiters_lock, NULL) != 0)
-    {
-      pthread_mutex_destroy(&state_lock);
-
-      throw NW32EventError();
-    }
-
     ref_count = 1;
   }
 
   NW32Event::~NW32Event()
   {
-    pthread_mutex_destroy(&waiters_lock);
     pthread_mutex_destroy(&state_lock);
   }
 
@@ -155,25 +144,12 @@ namespace {
 
     if (!state)
     {
+      state = true;
       signaled = true;
-
-      if (!auto_reset)
-      {
-        state = true;
-      }
     }
-
-    pthread_mutex_unlock(&state_lock);
 
     if (signaled)
     {
-      if (pthread_mutex_lock(&waiters_lock) != 0)
-      {
-        DecRefSafe();
-
-        throw NW32EventError();
-      }
-
       for (WaiterList::iterator it = waiters.begin();
         it != waiters.end();
         ++it)
@@ -181,6 +157,13 @@ namespace {
         try
         {
           (*it)->Signal(this);
+
+          if (auto_reset)
+          {
+            state = false;
+
+            break;
+          }
         }
         catch (...)
         {
@@ -189,10 +172,13 @@ namespace {
         }
       }
 
-      waiters.clear();
-
-      pthread_mutex_unlock(&waiters_lock);
+      if (!auto_reset)
+      {
+        waiters.clear();
+      }
     }
+
+    pthread_mutex_unlock(&state_lock);
 
     DecRefSafe();
   }
@@ -213,59 +199,52 @@ namespace {
     DecRefSafe();
   }
 
-  bool          NW32Event::IsSignaled()
+  bool          NW32Event::AddWaiter(NW32EventWaiter    *waiter)
   {
-    bool signaled;
-
     if (pthread_mutex_lock(&state_lock) != 0)
     {
-      return false;
+      throw NW32EventError();
     }
 
     IncRef();
 
-    signaled = state;
+    bool signaled = state;
+
+    if (!signaled)
+    {
+      try
+      {
+        waiters.push_back(waiter);
+      }
+      catch (...)
+      {
+        pthread_mutex_unlock(&state_lock);
+
+        throw;
+      }
+    }
+
+    // neither DecRef nor DecRefSafe can be used (it may cause dead-lock)
+    unsigned int updated_ref_count = --ref_count;
 
     pthread_mutex_unlock(&state_lock);
 
-    DecRefSafe();
+    if (updated_ref_count == 0)
+    {
+      delete this;
+    }
 
     return signaled;
   }
 
-  void          NW32Event::AddWaiter(NW32EventWaiter    *waiter)
-  {
-    IncRefSafe();
-
-    if (pthread_mutex_lock(&waiters_lock) != 0)
-    {
-      throw NW32EventError();
-    }
-
-    try
-    {
-      waiters.push_back(waiter);
-    }
-    catch (...)
-    {
-      pthread_mutex_unlock(&waiters_lock);
-
-      throw;
-    }
-
-    pthread_mutex_unlock(&waiters_lock);
-
-    DecRefSafe();
-  }
-
   void          NW32Event::RemoveWaiter(NW32EventWaiter    *waiter)
   {
-    IncRefSafe();
-
-    if (pthread_mutex_lock(&waiters_lock) != 0)
+    if (pthread_mutex_lock(&state_lock) != 0)
     {
       throw NW32EventError();
     }
+
+    IncRef();
 
     try
     {
@@ -283,12 +262,12 @@ namespace {
     }
     catch (...)
     {
-      pthread_mutex_unlock(&waiters_lock);
+      pthread_mutex_unlock(&state_lock);
 
       throw;
     }
 
-    pthread_mutex_unlock(&waiters_lock);
+    pthread_mutex_unlock(&state_lock);
 
     DecRefSafe();
   }
@@ -374,6 +353,16 @@ namespace {
   {
     struct timespec finishTime;
 
+    if (milliseconds != INFINITE)
+    {
+      if (clock_gettime(CLOCK_REALTIME, &finishTime) != 0)
+      {
+        throw NW32EventError();
+      }
+
+      TimeSpecAddMillis(&finishTime, milliseconds);
+    }
+
     if (pthread_mutex_lock(&lock) == 0)
     {
       this->events = events;
@@ -389,33 +378,9 @@ namespace {
       throw NW32EventError();
     }
 
-    if (milliseconds != INFINITE)
-    {
-      if (clock_gettime(CLOCK_REALTIME, &finishTime) != 0)
-      {
-        throw NW32EventError();
-      }
-
-      TimeSpecAddMillis(&finishTime, milliseconds);
-    }
-
     bool done = false;
     bool timeout = false;
     bool error = false;
-
-    for (unsigned int eventIndex = 0;
-         eventIndex < eventCount && !error;
-         eventIndex++)
-    {
-      try
-      {
-        events[eventIndex]->AddWaiter(this);
-      }
-      catch (...)
-      {
-        error = true;
-      }
-    }
 
     while (!done && !timeout && !error)
     {
@@ -428,7 +393,7 @@ namespace {
 
           for (unsigned int eventIndex = 0; eventIndex < eventCount; eventIndex++)
           {
-            if (events[eventIndex]->IsSignaled())
+            if (events[eventIndex]->AddWaiter(this))
             {
               leftSignalCount--;
 
