@@ -39,8 +39,10 @@ typedef LPSTR                LPTSTR;
 #define __T(text)            text
 #endif
 
+#define _TCHAR               TCHAR      // alias with underscore
+
 #define TEXT(text)           __T(text)
-#define _TEXT(text)          __T(text)
+#define _TEXT(text)          __T(text)  // alias with underscore
 
 #define _T(text)             __T(text)
 
