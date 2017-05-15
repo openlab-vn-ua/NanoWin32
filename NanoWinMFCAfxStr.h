@@ -27,7 +27,7 @@
 
 class CString
 {
-  #define REQUIRE(f) if (!(f)) { return; }
+  #define REQUIRE(f) if (!(f)) { throw "CString has invalid param:" #f; }
 
   protected:
   #if defined(UNICODE) || defined(_UNICODE)
