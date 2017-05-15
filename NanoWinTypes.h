@@ -201,7 +201,7 @@ typedef intptr_t                       SSIZE_T;  NW_MAKE_PLP_TYPES_BY(SSIZE_T); 
 
 #define MAXUINT                 MAXUINT32
 #define MININT                  MININT32
-#define MAXUINT                 MAXINT32
+#define MAXINT                  MAXINT32
 
 // Handle types
 // -----------------------------------------------------------------------
