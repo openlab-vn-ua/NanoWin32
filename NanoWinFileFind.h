@@ -34,7 +34,7 @@ NW_EXTERN_C_BEGIN
 extern HANDLE FindFirstFileA(const char *Mask, WIN32_FIND_DATAA *state);
 extern BOOL   FindNextFileA (HANDLE handle, WIN32_FIND_DATAA *state);
 
-extern HANDLE FindFirstFileW(const char *Mask, WIN32_FIND_DATAW *state);
+extern HANDLE FindFirstFileW(const wchar_t *Mask, WIN32_FIND_DATAW *state);
 extern BOOL   FindNextFileW (HANDLE handle, WIN32_FIND_DATAW *state);
 
 extern BOOL   FindClose(HANDLE hFindFile);

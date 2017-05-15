@@ -23,7 +23,7 @@ extern BOOL   FindNextFileA(HANDLE handle, WIN32_FIND_DATAA *state)
   return FALSE;
 }
 
-extern HANDLE FindFirstFileW(const char *Mask, WIN32_FIND_DATAW *state)
+extern HANDLE FindFirstFileW(const wchar_t *Mask, WIN32_FIND_DATAW *state)
 {
   return INVALID_HANDLE_VALUE;
 }
