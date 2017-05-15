@@ -11,23 +11,31 @@ BOOL CException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpC
 const
 {
   // TODO: Implement me
+  lpszError[0] = 0;
+  return FALSE;
 }
 
 BOOL CMemoryException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
   // TODO: Implement me
+  lpszError[0] = 0;
+  return FALSE;
 }
 
 BOOL CNotSupportedException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
   // TODO: Implement me
+  lpszError[0] = 0;
+  return FALSE;
 }
 
 BOOL CInvalidArgException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
   // TODO: Implement me
+  lpszError[0] = 0;
+  return FALSE;
 }
 
