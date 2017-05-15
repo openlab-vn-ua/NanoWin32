@@ -63,7 +63,7 @@ HANDLE CreateThread(LPSECURITY_ATTRIBUTES  lpThreadAttributes,
   }
 
   HANDLE               result = NULL;
-  NW32ThreadStartInfo *threadStartInfo = (NW32ThreadStartInfo*)malloc(sizeof(threadStartInfo));
+  NW32ThreadStartInfo *threadStartInfo = (NW32ThreadStartInfo*)malloc(sizeof(NW32ThreadStartInfo));
 
   if (threadStartInfo != NULL)
   {
