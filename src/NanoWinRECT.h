@@ -47,7 +47,7 @@ typedef RECT RECTL; NW_MAKE_PLP_TYPES_BY(RECTL);
 
 extern BOOL IsRectEmpty   (const RECT *lprc);
 extern BOOL EqualRect     (const RECT *lprc1, const RECT *lprc2);
-extern BOOL CopyRec       (      RECT *lprcDst, const RECT *lprcSrc);
+extern BOOL CopyRect      (      RECT *lprcDst, const RECT *lprcSrc);
 extern BOOL SetRectEmpty  (      RECT *lprcDst);
 extern BOOL SetRect       (      RECT *lprcDst, int xLeft, int yTop, int xRight, int yBottom);
 extern BOOL IntersectRect (      RECT *lprcDst, const RECT *lprcSrc1, const RECT *lprcSrc2);

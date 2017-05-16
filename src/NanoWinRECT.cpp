@@ -34,7 +34,7 @@ extern BOOL EqualRect  (const RECT *lprc1, const RECT *lprc2)
   return(TRUE);
 }
 
-extern BOOL CopyRec       (      RECT *lprcDst, const RECT *lprcSrc)
+extern BOOL CopyRect      (      RECT *lprcDst, const RECT *lprcSrc)
 {
   if (lprcDst == NULL) { return FALSE; }
   if (lprcSrc == NULL) { return FALSE; }
@@ -84,7 +84,7 @@ extern BOOL IntersectRect (      RECT *lprcDst, const RECT *lprcSrc1, const RECT
   lprcDst->left   = MAX(lprcSrc1->left,lprcSrc2->left);
   lprcDst->top    = MAX(lprcSrc1->top,lprcSrc2->top);
   lprcDst->right  = MIN(lprcSrc1->right,lprcSrc2->right);
-  lprcDst->bottom = MIN(lprcSrc1->right,lprcSrc2->bottom);
+  lprcDst->bottom = MIN(lprcSrc1->bottom,lprcSrc2->bottom);
 
   #undef MIN
   #undef MAX
