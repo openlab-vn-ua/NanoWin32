@@ -60,9 +60,15 @@ extern  DWORD NanoWinErrorByErrnoAtFail(errno_t errno_value);
 
 // Windows gates
 
+#ifdef __cplusplus
+inline  DWORD GetLastError()                                 { return NanoWinGetLastError(); }
+inline  void  SetLastError(DWORD dwErrCode)                  { NanoWinSetLastError(dwErrCode); }
+inline  void  SetLastErrorEx(DWORD dwErrCode, DWORD dwType)  { NanoWinSetLastErrorEx(dwErrCode, dwType); }
+#else
 #define GetLastError         NanoWinGetLastError
-#define SetLastError(x)      ((void)NanoWinSetLastError((x)))
-#define SetLastErrorEx(x,y)  ((void)NanoWinSetLastErrorEx((x),(y)))
+#define SetLastError(x)      ((void)(NanoWinSetLastError((x))))
+#define SetLastErrorEx(x,y)  ((void)(NanoWinSetLastErrorEx((x),(y))))
+#endif
 
 NW_EXTERN_C_END
 
