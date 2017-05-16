@@ -54,6 +54,25 @@ extern DWORD SignalObjectAndWait
   BOOL   bAlertable
 );
 
+// Waits until the specified object is in the signaled state or the time-out interval elapses.
+// Thread handle (wait for thread case is a priority)
+extern DWORD WaitForSingleObject
+(
+  HANDLE hHandle,
+  DWORD  dwMilliseconds
+);
+
+// Waits until one or all of the specified objects are in the signaled state or the time-out interval elapses.
+// Thread handles array (wait for threads list case is a priority)
+// timeout INFINITE is a priority case
+extern DWORD WaitForMultipleObjects
+(
+  DWORD   nCount,
+  HANDLE *lpHandles,
+  BOOL    bWaitAll,
+  DWORD   dwMilliseconds
+);
+
 NW_EXTERN_C_END
 
 #endif
