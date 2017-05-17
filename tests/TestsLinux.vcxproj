@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{61e8782d-382a-4b12-b3a5-3521d4dd63fa}</ProjectGuid>
+    <Keyword>Linux</Keyword>
+    <RootNamespace>TestsLinux</RootNamespace>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <LinuxProjectType>{D51BCBC9-82E9-4017-911E-C93873C4EA2B}</LinuxProjectType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\NanoWinBmp.cpp" />
+    <ClCompile Include="..\src\NanoWinCriticalSection.cpp" />
+    <ClCompile Include="..\src\NanoWinEnv.cpp" />
+    <ClCompile Include="..\src\NanoWinError.cpp" />
+    <ClCompile Include="..\src\NanoWinEvents.cpp" />
+    <ClCompile Include="..\src\NanoWinFileFind.cpp" />
+    <ClCompile Include="..\src\NanoWinFileSys.cpp" />
+    <ClCompile Include="..\src\NanoWinInternal.cpp" />
+    <ClCompile Include="..\src\NanoWinMFCAfx.cpp" />
+    <ClCompile Include="..\src\NanoWinMFCAfxMt.cpp" />
+    <ClCompile Include="..\src\NanoWinMFCAfxStr.cpp" />
+    <ClCompile Include="..\src\NanoWinMFCAfxWin.cpp" />
+    <ClCompile Include="..\src\NanoWinOther.cpp" />
+    <ClCompile Include="..\src\NanoWinPrivateProfile.cpp" />
+    <ClCompile Include="..\src\NanoWinQueryPerf.cpp" />
+    <ClCompile Include="..\src\NanoWinRECT.cpp" />
+    <ClCompile Include="..\src\NanoWinStrConvert.cpp" />
+    <ClCompile Include="..\src\NanoWinThreads.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\NanoWinBmpTests.cpp" />
+    <ClCompile Include="src\NanoWinEventsTests.cpp" />
+    <ClCompile Include="src\NanoWinPrivateProfileTests.cpp" />
+    <ClCompile Include="src\NanoWinPrivateProfileTestTools.cpp" />
+    <ClCompile Include="src\NanoWinRECTTests.cpp" />
+    <ClCompile Include="src\NanoWinStrConvertTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\NanoWinBmp.h" />
+    <ClInclude Include="..\src\NanoWinCriticalSection.h" />
+    <ClInclude Include="..\src\NanoWinEnv.h" />
+    <ClInclude Include="..\src\NanoWinError.h" />
+    <ClInclude Include="..\src\NanoWinEvents.h" />
+    <ClInclude Include="..\src\NanoWinFileFind.h" />
+    <ClInclude Include="..\src\NanoWinFileSys.h" />
+    <ClInclude Include="..\src\NanoWinInternal.h" />
+    <ClInclude Include="..\src\NanoWinMFCAfx.h" />
+    <ClInclude Include="..\src\NanoWinMFCAfxMt.h" />
+    <ClInclude Include="..\src\NanoWinMFCAfxStr.h" />
+    <ClInclude Include="..\src\NanoWinMFCAfxWin.h" />
+    <ClInclude Include="..\src\NanoWinMsSafeString.h" />
+    <ClInclude Include="..\src\NanoWinOther.h" />
+    <ClInclude Include="..\src\NanoWinPrivateProfile.h" />
+    <ClInclude Include="..\src\NanoWinQueryPerf.h" />
+    <ClInclude Include="..\src\NanoWinRECT.h" />
+    <ClInclude Include="..\src\NanoWinStrConvert.h" />
+    <ClInclude Include="..\src\NanoWinTCHAR.h" />
+    <ClInclude Include="..\src\NanoWinThreads.h" />
+    <ClInclude Include="..\src\NanoWinTypes.h" />
+    <ClInclude Include="src\NanoWinPrivateProfileTestTools.h" />
+    <ClInclude Include="src\NWUnitTest.h" />
+  </ItemGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Link>
+      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <RemotePostBuildEvent>
+      <Command>$(RemoteTargetPath)</Command>
+    </RemotePostBuildEvent>
+    <RemotePostBuildEvent>
+      <Message>Run tests</Message>
+    </RemotePostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Link>
+      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <RemotePostBuildEvent>
+      <Command>$(RemoteTargetPath)</Command>
+    </RemotePostBuildEvent>
+    <RemotePostBuildEvent>
+      <Message>Run tests</Message>
+    </RemotePostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <RemotePostBuildEvent>
+      <Command>$(RemoteTargetPath)</Command>
+    </RemotePostBuildEvent>
+    <RemotePostBuildEvent>
+      <Message>Run tests</Message>
+    </RemotePostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <RemotePostBuildEvent>
+      <Command>$(RemoteTargetPath)</Command>
+    </RemotePostBuildEvent>
+    <RemotePostBuildEvent>
+      <Message>Run tests</Message>
+    </RemotePostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Link>
+      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <RemotePostBuildEvent>
+      <Command>$(RemoteTargetPath)</Command>
+    </RemotePostBuildEvent>
+    <RemotePostBuildEvent>
+      <Message>Run tests</Message>
+    </RemotePostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <Link>
+      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <RemotePostBuildEvent>
+      <Command>$(RemoteTargetPath)</Command>
+    </RemotePostBuildEvent>
+    <RemotePostBuildEvent>
+      <Message>Run tests</Message>
+    </RemotePostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
