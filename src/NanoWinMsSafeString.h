@@ -20,6 +20,7 @@ typedef int errno_t;		// Not defined by GNU C (standard assumed errno is int alw
 #endif
 
 #include <string.h>
+#include <stdarg.h>
 
 #ifndef NW_EXTERN_C_BEGIN
 #ifdef __cplusplus
@@ -57,11 +58,10 @@ typedef size_t rsize_t;
 
 #endif
 
-#define NW_STR_S_TRUNCATE // define this if you need MS-compatible _TRUNCATE semantic to be supported
 
-#if defined(NW_STR_S_TRUNCATE)
-// Support _TRUNCATE semanic a-la MS VisualC
-#define _TRUNCATE (RSIZE_MAX) // RSIZE_MAX anyway is quit hight
+#ifndef NW_NO_MS_STR_S_TRUNCATE // Support _TRUNCATE semanic a-la MS VisualC [define this to turn support off]
+#define NW_STR_S_TRUNCATE     // define this if you need MS-compatible _TRUNCATE semantic to be supported in module body
+#define _TRUNCATE (RSIZE_MAX) // Value to pass to strncpy_s and alike to allow return truncated results as-is // (Relay fact that on RSIZE_MAX anyway is quit hight)
 #define STRUNCATE (-11111)    // error_t value to return in case of truncation occurs
 #endif
 
@@ -112,17 +112,20 @@ extern char   *strtok_r_s    (char *str, const char *delim, char **context);
 // Search for tokens in str, acts like wcstok(_r) + quick checks for valid args. Non-C11, non-MS func, but logic extension of strtok_r. Note: Actualy it is how MS strtok_s works
 extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **context);
 
+#ifndef NW_NO_MS_ISO_ALIASES // MS-style aliases for "obsolete/nonconformant" func
+#define _strtok_r_s          strtok_r_s // strtok_r_s consformant alias [NanoWin]
+#define _wcstok_r_s          wcstok_r_s // wcstok_r_s consformant alias [NanoWin]
+#endif
+
 // String format functions
 // -----------------------------------------------------
 
-#include <stdarg.h>
-
 // Format output by format and va_args to dest, dest will be null treminated, dest memory size is limited to destsz items(chars/bytes)
-// [Non-C11, non-MS func (a-la MS)]. returns -1 on error (target length on ok)
+// [MS VC specific, not C11]. returns -1 on error (target length on ok)
 extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va_list args);
 
 // Format output by format and va_args to dest, dest will be null treminated, dest memory size is limited to destsz items(wchar_t)
-// [Non-C11, non-MS func (a-la MS)]. returns -1 on error (target length on ok)
+// [MS VC specific, not C11]. returns -1 on error (target length on ok)
 extern int     vwsprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args);
 
 // Format output by format and multiple args to dest, dest will be null treminated, dest memory size is limited to destsz items(chars/bytes)
@@ -133,7 +136,32 @@ extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ..
 // [MS VC specific, not C11]. returns -1 on error (target length on ok)
 extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...);
 
+// MS Extensions
+// -----------------------------------------------------
+
+// Converts string to uppercase at dest, dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
+extern errno_t strupr_s      (char *dest, rsize_t destsz);
+
+// Converts string to lowercase at dest, dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
+extern errno_t strlwr_s      (char *dest, rsize_t destsz);
+
+// Converts string to uppercase at dest, dest memory size is limited to destsz items(wchar_t). returns errno_t (0 if ok)
+extern errno_t wcsupr_s      (wchar_t *dest, rsize_t destsz);
+
+// Converts string to lowercase at dest, dest memory size is limited to destsz items(wchar_t). returns errno_t (0 if ok)
+extern errno_t wcslwr_s      (wchar_t *dest, rsize_t destsz);
+
+#ifndef NW_NO_MS_ISO_ALIASES // MS-style aliases for "obsolete/nonconformant" func
+#define _strupr_s            strupr_s
+#define _wcsupr_s            wcsupr_s
+#define _strlwr_s            strlwr_s
+#define _wcslwr_s            wcslwr_s
+#endif
+
 NW_EXTERN_C_END
+
+// C11 compilance via overload
+// -----------------------------------------------------
 
 #if !defined(__cplusplus)
 
@@ -169,6 +197,13 @@ size_t NanoWinCountOf(T1(&)[size1])
   return(size1);
 };
 
+#define NW_STR_DN0Param(strfunc_s)                                   \
+template<typename TD, size_t sizeD>                                  \
+errno_t strfunc_s(TD (&dest)[sizeD])                                 \
+{                                                                    \
+  return(strfunc_s(dest, sizeD));                                    \
+};
+
 #define NW_STR_DN1Param(strfunc_s,arg1type)                          \
 template<typename TD, size_t sizeD>                                  \
 errno_t strfunc_s(TD (&dest)[sizeD], arg1type arg1)                  \
@@ -182,6 +217,18 @@ errno_t strfunc_s(TD (&dest)[sizeD], arg1type arg1, arg2type arg2)   \
 {                                                                    \
   return(strfunc_s(dest, sizeD, arg1, arg2));                        \
 };
+
+// Converts string to uppercase at dest[destsz], dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
+NW_STR_DN0Param(strupr_s);
+
+// Converts string to lowercase at dest[destsz], dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
+NW_STR_DN0Param(strlwr_s);
+
+// Converts string to uppercase at dest[destsz], dest memory size is limited to destsz items(wchar_t). returns errno_t (0 if ok)
+NW_STR_DN0Param(wcsupr_s);
+
+// Converts string to lowercase at dest[destsz], dest memory size is limited to destsz items(wchar_t). returns errno_t (0 if ok)
+NW_STR_DN0Param(wcslwr_s);
 
 // Copy src string to dest[destsz], dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
 NW_STR_DN1Param(strcpy_s,const char *);

@@ -7,27 +7,33 @@
 
 #include "NanoWinMsSafeString.h"
 
+#if defined(__GNUC__)
+
 #include <string.h>
 #include <wchar.h>
 #include <errno.h>
+#include <stdio.h> // vsnprintf...
+#include <ctype.h> // tolower
+#include <wctype.h> // towlower
 
 #if !defined(EOK)
 #define  EOK  (0)
 #endif
 
-#define invoke_err_handler(etext,earg,errcode)
+#define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
 #define return_after_err_handler(etext,earg,errcode) return(errcode)
 
+#define RSIZE_GET_CNT(MAX_MEM,ITEM) (sizeof(ITEM) == 1 ? (MAX_MEM) : ((MAX_MEM) / sizeof(ITEM)))
+#define MEM_GET_SIZE(count,ITEM)    (sizeof(ITEM) == 1 ? (count) : ((count) * sizeof(ITEM)))
+
 #define SP ":"
-typedef unsigned char XBYTE;
 
 NW_EXTERN_C_BEGIN
 
 // Memory functions
 // -----------------------------------------------------
 
-#define RSIZE_GET_CNT(MAX_MEM,ITEM) (sizeof(ITEM) == 1 ? (MAX_MEM) : ((MAX_MEM) / sizeof(ITEM)))
-#define MEM_GET_SIZE(count,ITEM)    (sizeof(ITEM) == 1 ? (count) : ((count) * sizeof(ITEM)))
+#define XBYTE char
 
 // helper: returns non-zero if dest and src overlaps, zero if not
 static int     is_overlap    (void *dest, const void *src, rsize_t count, rsize_t itemsz)
@@ -218,6 +224,8 @@ extern errno_t wmemmove_s    (void *dest, rsize_t destsz, const void *src, rsize
   #undef ITEM
   #undef FN
 }
+
+#undef  XBYTE
 
 // String functions
 // -----------------------------------------------------
@@ -590,8 +598,6 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
 // String format functions
 // -----------------------------------------------------
 
-#include <stdio.h>
-
 #define sprintf_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
 
 extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va_list args)
@@ -680,6 +686,160 @@ extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *form
   return(result);
 }
 
+// MS Extensions
+// -----------------------------------------------------
+
+// TODO: Check is these functions clears dest buffer on error in MS VS studio runtime
+// TODO: Doc says these functions set errno (no done yet)
+
+// Converts string to uppercase at dest, dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
+extern errno_t strupr_s      (char *dest, rsize_t destsz)
+{
+  #define FN "strupr_s"
+  #define ITEM char
+  #define TOACTION             toupper
+  // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+
+  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  // dest valid, now we have to fill dest in case of fail
+
+  // Action!
+
+  ITEM *body = dest;
+  rsize_t count = 0;
+  while (*body != 0)
+  {
+    if (count >= destsz)       { return_after_err_FILLDST(FN SP "destsz too small or dest not null terminated" , NULL, ERANGE); } // core check
+    *body = (ITEM) TOACTION (*body);
+	body++;
+	count++;
+  }
+
+  return(EOK);
+
+  #undef return_after_err_FILLDST
+  #undef RSIZE_MAX_CNT
+  // </body>
+  #undef TOACTION
+  #undef ITEM
+  #undef FN
+}
+
+// Converts string to lowercase at dest, dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
+extern errno_t strlwr_s      (char *dest, rsize_t destsz)
+{
+  #define FN "strlwr_s"
+  #define ITEM char
+  #define TOACTION             tolower
+  // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+
+  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  // dest valid, now we have to fill dest in case of fail
+
+  // Action!
+
+  ITEM *body = dest;
+  rsize_t count = 0;
+  while (*body != 0)
+  {
+    if (count >= destsz)       { return_after_err_FILLDST(FN SP "destsz too small or dest not null terminated" , NULL, ERANGE); } // core check
+    *body = (ITEM) TOACTION (*body);
+	body++;
+	count++;
+  }
+
+  return(EOK);
+
+  #undef return_after_err_FILLDST
+  #undef RSIZE_MAX_CNT
+  // </body>
+  #undef TOACTION
+  #undef ITEM
+  #undef FN
+}
+
+// Converts string to uppercase at dest, dest memory size is limited to destsz items(wchar_t). returns errno_t (0 if ok)
+extern errno_t wcsupr_s      (wchar_t *dest, rsize_t destsz)
+{
+  #define FN "wcsupr_s"
+  #define ITEM wchar_t
+  #define TOACTION             towupper
+  // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+
+  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  // dest valid, now we have to fill dest in case of fail
+
+  // Action!
+
+  ITEM *body = dest;
+  rsize_t count = 0;
+  while (*body != 0)
+  {
+    if (count >= destsz)       { return_after_err_FILLDST(FN SP "destsz too small or dest not null terminated" , NULL, ERANGE); } // core check
+    *body = (ITEM) TOACTION (*body);
+	body++;
+	count++;
+  }
+
+  return(EOK);
+
+  #undef return_after_err_FILLDST
+  #undef RSIZE_MAX_CNT
+  // </body>
+  #undef TOACTION
+  #undef ITEM
+  #undef FN
+}
+
+// Converts string to lowercase at dest, dest memory size is limited to destsz items(wchar_t). returns errno_t (0 if ok)
+extern errno_t wcslwr_s      (wchar_t *dest, rsize_t destsz)
+{
+  #define FN "wcslwr_s"
+  #define ITEM wchar_t
+  #define TOACTION             towlower
+  // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+
+  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  // dest valid, now we have to fill dest in case of fail
+
+  // Action!
+
+  ITEM *body = dest;
+  rsize_t count = 0;
+  while (*body != 0)
+  {
+    if (count >= destsz)       { return_after_err_FILLDST(FN SP "destsz too small or dest not null terminated" , NULL, ERANGE); } // core check
+    *body = (ITEM) TOACTION (*body);
+	body++;
+	count++;
+  }
+
+  return(EOK);
+
+  #undef return_after_err_FILLDST
+  #undef RSIZE_MAX_CNT
+  // </body>
+  #undef TOACTION
+  #undef ITEM
+  #undef FN
+}
+
 NW_EXTERN_C_END
 
 /*
@@ -711,3 +871,5 @@ int NanoWinMsSafeStringCompilationTest()
   return(ntest);
 }
 */
+
+#endif // GCC
