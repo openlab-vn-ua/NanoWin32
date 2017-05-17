@@ -294,12 +294,14 @@ typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 // Other misc stuff
 // -----------------------------------------------------------------------
 
+#ifndef NW_EXTERN_C_BEGIN
 #ifdef __cplusplus
 #define NW_EXTERN_C_BEGIN  extern "C" {
 #define NW_EXTERN_C_END    }
 #else
 #define NW_EXTERN_C_BEGIN  // None
 #define NW_EXTERN_C_END    // None
+#endif
 #endif
 
 #endif // linux
