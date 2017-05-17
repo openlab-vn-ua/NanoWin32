@@ -7,6 +7,8 @@
 
 #include "NanoWinError.h"
 
+#include <errno.h>
+
 NW_EXTERN_C_BEGIN
 
 static __thread DWORD LastError = ERROR_SUCCESS;
@@ -33,8 +35,6 @@ extern  DWORD NanoWinSetLastErrorEx // Set last error code (Returns dwErrCode)
 {
   return(NanoWinSetLastError(dwErrCode));
 }
-
-#include <errno.h>
 
 // Converts errno to Win32Error, converts errno=0 to specified value win32 error value
 extern  DWORD NanoWinErrorByErrnoRaw (errno_t errno_value, DWORD winErrorForZeroErrno)
