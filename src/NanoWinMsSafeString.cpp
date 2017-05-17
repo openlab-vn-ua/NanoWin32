@@ -682,7 +682,7 @@ extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *form
 
 NW_EXTERN_C_END
 
-/**/
+/*
 int NanoWinMsSafeStringCompilationTest()
 {
   // This should compile
@@ -710,4 +710,4 @@ int NanoWinMsSafeStringCompilationTest()
 
   return(ntest);
 }
-/**/
+*/
