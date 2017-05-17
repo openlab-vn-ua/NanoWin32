@@ -36,7 +36,11 @@ namespace NanoWin
 
     result.reserve(requiredLen);
 
+    #ifdef __linux
     char charBuffer[MB_CUR_MAX];
+    #else
+    char charBuffer[6];
+    #endif
 
     memset(&state, 0, sizeof(state));
 
@@ -83,7 +87,7 @@ namespace NanoWin
 
     size_t charLen = mbrtowc(&currChar, srcPtr, tailLen, &state);
 
-    while ((ssize_t)charLen > 0)
+    while (charLen > 0 && charLen != (size_t)-1  && charLen != (size_t)-2)
     {
       result += currChar;
 
