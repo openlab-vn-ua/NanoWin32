@@ -28,6 +28,7 @@ What about _T? Okay, I don't know about that one. Maybe it was just to save some
 */
 
 #if defined(UNICODE) || defined(_UNICODE)
+#include <wchar.h>
 typedef wchar_t              TCHAR;
 typedef LPCWSTR              LPCTSTR;
 typedef LPWSTR               LPTSTR;
@@ -45,6 +46,52 @@ typedef LPSTR                LPTSTR;
 #define _TEXT(text)          __T(text)  // alias with underscore
 
 #define _T(text)             __T(text)
+
+#if defined(UNICODE) || defined(_UNICODE)
+#include <wchar.h>
+#define _tcslen             wcslen
+#define _tcscpy             wcscpy
+#define _tcscpy_s           wcscpy_s
+#define _tcscat             wcscat
+#define _tcscat_s           wcscat_s
+#define _tcsncpy            wcsncpy
+#define _tcsncpy_s          wcsncpy_s
+#define _tcsupr             wcsupr
+#define _tcsupr_s           wcsupr_s
+#define _tcslwr             wcslwr
+#define _tcslwr_s           wcslwr_s
+#define _tcscmp             wcscmp
+#define _tcsclen            wcslen
+#else
+#include <string.h>
+#define _tcslen             strlen
+#define _tcscpy             strcpy
+#define _tcscpy_s           strcpy_s
+#define _tcscat             strcat
+#define _tcscat_s           strcat_s
+#define _tcsncpy            strncpy
+#define _tcsncpy_s          strncpy_s
+#define _tcsupr             strupr
+#define _tcsupr_s           strupr_s
+#define _tcslwr             strlwr
+#define _tcslwr_s           strlwr_s
+#define _tcscmp             strcmp
+#define _tcsclen            strlen
+#endif
+
+#if defined(UNICODE) || defined(_UNICODE)
+#include <wctype.h>
+#define _istascii           iswascii
+#define _istcntrl           iswcntrl
+#define _istalpha           iswalpha
+#define _istdigit           iswdigit
+#else
+#include <ctype.h>
+#define _istascii           isascii
+#define _istcntrl           iscntrl
+#define _istalpha           isalpha
+#define _istdigit           isdigit
+#endif
 
 #endif // linux
 #endif // ...Included
