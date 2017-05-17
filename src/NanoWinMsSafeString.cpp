@@ -591,18 +591,17 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
 // -----------------------------------------------------
 
 #include <stdio.h>
-#include <stdarg.h>
 
 #define sprintf_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
 
-extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ...)
+extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va_list args)
 {
-  #define FN "sprintf_s"
+  #define FN "vsprintf_s"
   #define ITEM char
   #define VSNPRINTF vsnprintf
   // <body> // invaliant for sprintf_s and wsprintf_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strtok_handle_errcode(errcode); return(-1); }
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); sprintf_handle_errcode(errcode); return(-1); }
   #define return_after_err_FILLDST(etext,earg,errcode) { dest[0] = 0; return_after_err_WMARKER(etext,earg,errcode); }
 
   if (dest  == NULL)           { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
@@ -612,32 +611,30 @@ extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ..
   if (format == NULL)          { return_after_err_FILLDST(FN SP "format is null"              , NULL, EINVAL); }
 
   int result;
-  va_list args;
-  va_start (args, format);
   result = VSNPRINTF(dest, destsz, format, args);
-  va_end (args);
 
   if (result < 0)              { return_after_err_FILLDST(FN SP "format error detected"       , NULL, EINVAL); }
   // (result >= destsz), string was truncated
-  if (result >= destsz)        { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
+  if ((rsize_t)result>=destsz) { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
 
   return(result);
 
   #undef return_after_err_FILLDST
   #undef return_after_err_WMARKER
   // </body>
+  #undef VSNPRINTF
   #undef ITEM
   #undef FN
 }
 
-extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
+extern int     vwsprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args)
 {
-  #define FN "wsprintf_s"
+  #define FN "vwsprintf_s"
   #define ITEM wchar_t
   #define VSNPRINTF vswprintf
   // <body> // invaliant for sprintf_s and wsprintf_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strtok_handle_errcode(errcode); return(-1); }
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); sprintf_handle_errcode(errcode); return(-1); }
   #define return_after_err_FILLDST(etext,earg,errcode) { dest[0] = 0; return_after_err_WMARKER(etext,earg,errcode); }
 
   if (dest  == NULL)           { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
@@ -647,22 +644,40 @@ extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *form
   if (format == NULL)          { return_after_err_FILLDST(FN SP "format is null"              , NULL, EINVAL); }
 
   int result;
-  va_list args;
-  va_start (args, format);
   result = VSNPRINTF(dest, destsz, format, args);
-  va_end (args);
 
   if (result < 0)              { return_after_err_FILLDST(FN SP "format error detected"       , NULL, EINVAL); }
   // (result >= destsz), string was truncated
-  if (result >= destsz)        { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
+  if ((rsize_t)result>=destsz) { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
 
   return(result);
 
   #undef return_after_err_FILLDST
   #undef return_after_err_WMARKER
   // </body>
+  #undef VSNPRINTF
   #undef ITEM
   #undef FN
+}
+
+extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ...)
+{
+  int result;
+  va_list args;
+  va_start (args, format);
+  result = vsprintf_s(dest, destsz, format, args);
+  va_end (args);
+  return(result);
+}
+
+extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
+{
+  int result;
+  va_list args;
+  va_start (args, format);
+  result = vwsprintf_s(dest, destsz, format, args);
+  va_end (args);
+  return(result);
 }
 
 NW_EXTERN_C_END
@@ -691,6 +706,7 @@ int NanoWinMsSafeStringCompilationTest()
   strncpy_s(pdest, 2, ptest, 1);
 
   sprintf_s(tdest, _countof(tdest), "just a test %s and here %s", ptest, ptest);
+  sprintf_s(tdest, "just a test %s and here %s", ptest, ptest);
 
   return(ntest);
 }

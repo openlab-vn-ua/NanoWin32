@@ -115,10 +115,22 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
 // String format functions
 // -----------------------------------------------------
 
-// Format output by format and multiple args to dest, dest will be null treminated, dest memory size is limited to destsz items(chars/bytes) [MS VC specific, not C11]. returns -1 on error (target length on ok)
+#include <stdarg.h>
+
+// Format output by format and va_args to dest, dest will be null treminated, dest memory size is limited to destsz items(chars/bytes)
+// [Non-C11, non-MS func (a-la MS)]. returns -1 on error (target length on ok)
+extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va_list args);
+
+// Format output by format and va_args to dest, dest will be null treminated, dest memory size is limited to destsz items(wchar_t)
+// [Non-C11, non-MS func (a-la MS)]. returns -1 on error (target length on ok)
+extern int     vwsprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args);
+
+// Format output by format and multiple args to dest, dest will be null treminated, dest memory size is limited to destsz items(chars/bytes)
+// [MS VC specific, not C11]. returns -1 on error (target length on ok)
 extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ...);
 
-// Format output by format and multiple args to dest, dest will be null treminated, dest memory size is limited to destsz items(wchar_t) [MS VC specific, not C11]. returns -1 on error (target length on ok)
+// Format output by format and multiple args to dest, dest will be null treminated, dest memory size is limited to destsz items(wchar_t)
+// [MS VC specific, not C11]. returns -1 on error (target length on ok)
 extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...);
 
 NW_EXTERN_C_END
@@ -188,6 +200,32 @@ NW_STR_DN2Param(strncpy_s,const char *, rsize_t);
 
 // Copy src string (up to count chars from src) to dest[destsz], dest will be null treminated, dest memory size is limited to destsz items(wchar_t). returns errno_t (0 if ok)
 NW_STR_DN2Param(wcsncpy_s,const char *, rsize_t);
+
+// Format output by format and multiple args to dest[destsz], dest will be null treminated, dest memory size is limited to destsz items(chars/bytes)
+// [MS VC specific, not C11]. returns -1 on error (target length on ok)
+template<typename TD, size_t sizeD>
+int sprintf_s(TD (&dest)[sizeD], const char *format, ...)
+{
+  int result;
+  va_list args;
+  va_start (args, format);
+  result = vsprintf_s(dest, sizeD, format, args);
+  va_end (args);
+  return(result);
+};
+
+// Format output by format and multiple args to dest[destsz], dest will be null treminated, dest memory size is limited to destsz items(wchar_t)
+// [MS VC specific, not C11]. returns -1 on error (target length on ok)
+template<typename TD, size_t sizeD>
+int swprintf_s(TD (&dest)[sizeD], const wchar_t *format, ...)
+{
+  int result;
+  va_list args;
+  va_start (args, format);
+  result = vswprintf_s(dest, sizeD, format, args);
+  va_end (args);
+  return(result);
+};
 
 #endif
 
