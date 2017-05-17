@@ -633,7 +633,7 @@ extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va
   #undef FN
 }
 
-extern int     vwsprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args)
+extern int     vswprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args)
 {
   #define FN "vwsprintf_s"
   #define ITEM wchar_t
@@ -676,12 +676,12 @@ extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ..
   return(result);
 }
 
-extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
+extern int     swprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
 {
   int result;
   va_list args;
   va_start (args, format);
-  result = vwsprintf_s(dest, destsz, format, args);
+  result = vswprintf_s(dest, destsz, format, args);
   va_end (args);
   return(result);
 }
@@ -865,8 +865,43 @@ int NanoWinMsSafeStringCompilationTest()
   strncpy_s(tdest, 2, stest, 1);
   strncpy_s(pdest, 2, ptest, 1);
 
-  sprintf_s(tdest, _countof(tdest), "just a test %s and here %s", ptest, ptest);
-  sprintf_s(tdest, "just a test %s and here %s", ptest, ptest);
+  strupr_s(stest);
+  strupr_s(pdest, 2);
+
+  strlwr_s(stest);
+  strlwr_s(pdest, 2);
+
+  sprintf_s(tdest, _countof(tdest), "just a test %s and here %s %i", ptest, ptest, ntest);
+  sprintf_s(tdest, "just a test %s and here %s", ptest, ptest, ntest);
+
+  wchar_t  wstest[] = L"stest";
+  wchar_t *wptest   =  wstest;
+  int      wntest   = NanoWinCountOf(wstest);
+  wchar_t  wtdest[4];
+  wchar_t *wpdest   = wtdest;
+
+  wcscpy_s(wtdest, wstest);
+  wcscpy_s(wtdest, 2, wstest);
+  wcscpy_s(wpdest, 2, wptest);
+
+  wcscpy_s(wtdest, L"");
+  wcscat_s(wtdest, wstest);
+  wcscat_s(wtdest, 2, wstest);
+  wcscat_s(wpdest, 2, wptest);
+
+  wcsncpy_s(wtdest, wstest, 1);
+  wcsncpy_s(wtdest, wptest, 1);
+  wcsncpy_s(wtdest, 2, wstest, 1);
+  wcsncpy_s(wpdest, 2, wptest, 1);
+
+  wcsupr_s(wstest);
+  wcsupr_s(wpdest, 2);
+
+  wcslwr_s(wstest);
+  wcslwr_s(wpdest, 2);
+
+  swprintf_s(wtdest, _countof(wtdest), L"just a test %s and here %s %i", wptest, wptest, wntest);
+  swprintf_s(wtdest, L"just a test %s and here %s", wptest, wptest, wntest);
 
   return(ntest);
 }
