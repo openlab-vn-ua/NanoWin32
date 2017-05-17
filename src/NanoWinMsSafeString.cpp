@@ -530,6 +530,8 @@ extern errno_t wcsncpy_s     (wchar_t *dest, rsize_t destsz, const wchar_t *src,
   #undef FN
 }
 
+#define strtok_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
+
 // Search for tokens in str, acts like strtok_r + quick checks for valid args. Non-C11, non-MS func, but logic extension of strtok_r. Note: Actualy it is how MS strtok_s works
 extern char   *strtok_r_s    (char *str, const char *delim, char **context)
 {
@@ -537,7 +539,7 @@ extern char   *strtok_r_s    (char *str, const char *delim, char **context)
   #define ITEM char
   #define STRTOK_R strtok_r
   // <body> // invaliant for strtok_r_s and wcstok_r_s
-  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(NULL); }
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strtok_handle_errcode(errcode); return(NULL); }
 
   if (delim  == NULL)          { return_after_err_WMARKER(FN SP "delim is null"               , NULL, EINVAL); }
   if (context == NULL)         { return_after_err_WMARKER(FN SP "context is null"             , NULL, EINVAL); }
@@ -564,7 +566,7 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
   #define ITEM char
   #define STRTOK_R wcstok // for wide chars, wcstok is initially acts as reenterant (strtok_r) so there is no wcstok_r
   // <body> // invaliant for strtok_r_s and wcstok_r_s
-  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(NULL); }
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strtok_handle_errcode(errcode); return(NULL); }
 
   if (delim  == NULL)          { return_after_err_WMARKER(FN SP "delim is null"               , NULL, EINVAL); }
   if (context == NULL)         { return_after_err_WMARKER(FN SP "context is null"             , NULL, EINVAL); }
@@ -578,8 +580,87 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
   return(STRTOK_R(str, delim, context));
 
   #undef return_after_err_WMARKER
+  #undef RSIZE_MAX_CNT
   // </body>
   #undef STRTOK_R
+  #undef ITEM
+  #undef FN
+}
+
+// String format functions
+// -----------------------------------------------------
+
+#include <stdio.h>
+#include <stdarg.h>
+
+#define sprintf_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
+
+extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ...)
+{
+  #define FN "sprintf_s"
+  #define ITEM char
+  #define VSNPRINTF vsnprintf
+  // <body> // invaliant for sprintf_s and wsprintf_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strtok_handle_errcode(errcode); return(-1); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { dest[0] = 0; return_after_err_WMARKER(etext,earg,errcode); }
+
+  if (dest  == NULL)           { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
+  // Now we have to fill something at dest, so we clear dest at error
+  if (format == NULL)          { return_after_err_FILLDST(FN SP "format is null"              , NULL, EINVAL); }
+
+  int result;
+  va_list args;
+  va_start (args, format);
+  result = VSNPRINTF(dest, destsz, format, args);
+  va_end (args);
+
+  if (result < 0)              { return_after_err_FILLDST(FN SP "format error detected"       , NULL, EINVAL); }
+  // (result >= destsz), string was truncated
+  if (result >= destsz)        { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
+
+  return(result);
+
+  #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
+  // </body>
+  #undef ITEM
+  #undef FN
+}
+
+extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
+{
+  #define FN "wsprintf_s"
+  #define ITEM wchar_t
+  #define VSNPRINTF vswprintf
+  // <body> // invaliant for sprintf_s and wsprintf_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strtok_handle_errcode(errcode); return(-1); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { dest[0] = 0; return_after_err_WMARKER(etext,earg,errcode); }
+
+  if (dest  == NULL)           { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
+  // Now we have to fill something at dest, so we clear dest at error
+  if (format == NULL)          { return_after_err_FILLDST(FN SP "format is null"              , NULL, EINVAL); }
+
+  int result;
+  va_list args;
+  va_start (args, format);
+  result = VSNPRINTF(dest, destsz, format, args);
+  va_end (args);
+
+  if (result < 0)              { return_after_err_FILLDST(FN SP "format error detected"       , NULL, EINVAL); }
+  // (result >= destsz), string was truncated
+  if (result >= destsz)        { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
+
+  return(result);
+
+  #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
+  // </body>
   #undef ITEM
   #undef FN
 }
@@ -608,6 +689,8 @@ int NanoWinMsSafeStringCompilationTest()
   strncpy_s(tdest, stest, 1);
   strncpy_s(tdest, 2, stest, 1);
   strncpy_s(pdest, 2, ptest, 1);
+
+  sprintf_s(tdest, _countof(tdest), "just a test %s and here %s", ptest, ptest);
 
   return(ntest);
 }

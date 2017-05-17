@@ -109,18 +109,40 @@ extern errno_t wcsncpy_s     (wchar_t *dest, rsize_t destsz, const wchar_t *src,
 // Search for tokens in str, acts like strtok_r + quick checks for valid args. Non-C11, non-MS func, but logic extension of strtok_r. Note: Actualy it is how MS strtok_s works
 extern char   *strtok_r_s    (char *str, const char *delim, char **context);
 
-// Search for tokens in str, acts like wcstok_r + quick checks for valid args. Non-C11, non-MS func, but logic extension of strtok_r. Note: Actualy it is how MS strtok_s works
+// Search for tokens in str, acts like wcstok(_r) + quick checks for valid args. Non-C11, non-MS func, but logic extension of strtok_r. Note: Actualy it is how MS strtok_s works
 extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **context);
+
+// String format functions
+// -----------------------------------------------------
+
+// Format output by format and multiple args to dest, dest will be null treminated, dest memory size is limited to destsz items(chars/bytes) [MS VC specific, not C11]. returns -1 on error (target length on ok)
+extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ...);
+
+// Format output by format and multiple args to dest, dest will be null treminated, dest memory size is limited to destsz items(wchar_t) [MS VC specific, not C11]. returns -1 on error (target length on ok)
+extern int     wsprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...);
 
 NW_EXTERN_C_END
 
 #if !defined(__cplusplus)
-#define        strtok_s      strtok_r_s // for ms-compatibility
-#define        wsctok_s      wsctok_r_s // for ms-compatibility
+
+// for MS VC compatibility, we define aliases that takes MS VC style prototype, not C11 prototype
+
+// Search for tokens in str, acts like strtok_r + quick checks for valid args. [MS VC specific, not C11]
+#define        strtok_s      strtok_r_s 
+
+// Search for tokens in str, acts like strtok_r + quick checks for valid args. [MS VC specific, not C11]
+#define        wsctok_s      wsctok_r_s
+
 #else
-// get a chance to someone to overload strtok_s and wcstok_s in a C11 compilant way
+
+// Define line MS VC style prototypes (this will get a chance to someone to overload strtok_s and wcstok_s in a C11 compilant way, so both co-exist)
+
+// Search for tokens in str, acts like strtok_r + quick checks for valid args. [MS VC specific, not C11]
 inline char   *strtok_s      (char *str, const char *delim, char **context) { return(strtok_s(str, delim, context)); }
+
+// Search for tokens in str, acts like wcstok(_r) + quick checks for valid args. [MS VC specific, not C11]
 inline wchar_t*wcstok_s      (wchar_t *str, const wchar_t *delim, wchar_t **context) { return(wcstok_s(str, delim, context)); }
+
 #endif
 
 // C++ gates
