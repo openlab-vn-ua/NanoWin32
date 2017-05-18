@@ -18,6 +18,9 @@ NW_EXTERN_C_BEGIN
 #else
 #endif
 
+extern bool NanoWinFileNameMatchMaskA(const char *name, const char *mask);
+extern bool NanoWinFileNameMatchMaskW(const wchar_t *name, const wchar_t *mask);
+
 NW_EXTERN_C_END
 
 #endif // linux
