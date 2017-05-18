@@ -325,7 +325,7 @@ extern errno_t strcat_s      (char *dest, rsize_t destsz, const char *src)
   // dest valid, now we have to fill dest in case of fail
   if (src    == NULL)          { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
 
-  rsize_t dlen = STRNLEN(src, destsz);
+  rsize_t dlen = STRNLEN(dest, destsz);
   if (dlen   <  0)             { return_after_err_FILLDST(FN SP "dest len invalid"            , dest, EINVAL); }
   if (dlen   >= RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "dest len invalid."           , dest, EINVAL); }
 
@@ -372,7 +372,7 @@ extern errno_t wcscat_s      (wchar_t *dest, rsize_t destsz, const wchar_t *src)
   // dest valid, now we have to fill dest in case of fail
   if (src    == NULL)          { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
 
-  rsize_t dlen = STRNLEN(src, destsz);
+  rsize_t dlen = STRNLEN(dest, destsz);
   if (dlen   <  0)             { return_after_err_FILLDST(FN SP "dest len invalid"            , dest, EINVAL); }
   if (dlen   >= RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "dest len invalid."           , dest, EINVAL); }
 
