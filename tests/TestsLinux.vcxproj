@@ -61,22 +61,22 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <IncludePath>D:\Projects\NanoWin32\tests\src;../src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\src\NanoWinBmp.cpp" />
