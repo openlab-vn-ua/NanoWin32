@@ -101,6 +101,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\NanoWinBmpTests.cpp" />
     <ClCompile Include="src\NanoWinEventsTests.cpp" />
+    <ClCompile Include="src\NanoWinMsSafeStringTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTestTools.cpp" />
     <ClCompile Include="src\NanoWinRECTTests.cpp" />
