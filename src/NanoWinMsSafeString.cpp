@@ -413,52 +413,66 @@ extern errno_t strncpy_s     (char *dest, rsize_t destsz, const char *src, rsize
 
   #if defined(NW_STR_S_TRUNCATE)
   bool allowtruncate = false;
-  bool setnullatcount = false;
-  if (count == _TRUNCATE) { allowtruncate = true; count = destsz; }
+  bool wastruncated = false;
+  if (count == _TRUNCATE)      { allowtruncate = true; count = destsz; }
   #endif
 
   if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
   if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
   if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
-  if (count  <= 0)             { return(EOK); } // Nothing to do // C11 says this is error
+  if (count  <= 0)             { return_after_err_handler(FN SP "count is zero"               , NULL, ERANGE); } // { dest[0] = 0; return(EOK); } // alternative approach
   // count > 0, something have to be done
   if (count  >  RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
   if (src    == NULL)          { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
 
-  rsize_t slen = STRNLEN(src, count);
+  rsize_t llim = count; 
+  if (destsz <  llim)          { llim = destsz; } // llim = min(count,destsz) // to reduce overhead in strnlen
+
+  rsize_t slen = STRNLEN(src, llim);
   if (slen   <  0)             { return_after_err_FILLDST(FN SP "src len invalid"             , src , ERANGE); }
   if (slen   >= RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "src len invalid."            , src , ERANGE); }
 
-  if (slen < count)
+  rsize_t bsize; // we copy only body here, so csize is only body size
+
+  if (slen < llim)
   {
 	// source is null terminated
     // adjust count to copy only slen+1
-    count = slen+1;
+    bsize = slen; // copy only body
   }
   else
   {
-    // source is not null-terminated and lasts more then count
-    // We may copy count items, add set null-terminator at count char (overwrite last byte at target) to truncate
-    #if defined(NW_STR_S_TRUNCATE)
-    if (allowtruncate)         { setnullatcount = true; }
-    else                       { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); }
-    #else
-	// truncate is a C11 error
-                               { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); }
-    #endif
+    // source is not null-terminated and not fit in llim items (has slen >= llim)
+	// check if it there is a room for null terminator in dest
+    if (llim < destsz)
+	{
+      bsize = llim-1; // copy only body
+	}
+	else
+	{
+      #if defined(NW_STR_S_TRUNCATE)
+      if (!allowtruncate)      { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); } // core check
+      wastruncated = true;
+      bsize = destsz-1; // copy only body
+      #else
+                               { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); } // core check
+      #endif
+	}
   }
 
-  if (destsz <  count)         { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); } // core check
+  // count should be less then destsz since we do dest[count] = 0
+  if (bsize >= destsz)         { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); } // fallback spec check
 
-  if (is_overlap(dest,src,count,sizeof(ITEM)))
+  if (is_overlap(dest,src,bsize,sizeof(ITEM))) // only body checked
                                { return_after_err_FILLDST(FN SP "dest and src overlap"        , NULL, EINVAL); }
 
   // Action!
-  // Use memcpy here, since we already have a count (=len+1) here
-  memcpy(dest, src, MEM_GET_SIZE(count, ITEM));
+  // Use memcpy here, since we already have a count
+  if (bsize > 0) { memcpy(dest, src, MEM_GET_SIZE(bsize, ITEM)); }
+  dest[bsize] = 0; // add null-terminator
   #if defined(NW_STR_S_TRUNCATE)
-  if (setnullatcount) { dest[count] = 0; return(STRUNCATE); } // set null at count to truncate result
+  if (wastruncated) { return(STRUNCATE); }
   #endif
   return(EOK);
 
@@ -481,52 +495,66 @@ extern errno_t wcsncpy_s     (wchar_t *dest, rsize_t destsz, const wchar_t *src,
 
   #if defined(NW_STR_S_TRUNCATE)
   bool allowtruncate = false;
-  bool setnullatcount = false;
-  if (count == _TRUNCATE) { allowtruncate = true; count = destsz; }
+  bool wastruncated = false;
+  if (count == _TRUNCATE)      { allowtruncate = true; count = destsz; }
   #endif
 
   if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
   if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
   if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
-  if (count  <= 0)             { return(EOK); } // Nothing to do // C11 says this is error
+  if (count  <= 0)             { return_after_err_handler(FN SP "count is zero"               , NULL, ERANGE); } // { dest[0] = 0; return(EOK); } // alternative approach
   // count > 0, something have to be done
   if (count  >  RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
   if (src    == NULL)          { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
 
-  rsize_t slen = STRNLEN(src, count);
+  rsize_t llim = count; 
+  if (destsz <  llim)          { llim = destsz; } // llim = min(count,destsz) // to reduce overhead in strnlen
+
+  rsize_t slen = STRNLEN(src, llim);
   if (slen   <  0)             { return_after_err_FILLDST(FN SP "src len invalid"             , src , ERANGE); }
   if (slen   >= RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "src len invalid."            , src , ERANGE); }
 
-  if (slen < count)
+  rsize_t bsize; // we copy only body here, so csize is only body size
+
+  if (slen < llim)
   {
 	// source is null terminated
     // adjust count to copy only slen+1
-    count = slen+1;
+    bsize = slen; // copy only body
   }
   else
   {
-    // source is not null-terminated and lasts more then count
-    // We may copy count items, add set null-terminator at count char (overwrite last byte at target) to truncate
-    #if defined(NW_STR_S_TRUNCATE)
-    if (allowtruncate)         { setnullatcount = true; }
-    else                       { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); }
-    #else
-	// truncate is a C11 error
-                               { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); }
-    #endif
+    // source is not null-terminated and not fit in llim items (has slen >= llim)
+	// check if it there is a room for null terminator in dest
+    if (llim < destsz)
+	{
+      bsize = llim-1; // copy only body
+	}
+	else
+	{
+      #if defined(NW_STR_S_TRUNCATE)
+      if (!allowtruncate)      { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); } // core check
+      wastruncated = true;
+      bsize = destsz-1; // copy only body
+      #else
+                               { return_after_err_FILLDST(FN SP "src truncate would ocurr"    , src , ERANGE); } // core check
+      #endif
+	}
   }
 
-  if (destsz <  count)         { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); } // core check
+  // count should be less then destsz since we do dest[count] = 0
+  if (bsize >= destsz)         { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); } // fallback spec check
 
-  if (is_overlap(dest,src,count,sizeof(ITEM)))
+  if (is_overlap(dest,src,bsize,sizeof(ITEM))) // only body checked
                                { return_after_err_FILLDST(FN SP "dest and src overlap"        , NULL, EINVAL); }
 
   // Action!
-  // Use memcpy here, since we already have a count (=len+1) here
-  memcpy(dest, src, MEM_GET_SIZE(count, ITEM));
+  // Use memcpy here, since we already have a count
+  if (bsize > 0) { memcpy(dest, src, MEM_GET_SIZE(bsize, ITEM)); }
+  dest[bsize] = 0; // add null-terminator
   #if defined(NW_STR_S_TRUNCATE)
-  if (setnullatcount) { dest[count] = 0; return(STRUNCATE); } // set null at count to truncate result
+  if (wastruncated) { return(STRUNCATE); }
   #endif
   return(EOK);
 
