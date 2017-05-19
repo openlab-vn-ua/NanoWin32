@@ -36,11 +36,46 @@ extern int    _wmkdir(const wchar_t *dirname)
 
 extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *varname)
 {
+  // TODO: Implement me
   if (buffer != NULL) { (*buffer) = NULL; }
   if (numberOfElements != NULL) { (*numberOfElements) = 0; }
   return(ENOMEM);
 }
 
 // extern errno_t _wdupenv_s(wchar_t **buffer, size_t *numberOfElements, const wchar_t *varname); // TODO: Implement me
+
+extern errno_t mbstowcs_s
+                (
+                  size_t        *outCount,
+                  wchar_t       *dest,
+                  rsize_t        destsz,
+                  const char    *src,
+                  rsize_t        count
+                )
+{
+  // TODO: Draft implemenation
+  (*outCount) = 0;
+  size_t result = mbstowcs(dest, src, count);
+  if (((ssize_t)result) < 0) { return(EINVAL); }
+  (*outCount) = result;
+  return(0); // EOK
+}
+
+extern  errno_t wcstombs_s
+                (
+                  size_t        *outCount,
+                  char          *dest,
+                  rsize_t        destsz,
+                  const wchar_t *src,
+                  rsize_t        count
+                )
+{
+  // TODO: Draft implemenation
+  (*outCount) = 0;
+  size_t result = wcstombs(dest, src, count);
+  if (((ssize_t)result) < 0) { return(EINVAL); }
+  (*outCount) = result;
+  return(0); // EOK
+}
 
 NW_EXTERN_C_END

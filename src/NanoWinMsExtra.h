@@ -73,6 +73,26 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 #define fprintf_s            fprintf
 #define fwprintf_s           fwprintf
 
+// Char transaltion MS-safe functions
+
+extern  errno_t mbstowcs_s
+                (
+                  size_t        *outCount,
+                  wchar_t       *dest,
+                  rsize_t        destsz,
+                  const char    *src,
+                  rsize_t        count
+                );
+
+extern  errno_t wcstombs_s
+                (
+                  size_t        *outCount,
+                  char          *dest,
+                  rsize_t        destsz,
+                  const wchar_t *src,
+                  rsize_t        count
+                );
+
 // MS string functions
 // ---------------------------------------------
 
