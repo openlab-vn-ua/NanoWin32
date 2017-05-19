@@ -38,11 +38,8 @@
 class CObject
 {
   public:
-  #if defined(__GNUC__)
-  virtual ~CObject() { };  // Under GCC cannot be abstract for some reason // TODO: Investigate this
-  #else
+
   virtual ~CObject() = 0;  // Virtual destructors are manadatory to all decendants
-  #endif
 
   protected:
   CObject() { }; // You cannot instaniate CObject directly

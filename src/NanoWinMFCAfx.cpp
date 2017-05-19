@@ -7,6 +7,12 @@
 
 #include "NanoWinMFCAfx.h"
 
+// implementation of abstract virtual destructor is required, without it it would be
+// impossible to instantiate its descendants
+CObject::~CObject()
+{
+}
+
 BOOL CException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
