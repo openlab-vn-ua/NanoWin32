@@ -65,6 +65,13 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 #define _wfopen_s             wfopen_s // alias to wfopen_s
 #endif
 
+// for *printf_s functions work alike to *printf but just add format string check
+// assume it the same, we may will implement version with check later
+
+#define printf_s             printf
+#define wprintf_s            wprintf
+#define fprintf_s            fprintf
+#define fwprintf_s           fwprintf
 
 // MS string functions
 // ---------------------------------------------
