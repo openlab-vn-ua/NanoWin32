@@ -269,6 +269,7 @@ NW_TEST(GetPrivateProfileStringATestGroup, TestFileNotExist)
 		"undefined", value, sizeof(value),
 		"/home/asti/work/unexistFile.ini");
 
+	NW_CHECK_EQUAL(9, valueLen);
 	NW_CHECK_EQUAL_STRCMP("undefined", value);
 }
 
@@ -287,6 +288,7 @@ NW_TEST(GetPrivateProfileStringATestGroup, TestSectionNotExist)
 		"undefined", value, sizeof(value),
 		TestINIFileName);
 
+	NW_CHECK_EQUAL(9, valueLen);
 	NW_CHECK_EQUAL_STRCMP("undefined", value);
 }
 
@@ -305,6 +307,7 @@ NW_TEST(GetPrivateProfileStringATestGroup, TestKeyNotExist)
 		"undefined", value, sizeof(value),
 		TestINIFileName);
 
+	NW_CHECK_EQUAL(9, valueLen);
 	NW_CHECK_EQUAL_STRCMP("undefined", value);
 }
 
