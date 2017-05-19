@@ -77,19 +77,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Projects\NanoWin32\src;D:\Projects\NanoWin32\tests\src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Projects\NanoWin32\src;D:\Projects\NanoWin32\tests\src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Projects\NanoWin32\src;D:\Projects\NanoWin32\tests\src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Projects\NanoWin32\src;D:\Projects\NanoWin32\tests\src;$(IncludePath)</IncludePath>
+    <IncludePath>./src;../src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="src\NanoWinBmpTests.cpp" />
     <ClCompile Include="src\NanoWinEventsTests.cpp" />
+    <ClCompile Include="src\NanoWinMsSafeStringTests.cpp" />
     <ClCompile Include="src\NanoWinRECTTests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
