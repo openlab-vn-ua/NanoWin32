@@ -1,0 +1,8 @@
+.vs/
+.suo
+*.pdb
+
+Debug/
+Release/
+
+*.vcxproj.user
