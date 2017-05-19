@@ -93,5 +93,45 @@ typedef LPSTR                LPTSTR;
 #define _istdigit           isdigit
 #endif
 
+#if defined(UNICODE) || defined(_UNICODE)
+
+#define _ftprintf            fwprintf
+#define _ftprintf_s          fwprintf_s
+#define _tfopen_s            _wfopen_s
+#define _fputts              fputws
+#define _fgetts              fgetws
+#define _ftscanf             fwscanf
+
+#else
+
+#define _ftprintf            fprintf
+#define _ftprintf_s          fprintf_s
+#define _tfopen_s            fopen_s
+#define _fputts              fputs
+#define _fgetts              fgets
+#define _ftscanf             fscanf
+
+#endif
+
+#if defined(UNICODE) || defined(_UNICODE)
+
+#define _tprintf             wprintf
+#define _tprintf_s           wprintf_s
+#define _stprintf            swprintf
+#define _stprintf_s          swprintf_s
+#define _tgetcwd             _wgetcwd
+#define _stscanf             swscanf
+
+#else
+
+#define _tprintf             printf
+#define _tprintf_s           printf_s
+#define _stprintf            sprintf
+#define _stprintf_s          sprintf_s
+#define _tgetcwd             getcwd
+#define _stscanf             sscanf
+
+#endif
+
 #endif // linux
 #endif // ...Included
