@@ -39,28 +39,31 @@
 
 NW_EXTERN_C_BEGIN
 
-extern BOOL PathFileExistsA         (const char    *lpPath);
-extern BOOL PathFileExistsW         (const wchar_t *lpPath);
+extern BOOL WINAPI PathFileExistsA (const char    *lpPath);
+extern BOOL WINAPI PathFileExistsW (const wchar_t *lpPath);
 
 // Win32 API: Directory stuff
-#define GetCurrentDirectoryA( a,b)  getcwd(b,a)
-#define GetCurrentDirectoryW( a,b)  (0) // TODO: Implement me
+#define GetCurrentDirectoryA( a,b) getcwd(b,a)
+#define GetCurrentDirectoryW( a,b) (0) // TODO: Implement me
 
 #define CreateDirectoryA(p,s)      (mkdir((p),(s) == NULL ? \
                                                (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |  S_IROTH | S_IWOTH) : (S_IRUSR | S_IWUSR) \
                                            ) != 0 ? 0 : 1)
 #define CreateDirectoryW(p,s)      (0) // TODO: Implement me
 
-#define DeleteFile                 unlink // TODO: LINUX: Verify return value policy
+extern BOOL WINAPI DeleteFileA     (LPCSTR  lpFileName);
+extern BOOL WINAPI DeleteFileW     (LPCWSTR lpFileName);
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define GetCurrentDirectory        GetCurrentDirectoryW
 #define PathFileExists             PathFileExistsW
 #define CreateDirectory            CreateDirectoryW
+#define DeleteFile                 DeleteFileW
 #else
 #define GetCurrentDirectory        GetCurrentDirectoryA
 #define PathFileExists             PathFileExistsA
 #define CreateDirectory            CreateDirectoryA
+#define DeleteFile                 DeleteFileA
 #endif
 
 NW_EXTERN_C_END
