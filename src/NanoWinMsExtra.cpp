@@ -7,6 +7,7 @@
 
 #include "NanoWinMsExtra.h"
 
+#include "NanoWinFileSys.h"
 #include "NanoWinStrConvert.h"
 
 #include <stdio.h>
@@ -76,6 +77,18 @@ extern  errno_t wcstombs_s
   if (((ssize_t)result) < 0) { return(EINVAL); }
   (*outCount) = result;
   return(0); // EOK
+}
+
+extern wchar_t *wgetcwd(wchar_t *dest,  int destsz)
+{
+  // TODO: Draft implemenation
+  char  tmp[MAX_PATH];
+  char *result;
+  result = getcwd(tmp, sizeof(tmp));
+  if (result == NULL) { return(NULL); }
+  size_t countx = 0;
+  if (mbstowcs_s(&countx,dest,destsz,result,destsz) != 0) { return(NULL); }
+  return(dest);
 }
 
 NW_EXTERN_C_END

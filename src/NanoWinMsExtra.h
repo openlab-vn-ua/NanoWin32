@@ -58,7 +58,7 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 // ---------------------------------------------
 
 #define fopen_s(f,fn,m)      ((*(f) = fopen(fn,m)) == NULL ? errno : 0)
-#define wfopen_s(f,fn,m)     ((*(f) = wfopen(fn,m)) == NULL ? errno : 0)
+#define wfopen_s(f,fn,m)     ((*(f) = wfopen(fn,m)) == NULL ? errno : 0) // TODO: Align better: there is only _wfopen_s under win32 (check does wfopen_s ever existed?)
 #define localtime_s(pti,pt)  (((*(pti)) = *(localtime(pt))),0)
 
 #ifndef NW_NO_MS_ISO_ALIASES // MS aliases for "obsolete" func
@@ -127,10 +127,15 @@ inline  wchar_t *wscupr      (wchar_t *s)  { wchar_t *data = (s); while (*data !
 #define _fputchar            fputchar
 #define _fputwchar           fputwchar
 #define _getcwd              getcwd
-#define _wgetcwd             wgetcwd
+#define _wgetcwd             wgetcwd  // TODO: Align better: there is only _wgetcwd under win32 (check does wgetcwd ever existed?)
 #define _chdir               chdir
 #define _getpid              getpid
 #endif
+
+// Other MS-specific functions
+// ---------------------------------------------
+
+extern wchar_t *wgetcwd(wchar_t *buffer,  int maxlen);
 
 NW_EXTERN_C_END
 
