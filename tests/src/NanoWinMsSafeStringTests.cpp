@@ -13,6 +13,14 @@
  #define EOK (0)
 #endif
 
+#if !defined(RSIZE_MAX_STR)
+#define RSIZE_MAX_STR RSIZE_MAX
+#endif
+
+#if !defined(RSIZE_MAX_MEM)
+#define RSIZE_MAX_MEM RSIZE_MAX
+#endif
+
 #define NW_CHECK_EQUAL_TYPES(a,b,t)    NW_CHECK_EQUAL((t)a,(t)b)
 #define NW_CHECK_EQUAL_BYTES(a,b)      NW_CHECK_EQUAL_TYPES(a,b,uint8_t)
 
@@ -21,10 +29,121 @@
 #define NW_CHECK_STR_EMPTY(s)     NW_CHECK_TRUE((s)[0] == '\0')
 #define NW_CHECK_STR_NOT_EMPTY(s) NW_CHECK_TRUE((s)[0] != '\0')
 
-NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMsSafeStringTestGroup)
+// Error handler setup
+// ---------------------------------------------
+
+#if defined(_MSC_VER)
+
+static void invalid_parameter_report_and_continue
+			(
+				const wchar_t * expression,  
+				const wchar_t * function,   
+				const wchar_t * file,   
+				unsigned int line,  
+				uintptr_t pReserved  
+			)
+{
+	#if 0
+	wprintf(L"Invalid parameter detected in function %s."
+			L" File: %s Line: %d\n", function, file, line);
+	wprintf(L"Expression: %s\n", expression);
+	//abort();
+	#endif
+	return;
+}
+
+class  SET_FAIL_FOR_TEST
+{
+	protected:
+	bool                       old_app_param_defined;
+    _invalid_parameter_handler old_app_invalid_parameter_handler;
+	int                        old_app_crtdbg_report_mode;
+
+	public:
+	SET_FAIL_FOR_TEST()
+	{
+		old_app_param_defined = false;
+	}
+
+	void set_fail_as_report_and_continue()
+	{
+		if (!old_app_param_defined)
+		{
+			// First call - save app-default handler
+			old_app_crtdbg_report_mode = _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_REPORT_MODE);
+			old_app_invalid_parameter_handler = _set_invalid_parameter_handler(invalid_parameter_report_and_continue);
+		}
+		else
+		{
+			// App handler already saved, just update our handler
+			_set_invalid_parameter_handler(invalid_parameter_report_and_continue);
+		}
+
+		_CrtSetReportMode(_CRT_ASSERT, 0);
+		old_app_param_defined = true;
+	}
+
+	void set_fail_by_restore_default()
+	{
+	  if (old_app_param_defined)
+	  {
+		// app-wide old info available, restore it
+		_set_invalid_parameter_handler(old_app_invalid_parameter_handler);
+		_CrtSetReportMode(_CRT_ASSERT, old_app_crtdbg_report_mode);
+	  }
+	}
+
+};
+
+static SET_FAIL_FOR_TEST set_fail_for_test_handler;
+
+#define SET_FAIL_AS_REPORT_AND_CONTINUE() set_fail_for_test_handler.set_fail_as_report_and_continue()
+#define SET_FAIL_AS_DEFAULT()		      set_fail_for_test_handler.set_fail_by_restore_default()
+
+#else
+
+#define SET_FAIL_AS_REPORT_AND_CONTINUE() // nothing yet
+#define SET_FAIL_AS_DEFAULT() // nothing yet
+
+#endif
+
+class SET_FAIL_FOR_TEST_AUTO_CLASS
+{
+	public:
+	SET_FAIL_FOR_TEST_AUTO_CLASS()  { SET_FAIL_AS_REPORT_AND_CONTINUE(); }
+	~SET_FAIL_FOR_TEST_AUTO_CLASS() { SET_FAIL_AS_DEFAULT(); }
+};
+
+#define SETUP_S_TEST() SET_FAIL_FOR_TEST_AUTO_CLASS __set_fail_auto_init_done_object;
+
+// Some aux tools
+// ---------------------------------------------
+
+#if defined(_MSC_VER)
+#define SKIP_MS
+#endif
+
+// Tests
+// ---------------------------------------------
+
+NW_BEGIN_TEST_GROUP(NanoWinMsSafeStringTestGroup)
+
+NW_BEGIN_SETUP_TEARDOWN
+NW_SETUP_METHOD()
+ {
+	// SET_FAIL_AS_REPORT_AND_CONTINUE(); // Does not work for some reason
+ }
+NW_TEARDOWN_METHOD()
+ {
+	// SET_FAIL_AS_DEFAULT(); // Does not work for some reason
+ }
+NW_END_SETUP_TEARDOWN
+
 
 NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 {
+ SETUP_S_TEST();
+
  #define MAX   ( 128 )
  #define LEN   ( 128 )
 
@@ -60,9 +179,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
  /*--------------------------------------------------*/
 
+ #ifndef SKIP_MS // TRP
  rc = strncpy_s(str1, (RSIZE_MAX_STR + 1), str2, nlen);
 
  NW_CHECK_RC_ERR(rc);
+ #endif
 
  /*--------------------------------------------------*/
  /*--------------------------------------------------*/
@@ -99,6 +220,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
  /*--------------------------------------------------*/
 
+ #ifndef SKIP_MS // Assert
  strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
  nlen = 5;
 
@@ -107,9 +229,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
  NW_CHECK_RC_ERR(rc);
  NW_CHECK_STR_EMPTY(str1);
+ #endif
 
  /*--------------------------------------------------*/
 
+ #ifndef SKIP_MS // Assert
  strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
  nlen = 18;
 
@@ -117,6 +241,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
  NW_CHECK_RC_ERR(rc);
  NW_CHECK_STR_EMPTY(str1);
+ #endif
 
  /*--------------------------------------------------*/
 
@@ -207,7 +332,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
  /*--------------------------------------------------*/
  /* TR example */
 
- #if 0 // TODO: check correct behavior
+ #if 0 // TODO: check correct behavior // OK
  strcpy(dest, "                            ");
  strcpy(str2, "goodbye");
 
@@ -258,6 +383,8 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
 NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 {
+SETUP_S_TEST();
+
 #define LEN   ( 1024 )
 
 	uint8_t  mem1[LEN + 2];
@@ -466,6 +593,8 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 {
+SETUP_S_TEST();
+
 #define LEN   ( 1024 )
 
 	uint8_t  mem1[LEN];
@@ -639,6 +768,8 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 
 NW_TEST(NanoWinMsSafeStringTestGroup, StrCatSTest)
 {
+SETUP_S_TEST();
+
 #define LEN   ( 128 )
 
 	char   str1[LEN];
@@ -861,6 +992,8 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrCatSTest)
 
 NW_TEST(NanoWinMsSafeStringTestGroup, StrCpySTest)
 {
+SETUP_S_TEST();
+
 #define MAX   ( 128 )
 #define LEN   ( 128 )
 
