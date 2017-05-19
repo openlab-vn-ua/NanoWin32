@@ -72,6 +72,8 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 #define wprintf_s            wprintf
 #define fprintf_s            fprintf
 #define fwprintf_s           fwprintf
+#define vfprintf_s           vfprintf
+#define vfwprintf_s          vfwprintf
 
 // Char transaltion MS-safe functions
 
