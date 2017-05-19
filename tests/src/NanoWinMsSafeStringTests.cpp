@@ -13,6 +13,9 @@
  #define EOK (0)
 #endif
 
+#define NW_CHECK_EQUAL_TYPES(a,b,t)    NW_CHECK_EQUAL((t)a,(t)b)
+#define NW_CHECK_EQUAL_BYTES(a,b)      NW_CHECK_EQUAL_TYPES(a,b,uint8_t)
+
 #define NW_CHECK_RC_OK(rc)        NW_CHECK_EQUAL_INTS(EOK,rc)
 #define NW_CHECK_RC_ERR(rc)       NW_CHECK_FALSE(rc == EOK)
 #define NW_CHECK_STR_EMPTY(s)     NW_CHECK_TRUE((s)[0] == '\0')
@@ -64,7 +67,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
  /*--------------------------------------------------*/
  /*--------------------------------------------------*/
 
- /*TODO: check correct behavior
+ #if 0 // TODO: check correct behavior
  strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
  str2[0] = '\0';
 
@@ -72,7 +75,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
  NW_CHECK_RC_ERR(rc);
  NW_CHECK_STR_EMPTY(str1);
- */
+ #endif
 
  /*--------------------------------------------------*/
 
@@ -204,20 +207,20 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
  /*--------------------------------------------------*/
  /* TR example */
 
- /*TODO: check correct behavior
+ #if 0 // TODO: check correct behavior
  strcpy(dest, "                            ");
  strcpy(str2, "goodbye");
 
  rc = strncpy_s(dest, 5, str2, 4);
 
  NW_CHECK_RC_OK(rc);
-*/
+
  /* be sure the results are the same as strcmp */
- /*
+
  ind = strcmp(dest, "good");
 
  NW_CHECK_EQUAL(0, ind);
- */
+ #endif
 
  /*--------------------------------------------------*/
 
@@ -290,13 +293,13 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	/*--------------------------------------------------*/
 
-	/*TODO: check correct behavior
-	  NOTE: documentation says that if count == 0, result must be EOK
-	        it is not clear why original test expects error
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
+	//  NOTE: documentation says that if count == 0, result must be EOK
+	//        it is not clear why original test expects error
 
 	rc = memcpy_s(mem1, 10, mem2, 0);
 	NW_CHECK_RC_ERR(rc);
-	*/
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -315,10 +318,10 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(mem1[i], mem2[i]);
+		NW_CHECK_EQUAL_BYTES(mem1[i], mem2[i]);
 	}
 
-	NW_CHECK_EQUAL(33, mem1[i]);
+	NW_CHECK_EQUAL_BYTES(33, mem1[i]);
 
 	/*--------------------------------------------------*/
 
@@ -332,10 +335,10 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
 
-	NW_CHECK_EQUAL(33, mem1[i]);
+	NW_CHECK_EQUAL_BYTES(33, mem1[i]);
 
 	/*--------------------------------------------------*/
 
@@ -349,16 +352,16 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
 
-	NW_CHECK_EQUAL(33, mem1[len]);
+	NW_CHECK_EQUAL_BYTES(33, mem1[len]);
 
 	/*--------------------------------------------------*/
 	
-	/*TODO: check correct behavior
-	NOTE: documentation says that if count == 0, result must be EOK
-	it is not clear why original test expects error
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
+	//  NOTE: documentation says that if count == 0, result must be EOK
+	//        it is not clear why original test expects error
 
 	for (i = 0; i < LEN + 2; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
@@ -370,9 +373,9 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	for (i=0; i<len; i++) 
 	{
-	    NW_CHECK_EQUAL(0, mem1[i]);
+	    NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-	*/
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -386,7 +389,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 	
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
 	
 	NW_CHECK_FALSE(mem1[len] == 0);
@@ -424,7 +427,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	for (i = 10; i < len + 10; i++)
 	{
-		NW_CHECK_EQUAL(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
 	/*--------------------------------------------------*/
 
@@ -438,7 +441,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(55, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(55, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
@@ -452,7 +455,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 
 	for (i = 0; i<LEN / 2; i++) 
 	{
-		NW_CHECK_EQUAL(55, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(55, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
@@ -498,13 +501,13 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 
 	/*--------------------------------------------------*/
 	
-	/*TODO: check correct behavior
-	NOTE: documentation says that if count == 0, result must be EOK
-	it is not clear why original test expects error
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
+	//  NOTE: documentation says that if count == 0, result must be EOK
+	//  it is not clear why original test expects error
 
 	rc = memmove_s(mem1, 10, mem2, 0);
 	NW_CHECK_RC_ERR(rc);           
-	*/
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -524,7 +527,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 	NW_CHECK_RC_OK(rc);
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(mem2[i], mem1[i]);
+		NW_CHECK_EQUAL_BYTES(mem2[i], mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
@@ -540,14 +543,14 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
 
-	/*TODO: check correct behavior
-	NOTE: documentation says that if count == 0, result must be EOK
-	it is not clear why original test expects error
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
+	//  NOTE: documentation says that if count == 0, result must be EOK
+	//        it is not clear why original test expects error
 
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
@@ -559,9 +562,9 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-	*/
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -577,7 +580,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
@@ -604,7 +607,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(35, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(35, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
@@ -624,7 +627,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 
 	for (i = 0; i < len; i++)
 	{
-		NW_CHECK_EQUAL(25, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(25, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
@@ -910,14 +913,19 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrCpySTest)
 
 	/*--------------------------------------------------*/
 	
-	/*test is uncorrect, standard says that result of this operation will be error
+	#if 0  // TODO: check correct behavior [verify TEST expectation]
+	//  test is uncorrect, standard says that result of this operation will be error
+	//  to check if src==dest should this be considered as "overlap" ?
+	//  memcpy does not assume that (src==dest is ok for memecpy)
+	//  should we just check that length assumption is match and go on?
 
 	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
 	rc = strcpy_s(str1, LEN, str1);
 	
 	NW_CHECK_RC_OK(rc);
-	*/
+	#endif
+
 	/*--------------------------------------------------*/
 
 	strcpy(&str1[0], "keep it simple");
