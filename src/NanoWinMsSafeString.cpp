@@ -358,7 +358,7 @@ extern errno_t strcat_s      (char *dest, rsize_t destsz, const char *src)
 extern errno_t wcscat_s      (wchar_t *dest, rsize_t destsz, const wchar_t *src)
 {
   #define FN "wcscat_s"
-  #define ITEM char
+  #define ITEM wchar_t
   #define STRNLEN              wcsnlen
   // <body> // invaliant for strcat_s and wcscat_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
