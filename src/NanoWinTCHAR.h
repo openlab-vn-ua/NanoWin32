@@ -62,6 +62,10 @@ typedef LPSTR                LPTSTR;
 #define _tcslwr_s           wcslwr_s
 #define _tcscmp             wcscmp
 #define _tcsclen            wcslen
+#define _tcsstr             wcsstr
+#define _tcschr             wcschr
+#define _tcsrchr            wcsrchr
+#define _tcscspn            wcscspn
 #else
 #include <string.h>
 #define _tcslen             strlen
@@ -77,6 +81,16 @@ typedef LPSTR                LPTSTR;
 #define _tcslwr_s           strlwr_s
 #define _tcscmp             strcmp
 #define _tcsclen            strlen
+#define _tcsstr             strstr
+#define _tcschr             strchr
+#define _tcsrchr            strrchr
+#define _tcscspn            strcspn
+#endif
+
+#if defined(UNICODE) || defined(_UNICODE)
+#define _tstoi              _wtoi
+#else
+#define _tstoi              atoi
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
