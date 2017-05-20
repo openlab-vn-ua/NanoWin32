@@ -31,6 +31,8 @@
 #define ERROR_NOT_SUPPORTED            (0x32)    //    50 // The request is not supported
 #define ERROR_ENVVAR_NOT_FOUND         (0XCB)    //   203 // The system could not find the environment option that was entered
 
+#define ERROR_NO_UNICODE_TRANSLATION   (0x459)   //  1113 // No mapping for the Unicode character exists in the target multi-byte code page
+
 // Error functions
 // -----------------------------------------------------------------------
 
