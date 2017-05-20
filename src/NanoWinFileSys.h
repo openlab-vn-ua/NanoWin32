@@ -43,8 +43,9 @@ extern BOOL WINAPI PathFileExistsA (const char    *lpPath);
 extern BOOL WINAPI PathFileExistsW (const wchar_t *lpPath);
 
 // Win32 API: Directory stuff
-#define GetCurrentDirectoryA( a,b) getcwd(b,a)
-#define GetCurrentDirectoryW( a,b) (0) // TODO: Implement me
+
+extern DWORD WINAPI GetCurrentDirectoryA(DWORD nBufferLength, LPSTR lpBuffer);
+extern DWORD WINAPI GetCurrentDirectoryW(DWORD nBufferLength, LPWSTR lpBuffer);
 
 #define CreateDirectoryA(p,s)      (mkdir((p),(s) == NULL ? \
                                                (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |  S_IROTH | S_IWOTH) : (S_IRUSR | S_IWUSR) \
