@@ -10,6 +10,8 @@
 #include "NanoWinStrConvert.h"
 #include "NanoWinError.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
@@ -239,6 +241,56 @@ extern BOOL WINAPI DeleteFileA(LPCSTR  lpFileName)
 	}
 
     return(FALSE);
+  }
+}
+
+extern BOOL WINAPI CreateDirectoryA(LPCSTR                lpPathName,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+  mode_t mode = lpSecurityAttributes == NULL ? (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) : (S_IRWXU);
+
+  if (mkdir(lpPathName, mode) != 0)
+  {
+    switch (errno)
+    {
+      case (EEXIST) :
+      {
+        SetLastError(ERROR_ALREADY_EXISTS);
+      } break;
+
+      case (ENOENT) :
+      {
+        SetLastError(ERROR_PATH_NOT_FOUND);
+      } break;
+
+      default :
+      {
+        SetLastError(NanoWinErrorByErrnoAtFail(errno));
+      }
+    }
+
+    return FALSE;
+  }
+  else
+  {
+    return TRUE;
+  }
+}
+
+extern BOOL WINAPI CreateDirectoryW(LPCWSTR               lpPathName,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+  try
+  {
+    std::string mbPathName = NanoWin::StrConverter::Convert(lpPathName);
+
+    return CreateDirectoryA(mbPathName.c_str(), lpSecurityAttributes);
+  }
+  catch (NanoWin::StrConverter::Error)
+  {
+    SetLastError(ERROR_NO_UNICODE_TRANSLATION);
+
+    return FALSE;
   }
 }
 

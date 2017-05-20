@@ -47,10 +47,10 @@ extern BOOL WINAPI PathFileExistsW (const wchar_t *lpPath);
 extern DWORD WINAPI GetCurrentDirectoryA(DWORD nBufferLength, LPSTR lpBuffer);
 extern DWORD WINAPI GetCurrentDirectoryW(DWORD nBufferLength, LPWSTR lpBuffer);
 
-#define CreateDirectoryA(p,s)      (mkdir((p),(s) == NULL ? \
-                                               (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |  S_IROTH | S_IWOTH) : (S_IRUSR | S_IWUSR) \
-                                           ) != 0 ? 0 : 1)
-#define CreateDirectoryW(p,s)      (0) // TODO: Implement me
+extern BOOL WINAPI CreateDirectoryA(LPCSTR                lpPathName,
+                                    LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+extern BOOL WINAPI CreateDirectoryW(LPCWSTR               lpPathName,
+                                    LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 
 extern BOOL WINAPI DeleteFileA     (LPCSTR  lpFileName);
 extern BOOL WINAPI DeleteFileW     (LPCWSTR lpFileName);
