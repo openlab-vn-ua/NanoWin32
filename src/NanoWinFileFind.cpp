@@ -150,7 +150,7 @@ static void NanoWinFindFileCloseHandle(NanoWinFileFindHandle *handle)
 
     if (handle->dirName != NULL)
     {
-      free(handle->fileMask);
+      free(handle->dirName);
     }
 
     if (handle->fileMask != NULL)
