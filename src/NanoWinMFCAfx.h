@@ -115,5 +115,47 @@ class CFileException : public CSimpleException
   virtual BOOL GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
 };
 
+// Some usefull types
+// --------------------------------------
+// atltypes.h
+
+#include "NanoWinRECT.h"
+
+class CRect : public RECT
+{
+  public:
+
+  CRect() // throw()
+  {
+    left = 0;
+    top = 0;
+    right = 0;
+    bottom = 0;
+  }
+
+  CRect(int inLeft, int inTop, int inRight, int inBottom) // throw()
+  {
+    left = inLeft;
+    top = inTop;
+    right = inRight;
+    bottom = inBottom;
+  }
+};
+
+class CSize : public SIZE
+{
+  public:
+
+  CSize(int initCX, int initCY) // throw()
+  {
+    cx = initCX; cy = initCY;
+  }
+
+  CSize() // throw()
+  {
+    cx = 0; cy = 0;
+  }
+};
+
 #endif // linux
 #endif // ...Included
