@@ -69,7 +69,11 @@ class CException : public CObject
   // Prototype differ from MFC, because no agrs are supported here, original prototype:
   // virtual int ReportError(UINT nType = MB_OK, UINT nMessageID = 0);
   // Stubbed ReportError() uses no params and is not virtual since override is not supported here
-  int  ReportError  ();
+  int  ReportError(); // TODO: Implement me
+
+  // This function checks to see if the CException object was created on the heap, 
+  // and if so, it calls the delete operator on the object.
+  void Delete(); // TODO: Implement me
 
   // Abstract since there is no destructor declared here
 };
