@@ -2204,4 +2204,96 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 	#undef LEN
 }
 
+NW_TEST(NanoWinMsSafeStringTestGroup, StrUprSTest)
+{
+    #define STRS     "aqweAQWEaqweAQWE12345!@#$%aqweAQWE" // known source
+    #define STRD     "AQWEAQWEAQWEAQWE12345!@#$%AQWEAQWE" // Known good answer
+    #define STRCPY   strcpy
+    #define STRCMP   strcmp
+    #define STRFUN   _strupr_s
+
+	SETUP_S_TEST();
+
+	#define MAX   ( 128 )
+	#define LEN   ( 128 )
+
+	char   str1[LEN];
+	char   str2[LEN];
+	char   dest[LEN];
+
+	errno_t rc;
+	rsize_t nlen;
+	int32_t ind;
+
+	//--------------------------------------------------//
+
+	rc = STRFUN(NULL, LEN);
+
+	NW_CHECK_RC_ERR(rc);
+
+	//--------------------------------------------------//
+
+	rc = STRFUN(NULL, 0);
+
+	NW_CHECK_RC_ERR(rc);
+
+	//--------------------------------------------------//
+
+	rc = STRFUN(str1, 0);
+
+	NW_CHECK_RC_ERR(rc);
+
+	//--------------------------------------------------//
+
+	#ifndef SKIP_MS // TRP
+	memset(str1,0,sizeof(str1)); // null-terminated
+
+	rc = STRFUN(str1, RSIZE_MAX_STR + 1);
+
+	NW_CHECK_RC_ERR(rc);
+	#endif
+
+	//--------------------------------------------------//
+
+	#ifndef SKIP_MS // TRP
+	STRCPY(str2,STRS);
+	memset(str1,str2[0],sizeof(str1)); // NOT null-terminated
+
+	rc = STRFUN(str1, RSIZE_MAX_STR + 1);
+
+	NW_CHECK_RC_ERR(rc);
+	#endif
+
+	//--------------------------------------------------//
+
+	STRCPY(str2,STRS);
+	memset(str1,str2[0],sizeof(str1)); // NOT null-terminated
+
+	rc = STRFUN(str1, LEN);
+
+	NW_CHECK_RC_ERR(rc);
+
+	//--------------------------------------------------//
+
+	STRCPY(str1,STRS);
+	STRCPY(str2,STRD);
+	rc = STRFUN(str1, LEN);
+
+	NW_CHECK_RC_OK(rc);
+
+	// be sure the results are the same as strcpy //
+	NW_CHECK_EQUAL(0, STRCMP(str1, str2));
+
+	//--------------------------------------------------//
+
+	#undef MAX
+	#undef LEN
+
+    #undef STRS
+    #undef STRD
+    #undef STRCPY
+    #undef STRCMP
+    #undef STRFUN
+}
+
 NW_END_TEST_GROUP()
