@@ -139,251 +139,251 @@ NW_END_SETUP_TEARDOWN
 
 NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 {
- SETUP_S_TEST();
+	SETUP_S_TEST();
 
- #define MAX   ( 128 )
- #define LEN   ( 128 )
+	#define MAX   ( 128 )
+	#define LEN   ( 128 )
 
- char   str1[LEN];
- char   str2[LEN];
- char   dest[LEN];
+	char   str1[LEN];
+	char   str2[LEN];
+	char   dest[LEN];
 
- errno_t rc;
- rsize_t nlen;
- int32_t ind;
+	errno_t rc;
+	rsize_t nlen;
+	int32_t ind;
 
- nlen = 5;
- rc = strncpy_s(NULL, LEN, str2, nlen);
+	nlen = 5;
+	rc = strncpy_s(NULL, LEN, str2, nlen);
 
- NW_CHECK_RC_ERR(rc);
+	NW_CHECK_RC_ERR(rc);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
- nlen = 5;
- rc = strncpy_s(str1, 5, NULL, nlen);
+	nlen = 5;
+	rc = strncpy_s(str1, 5, NULL, nlen);
 
- NW_CHECK_RC_ERR(rc);
- NW_CHECK_STR_EMPTY(str1);
+	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- nlen = 5;
- rc = strncpy_s(str1, 0, str2, nlen);
+	nlen = 5;
+	rc = strncpy_s(str1, 0, str2, nlen);
 
- NW_CHECK_RC_ERR(rc);
+	NW_CHECK_RC_ERR(rc);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- #ifndef SKIP_MS // TRP
- rc = strncpy_s(str1, (RSIZE_MAX_STR + 1), str2, nlen);
+	#ifndef SKIP_MS // TRP
+	rc = strncpy_s(str1, (RSIZE_MAX_STR + 1), str2, nlen);
 
- NW_CHECK_RC_ERR(rc);
- #endif
+	NW_CHECK_RC_ERR(rc);
+	#endif
 
- /*--------------------------------------------------*/
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- #if 0 // TODO: check correct behavior
- strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
- str2[0] = '\0';
+	#if 0 // TODO: check correct behavior
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	str2[0] = '\0';
 
- rc = strncpy_s(str1, 5, str2, 0);
+	rc = strncpy_s(str1, 5, str2, 0);
 
- NW_CHECK_RC_ERR(rc);
- NW_CHECK_STR_EMPTY(str1);
- #endif
+	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1);
+	#endif
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
- strcpy(str2, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	strcpy(str2, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
- rc = strncpy_s(str1, 5, str2, (RSIZE_MAX_STR + 1));
+	rc = strncpy_s(str1, 5, str2, (RSIZE_MAX_STR + 1));
 
- NW_CHECK_RC_ERR(rc);
+	NW_CHECK_RC_ERR(rc);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
- str2[0] = '\0';
- nlen = 5;
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	str2[0] = '\0';
+	nlen = 5;
 
- rc = strncpy_s(&str1[0], LEN / 2, &str2[0], nlen);
+	rc = strncpy_s(&str1[0], LEN / 2, &str2[0], nlen);
 
- NW_CHECK_RC_OK(rc);
- NW_CHECK_STR_EMPTY(str1);
+	NW_CHECK_RC_OK(rc);
+	NW_CHECK_STR_EMPTY(str1);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- #ifndef SKIP_MS // Assert
- strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
- nlen = 5;
+	#ifndef SKIP_MS // Assert
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	nlen = 5;
 
- /* test overlap */
- rc = strncpy_s(str1, LEN, str1, nlen);
+	/* test overlap */
+	rc = strncpy_s(str1, LEN, str1, nlen);
 
- NW_CHECK_RC_ERR(rc);
- NW_CHECK_STR_EMPTY(str1);
- #endif
+	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1);
+	#endif
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- #ifndef SKIP_MS // Assert
- strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
- nlen = 18;
+	#ifndef SKIP_MS // Assert
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	nlen = 18;
 
- rc = strncpy_s(&str1[0], LEN, &str1[5], nlen);
+	rc = strncpy_s(&str1[0], LEN, &str1[5], nlen);
 
- NW_CHECK_RC_ERR(rc);
- NW_CHECK_STR_EMPTY(str1);
- #endif
+	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1);
+	#endif
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "keep it simple");
- str2[0] = '\0';
+	strcpy(str1, "keep it simple");
+	str2[0] = '\0';
 
- nlen = 10;
- rc = strncpy_s(str1, LEN, str2, nlen);
+	nlen = 10;
+	rc = strncpy_s(str1, LEN, str2, nlen);
 
- NW_CHECK_RC_OK(rc);
- NW_CHECK_STR_EMPTY(str1);
+	NW_CHECK_RC_OK(rc);
+	NW_CHECK_STR_EMPTY(str1);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- str1[0] = '\0';
- strcpy(str2, "keep it simple");
+	str1[0] = '\0';
+	strcpy(str2, "keep it simple");
 
- nlen = 20;
- rc = strncpy_s(str1, LEN, str2, nlen);
+	nlen = 20;
+	rc = strncpy_s(str1, LEN, str2, nlen);
 
- NW_CHECK_RC_OK(rc);
+	NW_CHECK_RC_OK(rc);
 
- /* be sure the results are the same as strcmp */
- ind = strcmp(str1, str2);
- NW_CHECK_EQUAL(0, ind);
+	/* be sure the results are the same as strcmp */
+	ind = strcmp(str1, str2);
+	NW_CHECK_EQUAL(0, ind);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "qqweqeqeqeq");
- strcpy(str2, "keep it simple");
+	strcpy(str1, "qqweqeqeqeq");
+	strcpy(str2, "keep it simple");
 
- nlen = 32;
- rc = strncpy_s(str1, LEN, str2, nlen);
+	nlen = 32;
+	rc = strncpy_s(str1, LEN, str2, nlen);
 
- NW_CHECK_RC_OK(rc);
+	NW_CHECK_RC_OK(rc);
 
- /* be sure the results are the same as strcmp */
- ind = strcmp(str1, str2);
+	/* be sure the results are the same as strcmp */
+	ind = strcmp(str1, str2);
 
- NW_CHECK_EQUAL(0, ind);
+	NW_CHECK_EQUAL(0, ind);
 
- /*--------------------------------------------------*/
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "qqweqeqeqeq");
- strcpy(str2, "keep it simple");
+	strcpy(str1, "qqweqeqeqeq");
+	strcpy(str2, "keep it simple");
 
- rc = strncpy_s(str1, 1, str2, nlen);
+	rc = strncpy_s(str1, 1, str2, nlen);
 
- NW_CHECK_RC_ERR(rc);
- NW_CHECK_STR_EMPTY(str1);
+	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "qqweqeqeqeq");
- strcpy(str2, "keep it simple");
+	strcpy(str1, "qqweqeqeqeq");
+	strcpy(str2, "keep it simple");
 
- rc = strncpy_s(str1, 2, str2, nlen);
+	rc = strncpy_s(str1, 2, str2, nlen);
 
- NW_CHECK_RC_ERR(rc);
- NW_CHECK_STR_EMPTY(str1);
+	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1);
 
- /*--------------------------------------------------*/
- /* TR example */
+	/*--------------------------------------------------*/
+	/* TR example */
 
- strcpy(dest, "                            ");
- strcpy(str1, "hello");
+	strcpy(dest, "                            ");
+	strcpy(str1, "hello");
 
- rc = strncpy_s(dest, 6, str1, 100);
+	rc = strncpy_s(dest, 6, str1, 100);
 
- NW_CHECK_RC_OK(rc);
+	NW_CHECK_RC_OK(rc);
 
- /* be sure the results are the same as strcmp */
- ind = strcmp(dest, str1);
+	/* be sure the results are the same as strcmp */
+	ind = strcmp(dest, str1);
 
- NW_CHECK_EQUAL(0, ind);
+	NW_CHECK_EQUAL(0, ind);
 
- /*--------------------------------------------------*/
- /* TR example */
+	/*--------------------------------------------------*/
+	/* TR example */
 
- strcpy(dest, "                            ");
- strcpy(str2, "goodbye");
+	strcpy(dest, "                            ");
+	strcpy(str2, "goodbye");
 
- rc = strncpy_s(dest, 5, str2, 7);
+	rc = strncpy_s(dest, 5, str2, 7);
 
- NW_CHECK_RC_ERR(rc);
+	NW_CHECK_RC_ERR(rc);
 
- /*--------------------------------------------------*/
- /* TR example */
+	/*--------------------------------------------------*/
+	/* TR example */
 
- #if 0 // TODO: check correct behavior // OK
- strcpy(dest, "                            ");
- strcpy(str2, "goodbye");
+	#if 0 // TODO: check correct behavior // OK
+	strcpy(dest, "                            ");
+	strcpy(str2, "goodbye");
 
- rc = strncpy_s(dest, 5, str2, 4);
+	rc = strncpy_s(dest, 5, str2, 4);
 
- NW_CHECK_RC_OK(rc);
+	NW_CHECK_RC_OK(rc);
 
- /* be sure the results are the same as strcmp */
+	/* be sure the results are the same as strcmp */
 
- ind = strcmp(dest, "good");
+	ind = strcmp(dest, "good");
 
- NW_CHECK_EQUAL(0, ind);
- #endif
+	NW_CHECK_EQUAL(0, ind);
+	#endif
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(dest, "                            ");
- strcpy(str2, "good");
+	strcpy(dest, "                            ");
+	strcpy(str2, "good");
 
- /*   strnlen("good") < 5   */
- rc = strncpy_s(dest, 5, str2, 8);
+	/*   strnlen("good") < 5   */
+	rc = strncpy_s(dest, 5, str2, 8);
 
- NW_CHECK_RC_OK(rc);
+	NW_CHECK_RC_OK(rc);
 
- /* be sure the results are the same as strcmp */
- ind = strcmp(dest, "good");
+	/* be sure the results are the same as strcmp */
+	ind = strcmp(dest, "good");
 
- NW_CHECK_EQUAL(0, ind);
+	NW_CHECK_EQUAL(0, ind);
 
- /*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
- strcpy(str1, "qq12345weqeqeqeq");
- strcpy(str2, "it");
+	strcpy(str1, "qq12345weqeqeqeq");
+	strcpy(str2, "it");
 
- nlen = 10;
- rc = strncpy_s(str1, 10, str2, nlen);
+	nlen = 10;
+	rc = strncpy_s(str1, 10, str2, nlen);
 
- NW_CHECK_RC_OK(rc);
+	NW_CHECK_RC_OK(rc);
 
- /* be sure the results are the same as strcmp */
- ind = strcmp(str1, str2);
+	/* be sure the results are the same as strcmp */
+	ind = strcmp(str1, str2);
 
- NW_CHECK_EQUAL(0, ind);
- 
- #undef MAX
- #undef LEN
+	NW_CHECK_EQUAL(0, ind);
+
+	#undef MAX
+	#undef LEN
 }
 
 NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 {
 	SETUP_S_TEST();
 
-#define MAX   ( 128 )
-#define LEN   ( 128 )
+	#define MAX   ( 128 )
+	#define LEN   ( 128 )
 
 	wchar_t   str1[LEN];
 	wchar_t   str2[LEN];
@@ -417,16 +417,16 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // TRP
+	#ifndef SKIP_MS // TRP
 	rc = wcsncpy_s(str1, (RSIZE_MAX_STR + 1), str2, nlen);
 
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
 
-#if 0 // TODO: check correct behavior
+	#if 0 // TODO: check correct behavior
 	wcscpy(str1, L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 	str2[0] = '\0';
 
@@ -434,7 +434,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 
 	NW_CHECK_RC_ERR(rc);
 	NW_CHECK_STR_EMPTY(str1);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -458,7 +458,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	wcscpy(str1, L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 	nlen = 5;
 
@@ -467,11 +467,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 
 	NW_CHECK_RC_ERR(rc);
 	NW_CHECK_STR_EMPTY(str1);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	wcscpy(str1, L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 	nlen = 18;
 
@@ -479,7 +479,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 
 	NW_CHECK_RC_ERR(rc);
 	NW_CHECK_STR_EMPTY(str1);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -570,7 +570,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 	/*--------------------------------------------------*/
 	/* TR example */
 
-#if 0 // TODO: check correct behavior 
+	#if 0 // TODO: check correct behavior 
 	wcscpy(dest, L"                            ");
 	wcscpy(str2, L"goodbye");
 
@@ -583,7 +583,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 	ind = wcscmp(dest, L"good");
 
 	NW_CHECK_EQUAL(0, ind);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -615,15 +615,15 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 
 	NW_CHECK_EQUAL(0, ind);
 
-#undef MAX
-#undef LEN
+	#undef MAX
+	#undef LEN
 }
 
 NW_TEST(NanoWinMsSafeStringTestGroup, MemCpySTest)
 {
-SETUP_S_TEST();
+	SETUP_S_TEST();
 
-#define LEN   ( 1024 )
+	#define LEN   ( 1024 )
 
 	uint8_t  mem1[LEN + 2];
 	uint8_t  mem2[LEN + 2];
@@ -647,10 +647,10 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	rc = memcpy_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -679,7 +679,7 @@ SETUP_S_TEST();
 
 	len = LEN;
 	rc = memcpy_s(mem1, len, mem2, len);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	for (i = 0; i < len; i++)
@@ -696,7 +696,7 @@ SETUP_S_TEST();
 
 	len = LEN;
 	rc = memcpy_s(mem1, len, mem2, (len + 1));
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	for (i = 0; i < len; i++)
@@ -724,7 +724,7 @@ SETUP_S_TEST();
 	NW_CHECK_EQUAL_BYTES(33, mem1[len]);
 
 	/*--------------------------------------------------*/
-	
+
 	#if 0 // TODO: check correct behavior [verify TEST expectation]
 	//  NOTE: documentation says that if count == 0, result must be EOK
 	//        it is not clear why original test expects error
@@ -734,12 +734,12 @@ SETUP_S_TEST();
 
 	len = LEN;
 	rc = memcpy_s(mem1, len, mem2, 0);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
-	for (i=0; i<len; i++) 
+	for (i = 0; i < len; i++)
 	{
-	    NW_CHECK_EQUAL_BYTES(0, mem1[i]);
+		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
 	#endif
 
@@ -750,16 +750,16 @@ SETUP_S_TEST();
 
 	len = LEN;
 	rc = memcpy_s(mem1, len, mem2, RSIZE_MAX_MEM + 1);
-	
+
 	NW_CHECK_RC_ERR(rc);
-	
+
 	for (i = 0; i < len; i++)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-	
+
 	NW_CHECK_FALSE(mem1[len] == 0);
-	
+
 	/*--------------------------------------------------*/
 
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
@@ -770,7 +770,7 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -780,11 +780,11 @@ SETUP_S_TEST();
 
 	NW_CHECK_RC_ERR(rc);
 	NW_CHECK_FALSE(mem1[len] == 0);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -798,7 +798,7 @@ SETUP_S_TEST();
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -824,26 +824,24 @@ SETUP_S_TEST();
 
 	NW_CHECK_RC_OK(rc);
 
-	for (i = 0; i<LEN / 2; i++) 
+	for (i = 0; i < LEN / 2; i++)
 	{
 		NW_CHECK_EQUAL_BYTES(55, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
 
-
-#undef LEN
+	#undef LEN
 }
 
 NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 {
 	SETUP_S_TEST();
 
-#define LEN   ( 1024 )
+	#define LEN   ( 1024 )
 
 	wchar_t  mem1[LEN + 2];
 	wchar_t  mem2[LEN + 2];
-
 
 	errno_t rc;
 	uint32_t i;
@@ -854,19 +852,17 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 	rc = wmemcpy_s(NULL, LEN, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
 
-
 	/*--------------------------------------------------*/
 
 	rc = wmemcpy_s(mem1, 0, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
 
-
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	rc = wmemcpy_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -875,13 +871,13 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	/*--------------------------------------------------*/
 
-#if 0 // TODO: check correct behavior [verify TEST expectation]
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
 	//  NOTE: documentation says that if count == 0, result must be EOK
 	//        it is not clear why original test expects error
 
 	rc = wmemcpy_s(mem1, 10, mem2, 0);
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -941,7 +937,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	/*--------------------------------------------------*/
 
-#if 0 // TODO: check correct behavior [verify TEST expectation]
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
 	//  NOTE: documentation says that if count == 0, result must be EOK
 	//        it is not clear why original test expects error
 
@@ -953,11 +949,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	NW_CHECK_RC_ERR(rc);
 
-	for (i = 0; i<len; i++)
+	for (i = 0; i < len; i++)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -986,7 +982,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -996,11 +992,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	NW_CHECK_RC_ERR(rc);
 	NW_CHECK_FALSE(mem1[len] == 0);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -1014,7 +1010,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -1040,22 +1036,21 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	NW_CHECK_RC_OK(rc);
 
-	for (i = 0; i<LEN / 2; i++)
+	for (i = 0; i < LEN / 2; i++)
 	{
 		NW_CHECK_EQUAL_BYTES(55, mem1[i]);
 	}
 
 	/*--------------------------------------------------*/
 
-
-#undef LEN
+	#undef LEN
 }
 
 NW_TEST(NanoWinMsSafeStringTestGroup, MemMoveSTest)
 {
-SETUP_S_TEST();
+	SETUP_S_TEST();
 
-#define LEN   ( 1024 )
+	#define LEN   ( 1024 )
 
 	uint8_t  mem1[LEN];
 	uint8_t  mem2[LEN];
@@ -1074,15 +1069,15 @@ SETUP_S_TEST();
 	/*--------------------------------------------------*/
 
 	rc = memmove_s(mem1, 0, mem2, LEN);
-	NW_CHECK_RC_ERR(rc);             
+	NW_CHECK_RC_ERR(rc);
 
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	rc = memmove_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -1090,13 +1085,13 @@ SETUP_S_TEST();
 	NW_CHECK_RC_ERR(rc);
 
 	/*--------------------------------------------------*/
-	
+
 	#if 0 // TODO: check correct behavior [verify TEST expectation]
 	//  NOTE: documentation says that if count == 0, result must be EOK
 	//  it is not clear why original test expects error
 
 	rc = memmove_s(mem1, 10, mem2, 0);
-	NW_CHECK_RC_ERR(rc);           
+	NW_CHECK_RC_ERR(rc);
 	#endif
 
 	/*--------------------------------------------------*/
@@ -1122,7 +1117,7 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // F
+	#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1136,7 +1131,7 @@ SETUP_S_TEST();
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -1160,7 +1155,7 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // F
+	#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1175,7 +1170,7 @@ SETUP_S_TEST();
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -1227,8 +1222,7 @@ SETUP_S_TEST();
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
 
-
-#undef LEN
+	#undef LEN
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1236,11 +1230,10 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 {
 	SETUP_S_TEST();
 
-#define LEN   ( 1024 )
+	#define LEN   ( 1024 )
 
 	wchar_t  mem1[LEN];
 	wchar_t  mem2[LEN];
-
 
 	errno_t rc;
 	uint32_t i;
@@ -1251,19 +1244,17 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 	rc = wmemmove_s(NULL, LEN, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
 
-
 	/*--------------------------------------------------*/
 
 	rc = wmemmove_s(mem1, 0, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
 
-
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	rc = wmemmove_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -1272,19 +1263,18 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 
 	/*--------------------------------------------------*/
 
-#if 0 // TODO: check correct behavior [verify TEST expectation]
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
 	//  NOTE: documentation says that if count == 0, result must be EOK
 	//  it is not clear why original test expects error
 
 	rc = memmove_s(mem1, 10, mem2, 0);
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
 	rc = wmemmove_s(mem1, LEN, mem2, RSIZE_MAX_MEM + 1);
 	NW_CHECK_RC_ERR(rc);
-
 
 	/*--------------------------------------------------*/
 
@@ -1303,7 +1293,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // F
+	#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1317,11 +1307,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
-#if 0 // TODO: check correct behavior [verify TEST expectation]
+	#if 0 // TODO: check correct behavior [verify TEST expectation]
 	//  NOTE: documentation says that if count == 0, result must be EOK
 	//        it is not clear why original test expects error
 
@@ -1337,11 +1327,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // F
+	#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1356,7 +1346,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -1408,16 +1398,15 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
 
-
-#undef LEN
+	#undef LEN
 }
 ///////////////////////////////////////////////////////////////////
 
 NW_TEST(NanoWinMsSafeStringTestGroup, StrCatSTest)
 {
-SETUP_S_TEST();
+	SETUP_S_TEST();
 
-#define LEN   ( 128 )
+	#define LEN   ( 128 )
 
 	char   str1[LEN];
 	char   str2[LEN];
@@ -1431,26 +1420,26 @@ SETUP_S_TEST();
 	/*--------------------------------------------------*/
 
 	rc = strcat_s(NULL, LEN, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
-	
+
 	/*--------------------------------------------------*/
 
 	rc = strcat_s(str1, LEN, NULL);
-	
+
 	NW_CHECK_RC_ERR(rc);
-	
+
 	/*--------------------------------------------------*/
 
 	rc = strcat_s(str1, 0, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	/*--------------------------------------------------*/
 
 	#ifndef SKIP_MS // TRP
 	rc = strcat_s(str1, (RSIZE_MAX_STR + 1), str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 	#endif
 
@@ -1461,20 +1450,20 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, 1, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(str1[0] == '\0');
-	
+
 	/*--------------------------------------------------*/
 
 	strcpy(str1, "aaaaaaaaaa");
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, 2, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
-	
+
 	NW_CHECK(str1[0] == '\0');
 
 	/*--------------------------------------------------*/
@@ -1486,13 +1475,13 @@ SETUP_S_TEST();
 	len2 = strlen(str2);
 
 	rc = strcat_s(str1, 50, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
-	
+
 	len3 = strlen(str1);
-	
+
 	NW_CHECK_EQUAL(len1 + len2, len3);
-	
+
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
 
@@ -1500,7 +1489,7 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, 1, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(str1[0] == '\0');
@@ -1511,18 +1500,18 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, 2, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
-	
+
 	NW_CHECK(str1[0] == '\0');
-	
+
 	/*--------------------------------------------------*/
 
 	str1[0] = '\0';
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, 20, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	ind = strcmp(str1, str2);
@@ -1536,7 +1525,7 @@ SETUP_S_TEST();
 	str2[0] = '\0';
 
 	rc = strcat_s(str1, LEN, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	NW_CHECK(str1[0] == '\0');
@@ -1547,11 +1536,11 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, LEN, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	ind = strcmp(str1, str2);
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
 	/*--------------------------------------------------*/
@@ -1560,11 +1549,11 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, LEN, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	ind = strcmp(str1, "qqweqqkeep it simple");
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
 	/*--------------------------------------------------*/
@@ -1573,7 +1562,7 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, 12, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	/*--------------------------------------------------*/
@@ -1582,11 +1571,11 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcat_s(str1, 52, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	ind = strcmp(str1, "1234keep it simple");
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
 	/*--------------------------------------------------*/
@@ -1594,7 +1583,7 @@ SETUP_S_TEST();
 	strcpy(str1, "12345678901234567890");
 
 	rc = strcat_s(str1, 8, &str1[7]);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(str1[0] == '\0');
@@ -1604,22 +1593,22 @@ SETUP_S_TEST();
 	strcpy(str1, "123456789");
 
 	rc = strcat_s(str1, 9, &str1[8]);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(str1[0] == '\0');
-	
+
 	/*--------------------------------------------------*/
 
 	strcpy(str2, "123");
 	strcpy(str1, "keep it simple");
 
 	rc = strcat_s(str2, 31, &str1[0]);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	ind = strcmp(str2, "123keep it simple");
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
 	/*--------------------------------------------------*/
@@ -1628,22 +1617,21 @@ SETUP_S_TEST();
 	strcpy(str1, "56789");
 
 	rc = strcat_s(str2, 10, str1);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	ind = strcmp(str2, "123456789");
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
-
-#undef LEN
+	#undef LEN
 }
 
 NW_TEST(NanoWinMsSafeStringTestGroup, WcsCatSTest)
 {
 	SETUP_S_TEST();
 
-#define LEN   ( 128 )
+	#define LEN   ( 128 )
 
 	wchar_t   str1[LEN];
 	wchar_t   str2[LEN];
@@ -1674,11 +1662,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCatSTest)
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // TRP
+	#ifndef SKIP_MS // TRP
 	rc = wcscat_s(str1, (RSIZE_MAX_STR + 1), str2);
 
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
@@ -1704,7 +1692,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCatSTest)
 	NW_CHECK(str1[0] == '\0');
 
 	/*--------------------------------------------------*/
-	
+
 	wcscpy(&str1[0], L"aaaaaaaaaa");
 	wcscpy(&str2[0], L"keep it simple");
 
@@ -1718,7 +1706,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCatSTest)
 	len3 = wcslen(str1);
 
 	NW_CHECK_EQUAL(len1 + len2, len3);
-	
+
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
 
@@ -1861,15 +1849,15 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCatSTest)
 
 	NW_CHECK_EQUAL(0, ind);
 
-#undef LEN
+	#undef LEN
 }
 
 NW_TEST(NanoWinMsSafeStringTestGroup, StrCpySTest)
 {
-SETUP_S_TEST();
+	SETUP_S_TEST();
 
-#define MAX   ( 128 )
-#define LEN   ( 128 )
+	#define MAX   ( 128 )
+	#define LEN   ( 128 )
 
 	char   str1[LEN];
 	char   str2[LEN];
@@ -1881,7 +1869,7 @@ SETUP_S_TEST();
 	/*--------------------------------------------------*/
 
 	rc = strcpy_s(NULL, LEN, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	/*--------------------------------------------------*/
@@ -1893,7 +1881,7 @@ SETUP_S_TEST();
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(str1[0] == '\0');
-	
+
 	/*--------------------------------------------------*/
 
 	rc = strcpy_s(str1, 0, str2);
@@ -1915,13 +1903,13 @@ SETUP_S_TEST();
 	str2[0] = '\0';
 
 	rc = strcpy_s(str1, LEN / 2, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	NW_CHECK(str1[0] == '\0');
 
 	/*--------------------------------------------------*/
-	
+
 	#if 0  // TODO: check correct behavior [verify TEST expectation]
 	//  test is uncorrect, standard says that result of this operation will be error
 	//  to check if src==dest should this be considered as "overlap" ?
@@ -1931,7 +1919,7 @@ SETUP_S_TEST();
 	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
 	rc = strcpy_s(str1, LEN, str1);
-	
+
 	NW_CHECK_RC_OK(rc);
 	#endif
 
@@ -1953,37 +1941,37 @@ SETUP_S_TEST();
 	str2[0] = '\0';
 
 	rc = strcpy_s(str1, LEN, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	NW_CHECK(*str1 == '\0');
-	
+
 	/*--------------------------------------------------*/
 
 	str1[0] = '\0';
 	strcpy(&str2[0], "keep it simple");
 
 	rc = strcpy_s(str1, LEN, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	/* be sure the results are the same as strcmp */
 	ind = strcmp(str1, str2);
 
 	NW_CHECK_EQUAL(0, ind);
-	
+
 	/*--------------------------------------------------*/
 
 	strcpy(str1, "qqweqeqeqeq");
 	strcpy(str2, "keep it simple");
 
 	rc = strcpy_s(str1, LEN, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	/* be sure the results are the same as strcmp */
 	ind = strcmp(str1, str2);
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
 	/*--------------------------------------------------*/
@@ -1992,7 +1980,7 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcpy_s(str1, 1, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(*str1 == '\0');
@@ -2003,7 +1991,7 @@ SETUP_S_TEST();
 	strcpy(str2, "keep it simple");
 
 	rc = strcpy_s(str1, 2, str2);
-	
+
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(*str1 == '\0');
@@ -2014,12 +2002,12 @@ SETUP_S_TEST();
 	strcpy(str2, "it");
 
 	rc = strcpy_s(str1, 3, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	/* be sure the results are the same as strcmp */
 	ind = strcmp(str1, str2);
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
 	/*--------------------------------------------------*/
@@ -2028,24 +2016,24 @@ SETUP_S_TEST();
 	strcpy(str2, "it");
 
 	rc = strcpy_s(str1, 10, str2);
-	
+
 	NW_CHECK_RC_OK(rc);
 
 	/* be sure the results are the same as strcpy */
 	ind = strcmp(str1, str2);
-	
+
 	NW_CHECK_EQUAL(0, ind);
 
-#undef MAX
-#undef LEN
+	#undef MAX
+	#undef LEN
 }
 
 NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 {
 	SETUP_S_TEST();
 
-#define MAX   ( 128 )
-#define LEN   ( 128 )
+	#define MAX   ( 128 )
+	#define LEN   ( 128 )
 
 	wchar_t   str1[LEN];
 	wchar_t   str2[LEN];
@@ -2078,11 +2066,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // TRP
+	#ifndef SKIP_MS // TRP
 	rc = wcscpy_s(str1, (RSIZE_MAX_STR + 1), str2);
 
 	NW_CHECK_RC_ERR(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
@@ -2098,7 +2086,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 
 	/*--------------------------------------------------*/
 
-#if 0  // TODO: check correct behavior [verify TEST expectation]
+	#if 0  // TODO: check correct behavior [verify TEST expectation]
 	//  test is uncorrect, standard says that result of this operation will be error
 	//  to check if src==dest should this be considered as "overlap" ?
 	//  memcpy does not assume that (src==dest is ok for memecpy)
@@ -2109,11 +2097,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 	rc = wcscpy_s(str1, LEN, str1);
 
 	NW_CHECK_RC_OK(rc);
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
-#ifndef SKIP_MS // Assert
+	#ifndef SKIP_MS // Assert
 	wcscpy(&str1[0], L"keep it simple");
 
 	rc = wcscpy_s(&str1[0], LEN, &str1[5]);
@@ -2121,7 +2109,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 	NW_CHECK_RC_ERR(rc);
 
 	NW_CHECK(str1[0] == '\0');
-#endif
+	#endif
 
 	/*--------------------------------------------------*/
 
@@ -2212,8 +2200,8 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 
 	NW_CHECK_EQUAL(0, ind);
 
-#undef MAX
-#undef LEN
+	#undef MAX
+	#undef LEN
 }
 
 NW_END_TEST_GROUP()
