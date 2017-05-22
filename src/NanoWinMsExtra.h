@@ -78,6 +78,9 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 
 #define strnicmp(s1,s2,n)    strncasecmp(s1,s2,n)
 #define stricmp(s1,s2)       strcasecmp(s1,s2)
+#define wcsnicmp(s1,s2,n)    wcsncasecmp(s1,s2,n)
+#define wcsicmp(s1,s2)       wcscasecmp(s1,s2)
+
 #define atoi64(a)            atoll(a)
 
 extern  char    *strlwr      (char    *s);

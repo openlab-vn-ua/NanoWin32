@@ -61,6 +61,7 @@ typedef LPSTR                LPTSTR;
 #define _tcslwr             wcslwr
 #define _tcslwr_s           wcslwr_s
 #define _tcscmp             wcscmp
+#define _tcsicmp            wcsicmp
 #define _tcsclen            wcslen
 #define _tcsstr             wcsstr
 #define _tcschr             wcschr
@@ -80,6 +81,7 @@ typedef LPSTR                LPTSTR;
 #define _tcslwr             strlwr
 #define _tcslwr_s           strlwr_s
 #define _tcscmp             strcmp
+#define _tcsicmp            stricmp
 #define _tcsclen            strlen
 #define _tcsstr             strstr
 #define _tcschr             strchr

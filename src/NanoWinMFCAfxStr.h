@@ -16,6 +16,10 @@
 
 #include <string>
 #include <string.h> // strlen
+#include <stdarg.h> // va_arg
+
+#include "NanoWinMsSafeString.h"
+#include "NanoWinMsExtra.h"
 
 #include "NanoWinTCHAR.h"
 #include "NanoWinMFCAfx.h"
@@ -28,6 +32,7 @@
 class CString
 {
   #define REQUIRE(f) if (!(f)) { throw "CString has invalid param:" #f; }
+  #define VERIFY(f)  if (!(f)) { throw "CString operation failed:" #f; }
 
   protected:
   #if defined(UNICODE) || defined(_UNICODE)
@@ -39,6 +44,19 @@ class CString
   public:
 
   // CSimpleString
+
+  #if defined(UNICODE) || defined(_UNICODE)
+  typedef wchar_t      XCHAR;
+  typedef char         YCHAR;
+  #else
+  typedef char         XCHAR;
+  typedef wchar_t      YCHAR;
+  #endif
+
+  typedef XCHAR       *PXSTR;
+  typedef const XCHAR *PCXSTR;
+  typedef YCHAR       *PYSTR;
+  typedef const YCHAR *PCYSTR;
 
   // Need some study (do we need this?)
   // void Append(const CSimpleStringT& strSrc);
@@ -164,6 +182,10 @@ class CString
 
   // CString subset
   // Constructors
+  CString()
+  {
+    // Do defaults
+  }
 
   CString(const TCHAR *value) : strBuf(value) {}
 
@@ -230,6 +252,58 @@ class CString
     return(GetAt(nIndex));
   }
 
+  void FormatV(LPCTSTR lpszFormat, va_list args)
+  {
+    #if defined(UNICODE) || defined(_UNICODE)
+    #define VSNPRINTF  vswprintf // vswnprintf
+    #define VSPRINTF_S vswprintf_s
+    #else
+    #define VSNPRINTF  vsnprintf
+    #define VSPRINTF_S vsprintf_s
+    #endif
+
+    ssize_t result;
+	result = VSNPRINTF(NULL, 0, lpszFormat, args);
+	VERIFY(result >= 0);
+	Empty();
+	Preallocate(result + 1); // +1 just in case
+	error_t cresult;
+	cresult = VSPRINTF_S(const_cast<TCHAR*>(strBuf.c_str()), result, lpszFormat, args);
+	VERIFY(result == 0);
+
+    #undef  VSNPRINTF
+    #undef  VSPRINTF_S
+  }
+
+  void Format(LPCTSTR lpszFormat, ...)
+  {
+    int result;
+    va_list args;
+    va_start (args, lpszFormat);
+    FormatV(lpszFormat, args);
+    va_end (args);
+  }
+
+  int Compare(PCXSTR psz)
+  const
+  {
+    return(_tcscmp(GetString(), psz));
+  }
+
+  int CompareNoCase(PCXSTR psz)
+  const
+  {
+    return(_tcsicmp(GetString(), psz));
+  }
+
+  CString &operator+= (PCXSTR pszSrc)
+  {
+	REQUIRE(pszSrc != NULL);
+    strBuf += pszSrc;
+    return(*this);
+  }
+
+  #undef VERIFY
   #undef REQUIRE
 };
 
