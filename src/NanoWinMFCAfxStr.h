@@ -32,7 +32,7 @@
 class CString
 {
   #define REQUIRE(f) if (!(f)) { throw "CString has invalid param:" #f; }
-  #define VERIFY(f)  if (!(f)) { throw "CString operation failed:" #f; }
+  #define CHECKUP(f) if (!(f)) { throw "CString operation failed:" #f; }
 
   protected:
   #if defined(UNICODE) || defined(_UNICODE)
@@ -264,12 +264,12 @@ class CString
 
     ssize_t result;
 	result = VSNPRINTF(NULL, 0, lpszFormat, args);
-	VERIFY(result >= 0);
+	CHECKUP(result >= 0);
 	Empty();
 	Preallocate(result + 1); // +1 just in case
 	error_t cresult;
 	cresult = VSPRINTF_S(const_cast<TCHAR*>(strBuf.c_str()), result, lpszFormat, args);
-	VERIFY(result == 0);
+	CHECKUP(cresult == 0);
 
     #undef  VSNPRINTF
     #undef  VSPRINTF_S
@@ -277,7 +277,6 @@ class CString
 
   void Format(LPCTSTR lpszFormat, ...)
   {
-    int result;
     va_list args;
     va_start (args, lpszFormat);
     FormatV(lpszFormat, args);
@@ -303,7 +302,7 @@ class CString
     return(*this);
   }
 
-  #undef VERIFY
+  #undef CHECKUP
   #undef REQUIRE
 };
 
