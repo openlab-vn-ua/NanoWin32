@@ -737,9 +737,8 @@ NW_EXTERN_C_END
 #include <wctype.h> // towlower
 
 // TODO: Check is these functions clears dest buffer on error in MS VS studio runtime [doc says nothing about that]
-// TODO: Doc says these functions set errno (no done yet)
 
-//#define strulr_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
+#define strulr_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
 
 NW_EXTERN_C_BEGIN
 
@@ -751,11 +750,12 @@ extern errno_t strupr_s      (char *dest, rsize_t destsz)
   #define TOACTION             toupper
   // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
 
-  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
-  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
-  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  if (dest   == NULL)          { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
 
   // Action!
@@ -773,6 +773,7 @@ extern errno_t strupr_s      (char *dest, rsize_t destsz)
   return(EOK);
 
   #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
   #undef RSIZE_MAX_CNT
   // </body>
   #undef TOACTION
@@ -788,11 +789,12 @@ extern errno_t strlwr_s      (char *dest, rsize_t destsz)
   #define TOACTION             tolower
   // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
 
-  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
-  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
-  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  if (dest   == NULL)          { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
 
   // Action!
@@ -810,6 +812,7 @@ extern errno_t strlwr_s      (char *dest, rsize_t destsz)
   return(EOK);
 
   #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
   #undef RSIZE_MAX_CNT
   // </body>
   #undef TOACTION
@@ -825,11 +828,12 @@ extern errno_t wcsupr_s      (wchar_t *dest, rsize_t destsz)
   #define TOACTION             towupper
   // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
 
-  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
-  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
-  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  if (dest   == NULL)          { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
 
   // Action!
@@ -847,6 +851,7 @@ extern errno_t wcsupr_s      (wchar_t *dest, rsize_t destsz)
   return(EOK);
 
   #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
   #undef RSIZE_MAX_CNT
   // </body>
   #undef TOACTION
@@ -862,11 +867,12 @@ extern errno_t wcslwr_s      (wchar_t *dest, rsize_t destsz)
   #define TOACTION             towlower
   // <body> // invaliant for strupr_s and wcsupr_s and strlwr_s and wcslwr_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strulr_handle_errcode(errcode); return(errcode); } // Do not overwrite dest? // TODO: Check with lib
 
-  if (dest   == NULL)          { return_after_err_handler(FN SP "dest is null"                , NULL, EINVAL); }
-  if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
-  if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
+  if (dest   == NULL)          { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
 
   // Action!
@@ -884,6 +890,7 @@ extern errno_t wcslwr_s      (wchar_t *dest, rsize_t destsz)
   return(EOK);
 
   #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
   #undef RSIZE_MAX_CNT
   // </body>
   #undef TOACTION
