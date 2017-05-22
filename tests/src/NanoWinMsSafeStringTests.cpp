@@ -650,9 +650,10 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	rc = memcpy_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-
+#endif
 
 	/*--------------------------------------------------*/
 
@@ -772,6 +773,7 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -781,9 +783,11 @@ SETUP_S_TEST();
 
 	NW_CHECK_RC_ERR(rc);
 	NW_CHECK_FALSE(mem1[len] == 0);
-	
+#endif
+
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -797,6 +801,8 @@ SETUP_S_TEST();
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
+#endif
+
 	/*--------------------------------------------------*/
 
 	for (i = 0; i < LEN; i++) { mem1[i] = 35; }
@@ -860,9 +866,10 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	rc = wmemcpy_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-
+#endif
 
 	/*--------------------------------------------------*/
 
@@ -982,6 +989,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -991,9 +999,11 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 
 	NW_CHECK_RC_ERR(rc);
 	NW_CHECK_FALSE(mem1[len] == 0);
+#endif
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	for (i = 0; i < LEN; i++) { mem1[i] = 55; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 65; }
 
@@ -1007,6 +1017,8 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemCpySTest)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
+#endif
+
 	/*--------------------------------------------------*/
 
 	for (i = 0; i < LEN; i++) { mem1[i] = 35; }
@@ -1068,11 +1080,12 @@ SETUP_S_TEST();
 	NW_CHECK_RC_ERR(rc);             
 
 
-			/*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	rc = memmove_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-
+#endif
 
 	/*--------------------------------------------------*/
 
@@ -1112,6 +1125,7 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1125,6 +1139,7 @@ SETUP_S_TEST();
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
+#endif
 
 	/*--------------------------------------------------*/
 
@@ -1148,6 +1163,7 @@ SETUP_S_TEST();
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1162,6 +1178,7 @@ SETUP_S_TEST();
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
+#endif
 
 	/*--------------------------------------------------*/
 
@@ -1246,9 +1263,10 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // Assert
 	rc = wmemmove_s(mem1, RSIZE_MAX_MEM + 1, mem2, LEN);
 	NW_CHECK_RC_ERR(rc);
-
+#endif
 
 	/*--------------------------------------------------*/
 
@@ -1288,6 +1306,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1301,6 +1320,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
+#endif
 
 	/*--------------------------------------------------*/
 
@@ -1324,6 +1344,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 
 	/*--------------------------------------------------*/
 
+#ifndef SKIP_MS // F
 	for (i = 0; i < LEN; i++) { mem1[i] = 33; }
 	for (i = 0; i < LEN; i++) { mem2[i] = 44; }
 
@@ -1338,6 +1359,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WMemMoveSTest)
 	{
 		NW_CHECK_EQUAL_BYTES(0, mem1[i]);
 	}
+#endif
 
 	/*--------------------------------------------------*/
 
