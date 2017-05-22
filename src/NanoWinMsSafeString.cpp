@@ -9,16 +9,22 @@
 
 #if defined(__GNUC__)
 
+// Global definitions
+// -----------------------------------------------------
+// Used by all functions
+
 #include <string.h>
 #include <wchar.h>
 #include <errno.h>
-#include <stdio.h> // vsnprintf...
-#include <ctype.h> // tolower
-#include <wctype.h> // towlower
 
 #if !defined(EOK)
 #define  EOK  (0)
 #endif
+
+#define XBYTE char
+
+// Utility functions
+// -----------------------------------------------------
 
 #define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
 #define return_after_err_handler(etext,earg,errcode) return(errcode)
@@ -27,13 +33,6 @@
 #define MEM_GET_SIZE(count,ITEM)    (sizeof(ITEM) == 1 ? (count) : ((count) * sizeof(ITEM)))
 
 #define SP ":"
-
-NW_EXTERN_C_BEGIN
-
-// Memory functions
-// -----------------------------------------------------
-
-#define XBYTE char
 
 // helper: returns non-zero if dest and src overlaps, zero if not
 static int     is_overlap    (void *dest, const void *src, rsize_t count, rsize_t itemsz)
@@ -66,6 +65,13 @@ static int     is_overlap    (void *dest, const void *src, rsize_t count, rsize_
 
   return(0);
 }
+
+// Memory functions
+// -----------------------------------------------------
+
+#include <string.h>
+
+NW_EXTERN_C_BEGIN
 
 extern errno_t memset_s      (void *dest, rsize_t destsz, int ch, rsize_t count)
 {
@@ -225,10 +231,12 @@ extern errno_t wmemmove_s    (void *dest, rsize_t destsz, const void *src, rsize
   #undef FN
 }
 
-#undef  XBYTE
+NW_EXTERN_C_END
 
 // String functions
 // -----------------------------------------------------
+
+NW_EXTERN_C_BEGIN
 
 extern errno_t strcpy_s      (char *dest, rsize_t destsz, const char *src)
 {
@@ -623,10 +631,16 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
   #undef FN
 }
 
+NW_EXTERN_C_END
+
 // String format functions
 // -----------------------------------------------------
 
+#include <stdio.h> // vsnprintf...
+
 #define sprintf_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
+
+NW_EXTERN_C_BEGIN
 
 extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va_list args)
 {
@@ -714,11 +728,20 @@ extern int     swprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *form
   return(result);
 }
 
+NW_EXTERN_C_END
+
 // MS Extensions
 // -----------------------------------------------------
 
-// TODO: Check is these functions clears dest buffer on error in MS VS studio runtime
+#include <ctype.h> // tolower
+#include <wctype.h> // towlower
+
+// TODO: Check is these functions clears dest buffer on error in MS VS studio runtime [doc says nothing about that]
 // TODO: Doc says these functions set errno (no done yet)
+
+//#define strulr_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
+
+NW_EXTERN_C_BEGIN
 
 // Converts string to uppercase at dest, dest memory size is limited to destsz items(chars/bytes). returns errno_t (0 if ok)
 extern errno_t strupr_s      (char *dest, rsize_t destsz)
