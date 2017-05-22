@@ -219,33 +219,8 @@ extern DWORD WINAPI GetCurrentDirectoryW(DWORD nBufferLength, LPWSTR lpBuffer)
   return result;
 }
 
-extern BOOL WINAPI DeleteFileA(LPCSTR  lpFileName)
-{
-  if (unlink(lpFileName) == 0)
-  {
-    return(TRUE);
-  }
-  else
-  {
-    if (errno == ENOENT)
-    {
-      SetLastError(ERROR_FILE_NOT_FOUND);
-	}
-	else if (errno == EACCES)
-	{
-      SetLastError(ERROR_ACCESS_DENIED);
-	}
-	else
-	{
-      SetLastError(NanoWinErrorByErrnoAtFail(errno));
-	}
-
-    return(FALSE);
-  }
-}
-
 extern BOOL WINAPI CreateDirectoryA(LPCSTR                lpPathName,
-  LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+                                    LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
   mode_t mode = lpSecurityAttributes == NULL ? (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) : (S_IRWXU);
 
@@ -278,7 +253,7 @@ extern BOOL WINAPI CreateDirectoryA(LPCSTR                lpPathName,
 }
 
 extern BOOL WINAPI CreateDirectoryW(LPCWSTR               lpPathName,
-  LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+                                    LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
   try
   {
@@ -291,6 +266,31 @@ extern BOOL WINAPI CreateDirectoryW(LPCWSTR               lpPathName,
     SetLastError(ERROR_NO_UNICODE_TRANSLATION);
 
     return FALSE;
+  }
+}
+
+extern BOOL WINAPI DeleteFileA(LPCSTR  lpFileName)
+{
+  if (unlink(lpFileName) == 0)
+  {
+    return(TRUE);
+  }
+  else
+  {
+    if (errno == ENOENT)
+    {
+      SetLastError(ERROR_FILE_NOT_FOUND);
+    }
+    else if (errno == EACCES)
+    {
+        SetLastError(ERROR_ACCESS_DENIED);
+    }
+    else
+    {
+        SetLastError(NanoWinErrorByErrnoAtFail(errno));
+    }
+
+    return(FALSE);
   }
 }
 
