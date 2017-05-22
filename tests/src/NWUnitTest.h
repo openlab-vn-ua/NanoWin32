@@ -45,34 +45,30 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
  if (condition) return
 
 #define NW_CHECK(condition) \
- Assert::IsTrue(condition)
+ Assert::IsTrue(condition, L"" "(" #condition ")" " // expected:true // ", LINE_INFO())
 
 #define NW_CHECK_TRUE(condition) \
- Assert::IsTrue(condition)
+ Assert::IsTrue(condition, L"" "(" #condition ")" " // expected:true // ", LINE_INFO())
 
 #define NW_CHECK_FALSE(condition) \
- Assert::IsFalse(condition)
+ Assert::IsFalse(condition, L"" "(" #condition ")" " // expected:false // ", LINE_INFO())
 
 #define NW_CHECK_EQUAL(expected,actual) \
- Assert::AreEqual(expected,actual);
+ Assert::AreEqual(expected,actual, L"" "(" #expected "==" #actual")" " // expected:== // ", LINE_INFO());
 
 #define NW_CHECK_EQUAL_STRCMP(expected,actual) \
- Assert::AreEqual(expected,actual);
+ Assert::AreEqual(expected,actual, L"" "(" #expected "==" #actual")" " // expected:==[str] // ", LINE_INFO());
 
 #define NW_CHECK_EQUAL_MEMCMP(expected,actual,size) \
- Assert::AreEqual(0,memcmp(expected,actual,size));
+ Assert::AreEqual(0,memcmp(expected,actual,size), L"" "(" #expected "==" #actual")" " // expected:==[mem] // ", LINE_INFO());
 
-#define NW_CHECK_EQUAL_INTS(expected,actual) \
- Assert::AreEqual((int)(expected),(int)actual);
+#define NW_CHECK_EQUAL_TYPES(expected,actual,type)    NW_CHECK_EQUAL((type)expected,(type)actual)
 
-#define NW_CHECK_EQUAL_UINTS(expected,actual) \
- Assert::AreEqual((unsigned int)(expected),(unsigned int)actual);
-
-#define NW_CHECK_EQUAL_LONGS(expected,actual) \
- Assert::AreEqual((long)(expected),(long)actual);
-
-#define NW_CHECK_EQUAL_ULONGS(expected,actual) \
- Assert::AreEqual((unsigned long)(expected),(unsigned long)actual);
+#define NW_CHECK_EQUAL_INTS(expected,actual)          NW_CHECK_EQUAL_TYPES(expected,actual,int)
+#define NW_CHECK_EQUAL_UINTS(expected,actual)         NW_CHECK_EQUAL_TYPES(expected,actual,unsigned int)
+#define NW_CHECK_EQUAL_LONGS(expected,actual)         NW_CHECK_EQUAL_TYPES(expected,actual,long)
+#define NW_CHECK_EQUAL_ULONGS(expected,actual)        NW_CHECK_EQUAL_TYPES(expected,actual,unsigned long)
+#define NW_CHECK_EQUAL_BYTES(expected,actual)         NW_CHECK_EQUAL_TYPES(expected,actual,uint8_t)
 
 #else
 
@@ -120,17 +116,13 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #define NW_CHECK_EQUAL_MEMCMP(expected,actual,size) \
  MEMCMP_EQUAL(expected,actual,size)
 
-#define NW_CHECK_EQUAL_INTS(expected,actual) \
- LONGS_EQUAL((int)expected,(int)actual)
+#define NW_CHECK_EQUAL_TYPES(expected,actual,type)    NW_CHECK_EQUAL((type)expected,(type)actual)
 
-#define NW_CHECK_EQUAL_UINTS(expected,actual) \
- UNSIGNED_LONGS_EQUAL((unsigned int)expected,(unsigned int)actual)
-
-#define NW_CHECK_EQUAL_LONGS(expected,actual) \
- LONGS_EQUAL(expected,actual)
-
-#define NW_CHECK_EQUAL_ULONGS(expected,actual) \
- UNSIGNED_LONGS_EQUAL(expected,actual)
+#define NW_CHECK_EQUAL_INTS(expected,actual)          NW_CHECK_EQUAL_TYPES(expected,actual,int)
+#define NW_CHECK_EQUAL_UINTS(expected,actual)         NW_CHECK_EQUAL_TYPES(expected,actual,unsigned int)
+#define NW_CHECK_EQUAL_LONGS(expected,actual)         NW_CHECK_EQUAL_TYPES(expected,actual,long)
+#define NW_CHECK_EQUAL_ULONGS(expected,actual)        NW_CHECK_EQUAL_TYPES(expected,actual,unsigned long)
+#define NW_CHECK_EQUAL_BYTES(expected,actual)         NW_CHECK_EQUAL_TYPES(expected,actual,uint8_t)
 
 #endif
 

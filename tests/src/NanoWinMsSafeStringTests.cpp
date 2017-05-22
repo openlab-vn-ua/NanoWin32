@@ -21,9 +21,6 @@
 #define RSIZE_MAX_MEM RSIZE_MAX
 #endif
 
-#define NW_CHECK_EQUAL_TYPES(a,b,t)    NW_CHECK_EQUAL((t)a,(t)b)
-#define NW_CHECK_EQUAL_BYTES(a,b)      NW_CHECK_EQUAL_TYPES(a,b,uint8_t)
-
 #define NW_CHECK_RC_OK(rc)        NW_CHECK_EQUAL_INTS(EOK,rc)
 #define NW_CHECK_RC_ERR(rc)       NW_CHECK_FALSE(rc == EOK)
 #define NW_CHECK_STR_EMPTY(s)     NW_CHECK_TRUE((s)[0] == '\0')
