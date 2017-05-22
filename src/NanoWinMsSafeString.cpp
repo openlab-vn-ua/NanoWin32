@@ -900,8 +900,154 @@ extern errno_t wcslwr_s      (wchar_t *dest, rsize_t destsz)
 
 NW_EXTERN_C_END
 
+// Char translation MS-safe functions
+// -----------------------------------------------------
+
+#include <stdlib.h>
+
+#define strcvt_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
+
+NW_EXTERN_C_BEGIN
+
+extern errno_t mbstowcs_s
+                (
+                  size_t        *outCount,
+                  wchar_t       *dest,
+                  rsize_t        destsz,
+                  const char    *src,
+                  rsize_t        count
+                )
+{
+  // TODO: Draft implemenation
+  #define FN "mbstowcs_s"
+  #define DITEM wchar_t
+  #define SITEM char
+  #define ACTION mbstowcs
+  // <body> // invaliant for mbstowcs and wcstombs_s
+  #define RSIZE_MAX_DCNT       RSIZE_GET_CNT(RSIZE_MAX_STR, DITEM)
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strcvt_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); if (dest != NULL) { dest[0] = 0; } strcvt_handle_errcode(errcode); return(errcode); }
+
+  if (dest == NULL)
+  {
+	if (destsz == 0)
+	{
+      // Valid: return count required
+	}
+	else
+	{
+      { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+	}
+  }
+  else
+  {
+    if (destsz > RSIZE_MAX_DCNT)
+	{
+      { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
+	}
+  }
+
+  // dest valid, now we have to fill dest in case of fail (dest=NULL supported by ..._FILLDST)
+
+  if (outCount == NULL)        { return_after_err_FILLDST(FN SP "output count is NULL"        , NULL, EINVAL); } // TODO: Check is that required
+  if (src == NULL)             { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
+  if (count <= 0)              { return_after_err_FILLDST(FN SP "count is zero"               , NULL, EINVAL); }
+  if (count > RSIZE_MAX_DCNT)  { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
+
+  if (count > destsz)          { return_after_err_FILLDST(FN SP "destsz too small"            , NULL, EINVAL); } // TODO: Check should we check it before conversion
+
+  // dest is valid, src is valid, outCount is valid
+
+  if (outCount != NULL) { (*outCount) = 0; }
+  size_t result = ACTION(dest, src, count);
+  if (((ssize_t)result) < 0)   { return(EINVAL); } // valid logic error
+  if (outCount != NULL) { (*outCount) = result; }
+
+  return(EOK);
+
+  #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
+  #undef RSIZE_MAX_DCNT
+  // </body>
+  #undef ACTION
+  #undef SITEM
+  #undef DITEM
+  #undef FN
+}
+
+extern  errno_t wcstombs_s
+                (
+                  size_t        *outCount,
+                  char          *dest,
+                  rsize_t        destsz,
+                  const wchar_t *src,
+                  rsize_t        count
+                )
+{
+  // TODO: Draft implemenation
+  #define FN "wcstombs_s"
+  #define DITEM char
+  #define SITEM wchar_t
+  #define ACTION wcstombs
+  // <body> // invaliant for mbstowcs and wcstombs_s
+  #define RSIZE_MAX_DCNT       RSIZE_GET_CNT(RSIZE_MAX_STR, DITEM)
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strcvt_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); if (dest != NULL) { dest[0] = 0; } strcvt_handle_errcode(errcode); return(errcode); }
+
+  if (dest == NULL)
+  {
+	if (destsz == 0)
+	{
+      // Valid: return count required
+	}
+	else
+	{
+      { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+	}
+  }
+  else
+  {
+    if (destsz > RSIZE_MAX_DCNT)
+	{
+      { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
+	}
+  }
+
+  // dest valid, now we have to fill dest in case of fail (dest=NULL supported by ..._FILLDST)
+
+  if (outCount == NULL)        { return_after_err_FILLDST(FN SP "output count is NULL"        , NULL, EINVAL); } // TODO: Check is that required
+  if (src == NULL)             { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
+  if (count <= 0)              { return_after_err_FILLDST(FN SP "count is zero"               , NULL, EINVAL); }
+  if (count > RSIZE_MAX_DCNT)  { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
+
+  if (count > destsz)          { return_after_err_FILLDST(FN SP "destsz too small"            , NULL, EINVAL); } // TODO: Check should we check it before conversion
+
+  // dest is valid, src is valid, outCount is valid
+
+  if (outCount != NULL) { (*outCount) = 0; }
+  size_t result = ACTION(dest, src, count);
+  if (((ssize_t)result) < 0)   { return(EINVAL); } // valid logic error
+  if (outCount != NULL) { (*outCount) = result; }
+
+  return(EOK);
+
+  #undef return_after_err_FILLDST
+  #undef return_after_err_WMARKER
+  #undef RSIZE_MAX_DCNT
+  // </body>
+  #undef ACTION
+  #undef SITEM
+  #undef DITEM
+  #undef FN
+}
+
+NW_EXTERN_C_END
+
+// Static (compilaton) tests
+// -----------------------------------------------------
+
 /*
-int NanoWinMsSafeStringCompilationTest()
+static int NanoWinMsSafeStringCompilationTest()
 {
   // This should compile
   char  stest[] = "stest";
@@ -960,6 +1106,15 @@ int NanoWinMsSafeStringCompilationTest()
 
   swprintf_s(wtdest, _countof(wtdest), L"just a test %s and here %s %i", wptest, wptest, wntest);
   swprintf_s(wtdest, L"just a test %s and here %s", wptest, wptest, wntest);
+
+  size_t outCount;
+
+  mbstowcs_s(&outCount, wtdest, 2, stest, 1);
+  mbstowcs_s(&outCount, wtdest, stest, 1);
+
+  wcstombs_s(&outCount, tdest, 2, wstest, 1);
+  wcstombs_s(&outCount, tdest, wstest, 1);
+
 
   return(ntest);
 }

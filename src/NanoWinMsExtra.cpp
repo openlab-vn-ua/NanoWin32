@@ -13,7 +13,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <stdlib.h>
+
+#include <ctype.h> // tolower
+#include <wctype.h> // towlower
 
 NW_EXTERN_C_BEGIN
 
@@ -45,40 +47,6 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 
 // extern errno_t _wdupenv_s(wchar_t **buffer, size_t *numberOfElements, const wchar_t *varname); // TODO: Implement me
 
-extern errno_t mbstowcs_s
-                (
-                  size_t        *outCount,
-                  wchar_t       *dest,
-                  rsize_t        destsz,
-                  const char    *src,
-                  rsize_t        count
-                )
-{
-  // TODO: Draft implemenation
-  (*outCount) = 0;
-  size_t result = mbstowcs(dest, src, count);
-  if (((ssize_t)result) < 0) { return(EINVAL); }
-  (*outCount) = result;
-  return(0); // EOK
-}
-
-extern  errno_t wcstombs_s
-                (
-                  size_t        *outCount,
-                  char          *dest,
-                  rsize_t        destsz,
-                  const wchar_t *src,
-                  rsize_t        count
-                )
-{
-  // TODO: Draft implemenation
-  (*outCount) = 0;
-  size_t result = wcstombs(dest, src, count);
-  if (((ssize_t)result) < 0) { return(EINVAL); }
-  (*outCount) = result;
-  return(0); // EOK
-}
-
 extern wchar_t *wgetcwd(wchar_t *dest,  int destsz)
 {
   // TODO: Draft implemenation
@@ -90,5 +58,13 @@ extern wchar_t *wgetcwd(wchar_t *dest,  int destsz)
   if (mbstowcs_s(&countx,dest,destsz,result,destsz) != 0) { return(NULL); }
   return(dest);
 }
+
+// MS string functions
+// ---------------------------------------------
+
+extern  char    *strlwr      (char    *s)  { if (s==NULL) { return(s); } char    *data = (s); while (*data != 0) { *data = (char)tolower (*data); data++;} return(s); }
+extern  char    *strupr      (char    *s)  { if (s==NULL) { return(s); } char    *data = (s); while (*data != 0) { *data = (char)toupper (*data); data++;} return(s); }
+extern  wchar_t *wsclwr      (wchar_t *s)  { if (s==NULL) { return(s); } wchar_t *data = (s); while (*data != 0) { *data = towlower(*data); data++;} return(s); }
+extern  wchar_t *wscupr      (wchar_t *s)  { if (s==NULL) { return(s); } wchar_t *data = (s); while (*data != 0) { *data = towupper(*data); data++;} return(s); }
 
 NW_EXTERN_C_END

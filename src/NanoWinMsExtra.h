@@ -37,8 +37,6 @@
 // MS extensions and tricks
 // ---------------------------------------------
 #include <stdio.h>
-#include <ctype.h> // tolower
-#include <wctype.h> // towlower
 
 NW_EXTERN_C_BEGIN
 
@@ -75,26 +73,6 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 #define vfprintf_s           vfprintf
 #define vfwprintf_s          vfwprintf
 
-// Char transaltion MS-safe functions
-
-extern  errno_t mbstowcs_s
-                (
-                  size_t        *outCount,
-                  wchar_t       *dest,
-                  rsize_t        destsz,
-                  const char    *src,
-                  rsize_t        count
-                );
-
-extern  errno_t wcstombs_s
-                (
-                  size_t        *outCount,
-                  char          *dest,
-                  rsize_t        destsz,
-                  const wchar_t *src,
-                  rsize_t        count
-                );
-
 // MS string functions
 // ---------------------------------------------
 
@@ -102,10 +80,10 @@ extern  errno_t wcstombs_s
 #define stricmp(s1,s2)       strcasecmp(s1,s2)
 #define atoi64(a)            atoll(a)
 
-inline  char    *strlwr      (char    *s)  { char    *data = (s); while (*data != 0) { *data = (char)tolower (*data); data++;} return(s); }
-inline  char    *strupr      (char    *s)  { char    *data = (s); while (*data != 0) { *data = (char)toupper (*data); data++;} return(s); }
-inline  wchar_t *wsclwr      (wchar_t *s)  { wchar_t *data = (s); while (*data != 0) { *data = towlower(*data); data++;} return(s); }
-inline  wchar_t *wscupr      (wchar_t *s)  { wchar_t *data = (s); while (*data != 0) { *data = towupper(*data); data++;} return(s); }
+extern  char    *strlwr      (char    *s);
+extern  char    *strupr      (char    *s);
+extern  wchar_t *wsclwr      (wchar_t *s);
+extern  wchar_t *wscupr      (wchar_t *s);
 
 #ifndef NW_NO_MS_ISO_ALIASES // MS aliases for "obsolete" func
 #define _strnicmp            strnicmp
