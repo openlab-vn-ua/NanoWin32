@@ -12,7 +12,9 @@
 
 #if defined LINUX
 
+#include "NanoWinEvents.h"
 #include "NanoWinCriticalSection.h"
+#include "NanoWinMFCAfx.h"
 
 //Maybe later...
 //class CSyncObject : public CObject
@@ -76,7 +78,50 @@ class CSingleLock
 };
 
 
-// class CEvent // TODO: Implement me
+class CEvent
+{
+  public :
+
+  CEvent(BOOL bInitiallyOwn = FALSE,
+         BOOL bManualReset = FALSE,
+         LPCSTR lpszName = NULL,
+         LPSECURITY_ATTRIBUTES lpsaAttribute = NULL)
+  {
+    m_hObject = CreateEventA(lpsaAttribute,bManualReset,bInitiallyOwn,lpszName);
+
+    #if defined(_ATL_NO_EXCEPTIONS)
+      assert(m_hObject != NULL);
+    #else
+      throw new CMemoryException;
+    #endif
+  }
+
+  CEvent(BOOL bInitiallyOwn = FALSE,
+         BOOL bManualReset = FALSE,
+         LPCWSTR lpszName = NULL,
+         LPSECURITY_ATTRIBUTES lpsaAttribute = NULL)
+  {
+    m_hObject = CreateEventW(lpsaAttribute,bManualReset,bInitiallyOwn,lpszName);
+
+    #if defined(_ATL_NO_EXCEPTIONS)
+      assert(m_hObject != NULL);
+    #else
+      throw new CMemoryException;
+    #endif
+  }
+
+  BOOL SetEvent()
+  {
+    return ::SetEvent(m_hObject);
+  }
+
+  BOOL ResetEvent()
+  {
+    return ::ResetEvent(m_hObject);
+  }
+
+  HANDLE m_hObject;
+};
 
 #endif // linux
 #endif // ...Included
