@@ -29,6 +29,7 @@
 #define ERROR_INVALID_DATA             (0xd)     //    13 // The data is invalid
 
 #define ERROR_NOT_SUPPORTED            (0x32)    //    50 // The request is not supported
+#define ERROR_FILE_EXISTS              (0x50)    //    80 // The file exists
 #define ERROR_ALREADY_EXISTS           (0XB7)    //   183 // Cannot create a file when that file already exists
 #define ERROR_ENVVAR_NOT_FOUND         (0XCB)    //   203 // The system could not find the environment option that was entered
 
