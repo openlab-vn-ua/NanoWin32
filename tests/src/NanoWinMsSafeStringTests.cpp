@@ -1863,7 +1863,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrCpySTest)
 	char   str2[LEN];
 
 	errno_t rc;
-	uint32_t i;
 	int32_t  ind;
 
 	//--------------------------------------------------//
@@ -2039,7 +2038,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCpySTest)
 	wchar_t   str2[LEN];
 
 	errno_t rc;
-	uint32_t i;
 	int32_t  ind;
 
 	//--------------------------------------------------//
@@ -2219,11 +2217,8 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrUprSTest)
 
 	char   str1[LEN];
 	char   str2[LEN];
-	char   dest[LEN];
 
 	errno_t rc;
-	rsize_t nlen;
-	int32_t ind;
 
 	//--------------------------------------------------//
 
@@ -2310,7 +2305,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MbsToWcsSTest)
    NW_CHECK_EQUAL_ULONGS(MAGIC,dest_with_guards[0]); \
    NW_CHECK_EQUAL_ULONGS(MAGIC,dest_with_guards[LEN + 1]);
 
-  char      str1[LEN];
   wchar_t   dest_with_guards[LEN + 2];
   wchar_t  *dest = &dest_with_guards[1];
   const unsigned char *dest_bytes = (unsigned char*)dest;
@@ -2319,7 +2313,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, MbsToWcsSTest)
   dest_with_guards[LEN + 1] = MAGIC;
 
   errno_t rc;
-  rsize_t nlen;
   size_t  outc;
   char helloStr[] = "hello";
   wchar_t helloWStr[] = L"hello";
@@ -2550,13 +2543,12 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsToMbsSTest)
 
   #define LEN   ( 128 )
   #define INVALID_COUNT (0xABCD)
-  #define MAGIC         (0xEF)
+  #define MAGIC         ((char)0xEF)
 
   #define NW_CHECK_GUARDS() \
    NW_CHECK_EQUAL_BYTES(MAGIC,dest_with_guards[0]); \
    NW_CHECK_EQUAL_BYTES(MAGIC,dest_with_guards[LEN + 1]);
 
-  wchar_t   str1[LEN];
   char      dest_with_guards[LEN + 2];
   char     *dest = &dest_with_guards[1];
 
@@ -2564,7 +2556,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsToMbsSTest)
   dest_with_guards[LEN + 1] = MAGIC;
 
   errno_t rc;
-  rsize_t nlen;
   size_t  outc;
   char helloStr[] = "hello";
   wchar_t helloWStr[] = L"hello";
