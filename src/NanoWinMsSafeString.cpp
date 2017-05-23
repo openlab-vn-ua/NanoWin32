@@ -926,7 +926,7 @@ extern errno_t mbstowcs_s
   // <body> // invaliant for mbstowcs and wcstombs_s
   #define RSIZE_MAX_DCNT       RSIZE_GET_CNT(RSIZE_MAX_STR, DITEM)
   #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strcvt_handle_errcode(errcode); return(errcode); }
-  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); if (dest != NULL) { dest[0] = 0; } strcvt_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); if (dest != NULL) { dest[0] = 0; } if (outCount != NULL) { *outCount = 0; } strcvt_handle_errcode(errcode); return(errcode); }
 
   if (dest == NULL)
   {
@@ -936,12 +936,16 @@ extern errno_t mbstowcs_s
 	}
 	else
 	{
-      { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+      { return_after_err_WMARKER(FN SP "destsz is not zero"              , NULL, ERANGE); }
 	}
   }
   else
   {
-    if (destsz > RSIZE_MAX_DCNT)
+    if (destsz == 0)
+    {
+      { return_after_err_WMARKER(FN SP "destsz is zero"            , NULL, ERANGE); }
+    }
+    else if (destsz > RSIZE_MAX_DCNT)
 	{
       { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
 	}
@@ -949,19 +953,31 @@ extern errno_t mbstowcs_s
 
   // dest valid, now we have to fill dest in case of fail (dest=NULL supported by ..._FILLDST)
 
-  if (outCount == NULL)        { return_after_err_FILLDST(FN SP "output count is NULL"        , NULL, EINVAL); } // TODO: Check is that required
   if (src == NULL)             { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
-  if (count <= 0)              { return_after_err_FILLDST(FN SP "count is zero"               , NULL, EINVAL); }
   if (count > RSIZE_MAX_DCNT)  { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
 
-  if (count > destsz)          { return_after_err_FILLDST(FN SP "destsz too small"            , NULL, EINVAL); } // TODO: Check should we check it before conversion
+  // NOTE: MS implementation doesn't check count if destsz == 0, so we skip this check in such case
+  if (count > destsz && destsz != 0) { return_after_err_FILLDST(FN SP "destsz too small"            , NULL, EINVAL); }
 
   // dest is valid, src is valid, outCount is valid
 
   if (outCount != NULL) { (*outCount) = 0; }
   size_t result = ACTION(dest, src, count);
   if (((ssize_t)result) < 0)   { return(EINVAL); } // valid logic error
-  if (outCount != NULL) { (*outCount) = result; }
+
+  if (result == count && dest != NULL)
+  {
+    dest[count < destsz ? count : destsz - 1] = L'\0';
+  }
+
+  if (outCount != NULL)
+  {
+    #ifdef __GNUC__
+      (*outCount) = result + 1;
+    #else
+      (*outCount) = result;
+    #endif
+  }
 
   return(EOK);
 
@@ -992,7 +1008,7 @@ extern  errno_t wcstombs_s
   // <body> // invaliant for mbstowcs and wcstombs_s
   #define RSIZE_MAX_DCNT       RSIZE_GET_CNT(RSIZE_MAX_STR, DITEM)
   #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); strcvt_handle_errcode(errcode); return(errcode); }
-  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); if (dest != NULL) { dest[0] = 0; } strcvt_handle_errcode(errcode); return(errcode); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); if (dest != NULL) { dest[0] = 0; } if (outCount != NULL) { *outCount = 0; } strcvt_handle_errcode(errcode); return(errcode); }
 
   if (dest == NULL)
   {
@@ -1002,12 +1018,16 @@ extern  errno_t wcstombs_s
 	}
 	else
 	{
-      { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+      { return_after_err_WMARKER(FN SP "destsz is not zero"              , NULL, ERANGE); }
 	}
   }
   else
   {
-    if (destsz > RSIZE_MAX_DCNT)
+    if (destsz == 0)
+    {
+      { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+    }
+    else if (destsz > RSIZE_MAX_DCNT)
 	{
       { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
 	}
@@ -1015,19 +1035,31 @@ extern  errno_t wcstombs_s
 
   // dest valid, now we have to fill dest in case of fail (dest=NULL supported by ..._FILLDST)
 
-  if (outCount == NULL)        { return_after_err_FILLDST(FN SP "output count is NULL"        , NULL, EINVAL); } // TODO: Check is that required
   if (src == NULL)             { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
-  if (count <= 0)              { return_after_err_FILLDST(FN SP "count is zero"               , NULL, EINVAL); }
   if (count > RSIZE_MAX_DCNT)  { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
 
-  if (count > destsz)          { return_after_err_FILLDST(FN SP "destsz too small"            , NULL, EINVAL); } // TODO: Check should we check it before conversion
+  // NOTE: MS implementation doesn't check count if destsz == 0, so we skip this check in such case
+  if (count > destsz && destsz != 0) { return_after_err_FILLDST(FN SP "destsz too small"            , NULL, EINVAL); } // TODO: Check should we check it before conversion
 
   // dest is valid, src is valid, outCount is valid
 
   if (outCount != NULL) { (*outCount) = 0; }
   size_t result = ACTION(dest, src, count);
   if (((ssize_t)result) < 0)   { return(EINVAL); } // valid logic error
-  if (outCount != NULL) { (*outCount) = result; }
+
+  if (result == count && dest != NULL)
+  {
+    dest[count < destsz ? count : destsz - 1] = '\0';
+  }
+
+  if (outCount != NULL)
+  {
+    #ifdef __GNUC__
+      (*outCount) = result + 1;
+    #else
+      (*outCount) = result;
+    #endif
+  }
 
   return(EOK);
 
