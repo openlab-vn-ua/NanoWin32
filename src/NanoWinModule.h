@@ -16,6 +16,15 @@ NW_EXTERN_C_BEGIN
 
 #define NW_HANDLE_CURR_PROCCESS        NW_HANDLE_SPEC_VALUE(-2) // Under win32 is "-1", this is bad since -1 is same as INVALID_HANDLE_VALUE (we use -2 that better a bit)
 
+#if defined(__cplusplus)
+inline bool NanoWinIsCurrentProccessHandle(HANDLE proccess)
+{
+  if (proccess == NW_HANDLE_CURR_PROCCESS) { return(true); }
+  if (proccess == INVALID_HANDLE_VALUE)    { return(true); } // for Win32 compatibility, since curr proccess pseudo handle is -1 (same value as INVALID_HANDLE_VALUE)
+  return(false);
+}
+#endif
+
 // The return value is a pseudo handle to the current process.
 // The pseudo handle as a special handle value used to identify current proccess
 extern HANDLE  WINAPI GetCurrentProcess();

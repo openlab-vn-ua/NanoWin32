@@ -144,7 +144,7 @@ extern BOOL WINAPI GetProcessMemoryInfo
   if (ppsmemCounters == NULL)       { SetLastError(NW_DEFAULT_ERROR_AT_FAIL); return(FALSE); }
   if (cb < sizeof(*ppsmemCounters)) { SetLastError(NW_DEFAULT_ERROR_AT_FAIL); return(FALSE); }
 
-  if ((Process == NULL) || (Process == GetCurrentProcess()))
+  if ((Process == NULL) || NanoWinIsCurrentProccessHandle(Process))
   {
     // OK, we support only current proccess
   }
