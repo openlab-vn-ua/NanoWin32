@@ -58,6 +58,9 @@ extern BOOL  WINAPI CreateDirectoryW (_In_ LPCWSTR lpPathName, _In_opt_ LPSECURI
 extern BOOL  WINAPI DeleteFileA (_In_ LPCSTR  lpFileName);
 extern BOOL  WINAPI DeleteFileW (_In_ LPCWSTR lpFileName);
 
+extern BOOL  WINAPI CopyFileA (_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName, _In_ BOOL bFailIfExists);
+extern BOOL  WINAPI CopyFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpNewFileName, _In_ BOOL bFailIfExists);
+
 // File Attributes
 // ------------------------------------------
 
@@ -81,12 +84,14 @@ extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName);
 #define PathFileExists             PathFileExistsW
 #define CreateDirectory            CreateDirectoryW
 #define DeleteFile                 DeleteFileW
+#define CopyFile                   CopyFileW
 #define GetFileAttributes          GetFileAttributesW
 #else
 #define GetCurrentDirectory        GetCurrentDirectoryA
 #define PathFileExists             PathFileExistsA
 #define CreateDirectory            CreateDirectoryA
 #define DeleteFile                 DeleteFileA
+#define CopyFile                   CopyFileA
 #define GetFileAttributes          GetFileAttributesA
 #endif
 

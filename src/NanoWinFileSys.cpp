@@ -267,6 +267,29 @@ extern BOOL WINAPI CreateDirectoryW (_In_ LPCWSTR lpPathName, _In_opt_ LPSECURIT
   }
 }
 
+extern BOOL  WINAPI CopyFileA (_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName, _In_ BOOL bFailIfExists)
+{
+  SetLastError(ERROR_INVALID_FUNCTION); // TODO: Implement me
+  return(FALSE);
+}
+
+extern BOOL  WINAPI CopyFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpNewFileName, _In_ BOOL bFailIfExists)
+{
+  try
+  {
+    std::string mbExistingFileName = NanoWin::StrConverter::Convert(lpExistingFileName);
+    std::string mbNewFileName      = NanoWin::StrConverter::Convert(lpNewFileName);
+
+    return CopyFileA(mbExistingFileName.c_str(), mbNewFileName.c_str(), bFailIfExists);
+  }
+  catch (NanoWin::StrConverter::Error)
+  {
+    SetLastError(ERROR_NO_UNICODE_TRANSLATION);
+
+    return FALSE;
+  }
+}
+
 extern BOOL WINAPI DeleteFileA (_In_ LPCSTR  lpFileName)
 {
   if (unlink(lpFileName) == 0)
