@@ -36,10 +36,32 @@ extern DWORD   WINAPI GetCurrentProcessId(void);
 extern HMODULE WINAPI GetModuleHandleA(LPCSTR_NULLONLY  lpModuleName);
 extern HMODULE WINAPI GetModuleHandleW(LPCWSTR_NULLONLY lpModuleName);
 
+// Dlls
+
+// Loads the specified module into the address space of the calling process. The specified module may cause other modules to be loaded.
+// If lpFileName does not include a path and there is more than one loaded module with the same base name and extension, the function returns a handle to the module that was loaded first
+// If the function fails, the return value is NULL. (Use GetLastError)
+extern HMODULE WINAPI LoadLibraryA(_In_ LPCSTR  lpFileName);
+
+// Loads the specified module into the address space of the calling process. The specified module may cause other modules to be loaded.
+// If lpFileName does not include a path and there is more than one loaded module with the same base name and extension, the function returns a handle to the module that was loaded first
+// If the function fails, the return value is NULL (use GetLastError to get error code)
+extern HMODULE WINAPI LoadLibraryW(_In_ LPCWSTR lpFileName);
+
+// Frees the loaded dynamic-link library
+extern BOOL    WINAPI FreeLibrary(_In_ HMODULE hModule);
+
+// Retrieves the address of an exported function or variable from the specified dynamic-link library
+// If the function fails, the return value is NULL (use GetLastError to get error code)
+// Note: The only version exists in Win32 is ASCII?
+extern FARPROC WINAPI GetProcAddress(_In_ HMODULE hModule, _In_ LPCSTR lpProcName); 
+
 #if defined(UNICODE) || defined(_UNICODE)
 #define GetModuleHandle       GetModuleHandleW
+#define LoadLibrary           LoadLibraryW
 #else
 #define GetModuleHandle       GetModuleHandleA
+#define LoadLibrary           LoadLibraryA
 #endif
 
 NW_EXTERN_C_END
