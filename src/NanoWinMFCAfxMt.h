@@ -84,24 +84,10 @@ class CEvent
 
   CEvent(BOOL bInitiallyOwn = FALSE,
          BOOL bManualReset = FALSE,
-         LPCSTR lpszName = NULL,
+         LPCTSTR lpszName = NULL,
          LPSECURITY_ATTRIBUTES lpsaAttribute = NULL)
   {
-    m_hObject = CreateEventA(lpsaAttribute,bManualReset,bInitiallyOwn,lpszName);
-
-    #if defined(_ATL_NO_EXCEPTIONS)
-      assert(m_hObject != NULL);
-    #else
-      throw new CMemoryException;
-    #endif
-  }
-
-  CEvent(BOOL bInitiallyOwn = FALSE,
-         BOOL bManualReset = FALSE,
-         LPCWSTR lpszName = NULL,
-         LPSECURITY_ATTRIBUTES lpsaAttribute = NULL)
-  {
-    m_hObject = CreateEventW(lpsaAttribute,bManualReset,bInitiallyOwn,lpszName);
+    m_hObject = CreateEvent(lpsaAttribute,bManualReset,bInitiallyOwn,lpszName);
 
     #if defined(_ATL_NO_EXCEPTIONS)
       assert(m_hObject != NULL);
