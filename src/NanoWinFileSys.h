@@ -14,26 +14,30 @@
 
 #include <limits.h>
 
+// Path name constants
+// ------------------------------------------
+
 // Note: under MSWIN _MAX filesystems constants values should include room for trailing '\0'
 
 // _MAX_PATH : Maximum length of full path // Win32:(260) // Linux:4096
 #if defined(PATH_MAX)
-#define _MAX_PATH   PATH_MAX       // PATH_MAX includes trailing '\0'
+#define _MAX_PATH   PATH_MAX       // Maximum size of full path (including '\0') // Linux:PATH_MAX includes trailing '\0'
 #else
-#define _MAX_PATH   (4096)         // Some reasonable assumptions
+#define _MAX_PATH   (4096)         // Maximum size of full path (including '\0') Some reasonable assumptions
 #endif
 
-// _MAX_FNAME : Maximum length of filename component // Linux:255
+// _MAX_FNAME : Maximum size of filename component // Linux:255
 #if defined(NAME_MAX)
-#define _MAX_FNAME  (NAME_MAX+1)  // NAME_MAX not includes '\0', add room for it
+#define _MAX_FNAME  (NAME_MAX+1)  // Maximum size of file name + extension (including '\0') // NAME_MAX not includes '\0', add room for it
 #else
-#define _MAX_FNAME  PATH_MAX
+#define _MAX_FNAME  PATH_MAX      // Maximum size of file name + extension (including '\0')
 #endif
 
-#define _MAX_DIR    _MAX_PATH     // Maximum length of directory component // Win32:(MAX_PATH-12)
-#define _MAX_DRIVE  _MAX_FNAME    // Maximum length of drive component
-#define _MAX_EXT    _MAX_FNAME    // Maximum length of extension component // Win32:(MAX_PATH-4)?
+#define _MAX_DIR    _MAX_PATH     // Maximum size of directory component (including '\0') // Win32:(MAX_PATH-12)
+#define _MAX_DRIVE  _MAX_FNAME    // Maximum size of drive component (including '\0') // Linux: can be just 1
+#define _MAX_EXT    _MAX_FNAME    // Maximum size of {file name} extension component (including '\0') // Win32:(MAX_PATH-4)?
 
+// Maximum size of full path (including '\0')
 // Alias w/o undescore
 #define MAX_PATH    _MAX_PATH
 
@@ -43,6 +47,7 @@ extern BOOL  WINAPI PathFileExistsA (LPCSTR lpPath);
 extern BOOL  WINAPI PathFileExistsW (LPCWSTR lpPath);
 
 // Win32 API: Directory stuff
+// ------------------------------------------
 
 extern DWORD WINAPI GetCurrentDirectoryA (DWORD nBufferLength, LPSTR lpBuffer);
 extern DWORD WINAPI GetCurrentDirectoryW (DWORD nBufferLength, LPWSTR lpBuffer);
@@ -53,16 +58,33 @@ extern BOOL  WINAPI CreateDirectoryW (LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES 
 extern BOOL  WINAPI DeleteFileA (LPCSTR  lpFileName);
 extern BOOL  WINAPI DeleteFileW (LPCWSTR lpFileName);
 
+// File Attributes
+// ------------------------------------------
+
+// The only attributes supported so far
+
+#define INVALID_FILE_ATTRIBUTES  (0xFFFF)
+#define FILE_ATTRIBUTE_DIRECTORY (0x10)
+
+// Retrieves file system attributes for a specified file or directory
+// If the function succeeds, the return value contains the attributes of the specified file or directory.
+// For a list of attribute values and their descriptions, see File Attribute Constants.
+// If the function fails, the return value is INVALID_FILE_ATTRIBUTES. To get extended error information, call GetLastError.
+extern DWORD GetFileAttributesA (LPCSTR  lpFileName);
+extern DWORD GetFileAttributesW (LPCWSTR lpFileName);
+
 #if defined(UNICODE) || defined(_UNICODE)
 #define GetCurrentDirectory        GetCurrentDirectoryW
 #define PathFileExists             PathFileExistsW
 #define CreateDirectory            CreateDirectoryW
 #define DeleteFile                 DeleteFileW
+#define GetFileAttributes          GetFileAttributesW
 #else
 #define GetCurrentDirectory        GetCurrentDirectoryA
 #define PathFileExists             PathFileExistsA
 #define CreateDirectory            CreateDirectoryA
 #define DeleteFile                 DeleteFileA
+#define GetFileAttributes          GetFileAttributesA
 #endif
 
 NW_EXTERN_C_END

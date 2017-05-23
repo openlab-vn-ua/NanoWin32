@@ -298,4 +298,38 @@ extern BOOL WINAPI DeleteFileW (LPCWSTR lpFileName)
   return(DeleteFileA(sFileName.c_str()));
 }
 
+extern DWORD GetFileAttributesA (LPCSTR  lpFileName)
+{
+  struct stat st;
+
+  if (stat(lpFileName, &st) != 0)
+  {
+    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+    return(INVALID_FILE_ATTRIBUTES);
+  }
+
+  DWORD result = 0;
+
+  if (S_ISDIR(st.st_mode))
+  {
+    result |= FILE_ATTRIBUTE_DIRECTORY;
+  }
+
+  return(result);
+}
+
+extern DWORD GetFileAttributesW (LPCWSTR lpFileName)
+{
+  try
+  {
+    std::string mbPathName = NanoWin::StrConverter::Convert(lpFileName);
+    return GetFileAttributesA(mbPathName.c_str());
+  }
+  catch (NanoWin::StrConverter::Error)
+  {
+    SetLastError(ERROR_NO_UNICODE_TRANSLATION);
+    return INVALID_FILE_ATTRIBUTES;
+  }
+}
+
 NW_EXTERN_C_END
