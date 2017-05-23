@@ -99,5 +99,10 @@ namespace NanoWin
   };
 }
 
+// Win32: Code conversion
+#define CP_ACP 0 // The only supported case
+#define MultiByteToWideChar(a,b,c,d,e,f)		mbstowcs(e,c,f)
+#define WideCharToMultiByte(a,b,c,d,e,f,g,h)	wcstombs(e, c, f)
+
 #endif
 
