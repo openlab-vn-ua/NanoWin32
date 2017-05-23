@@ -64,6 +64,16 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 #define _wfsopen            wfsopen
 #endif
 
+// Errno add-ons
+
+#define set_errno(v)        ((errno = (v)),0)
+#define get_errno(pv)       ((*(pv) = errno),0)
+
+#ifndef NW_NO_MS_ISO_ALIASES // MS-style aliases for "obsolete/nonconformant" func
+#define _set_errno          set_errno
+#define _get_errno          get_errno
+#endif
+
 // MS more safe functions
 // ---------------------------------------------
 
