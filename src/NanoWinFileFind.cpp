@@ -190,6 +190,7 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
 
   DWORD fileSizeHigh = 0;
   DWORD fileSizeLow  = 0;
+  BOOL  isDirectory  = FALSE;
 
   if (NanoWinJoinDirAndFileName(fullFileName, sizeof(fullFileName), dirName, entry->d_name))
   {
@@ -208,6 +209,10 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
           fileSizeLow  = entryData.st_size;
         }
       }
+      else if (S_ISDIR(entryData.st_mode))
+      {
+        isDirectory = TRUE;
+      }
     }
   }
 
@@ -224,6 +229,7 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
 
     wideCharData->nFileSizeHigh = fileSizeHigh;
     wideCharData->nFileSizeLow  = fileSizeLow;
+    wideCharData->bNwIsDirectory= isDirectory;
   }
   else
   {
@@ -235,6 +241,7 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
 
     multiByteData->nFileSizeHigh = fileSizeHigh;
     multiByteData->nFileSizeLow  = fileSizeLow;
+    multiByteData->bNwIsDirectory= isDirectory;
   }
 }
 
