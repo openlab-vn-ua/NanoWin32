@@ -50,7 +50,19 @@ extern int    _mkdir(const char *dirname);
 extern int    _wmkdir(const wchar_t *dirname);   
 
 extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *varname);
-// extern errno_t _wdupenv_s(wchar_t **buffer, size_t *numberOfElements, const wchar_t *varname);  
+// extern errno_t _wdupenv_s(wchar_t **buffer, size_t *numberOfElements, const wchar_t *varname);
+
+// share.h subset
+
+#define SH_DENYNO           (0x40) // The only supported value so far
+#define fsopen(fn,m,sc)     (fopen((fn),(m)))  // TODO: Refine me (incomplete implemenation)
+#define wfsopen(fn,m,sc)    (wfopen((fn),(m))) // TODO: Refine me (incomplete implemenation)
+
+#ifndef NW_NO_MS_ISO_ALIASES // MS-style aliases for "obsolete/nonconformant" func
+#define _SH_DENYNO          SH_DENYNO
+#define _fsopen             fsopen
+#define _wfsopen            wfsopen
+#endif
 
 // MS more safe functions
 // ---------------------------------------------

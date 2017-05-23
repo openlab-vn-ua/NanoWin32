@@ -113,7 +113,9 @@ typedef LPSTR                LPTSTR;
 
 #define _ftprintf            fwprintf
 #define _ftprintf_s          fwprintf_s
+#define _tfopen              _wfopen
 #define _tfopen_s            _wfopen_s
+#define _tfsopen             _wfsopen
 #define _fputts              fputws
 #define _fgetts              fgetws
 #define _ftscanf             fwscanf
@@ -122,7 +124,9 @@ typedef LPSTR                LPTSTR;
 
 #define _ftprintf            fprintf
 #define _ftprintf_s          fprintf_s
+#define _tfopen              fopen
 #define _tfopen_s            fopen_s
+#define _tfsopen             _fsopen
 #define _fputts              fputs
 #define _fgetts              fgets
 #define _ftscanf             fscanf
