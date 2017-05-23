@@ -19,7 +19,7 @@
 
 NW_EXTERN_C_BEGIN
 
-extern BOOL WINAPI PathFileExistsA (LPCSTR lpPath)
+extern BOOL WINAPI PathFileExistsA (_In_ LPCSTR lpPath)
 {
   if (lpPath == NULL)
   {
@@ -36,13 +36,13 @@ extern BOOL WINAPI PathFileExistsA (LPCSTR lpPath)
   return(FALSE);
 }
 
-extern BOOL WINAPI PathFileExistsW (LPCWSTR lpPath)
+extern BOOL WINAPI PathFileExistsW (_In_ LPCWSTR lpPath)
 {
   NanoWin::WStrToStrClone sPath(lpPath);
   return(PathFileExistsA(sPath.c_str()));
 }
 
-static bool CurrDirCalculateRequiredBufferSize (DWORD *requiredBufferSize, DWORD startBufferSize)
+static bool CurrDirCalculateRequiredBufferSize (_Out_ DWORD *requiredBufferSize, _In_ DWORD startBufferSize)
 {
   constexpr size_t MAX_BUFFER_SIZE = 32 * 1024;
 
@@ -92,7 +92,7 @@ static bool CurrDirCalculateRequiredBufferSize (DWORD *requiredBufferSize, DWORD
   return requiredSizeFound;
 }
 
-extern DWORD WINAPI GetCurrentDirectoryA (DWORD nBufferLength, LPSTR lpBuffer)
+extern DWORD WINAPI GetCurrentDirectoryA (_In_ DWORD nBufferLength, _Out_ LPSTR lpBuffer)
 {
   DWORD result = 0;
 
@@ -127,7 +127,7 @@ extern DWORD WINAPI GetCurrentDirectoryA (DWORD nBufferLength, LPSTR lpBuffer)
   return result;
 }
 
-extern DWORD WINAPI GetCurrentDirectoryW (DWORD nBufferLength, LPWSTR lpBuffer)
+extern DWORD WINAPI GetCurrentDirectoryW (_In_ DWORD nBufferLength, _Out_ LPWSTR lpBuffer)
 {
   char        buffer[PATH_MAX];
   DWORD       multiByteLen;
@@ -219,7 +219,7 @@ extern DWORD WINAPI GetCurrentDirectoryW (DWORD nBufferLength, LPWSTR lpBuffer)
   return result;
 }
 
-extern BOOL WINAPI CreateDirectoryA (LPCSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+extern BOOL WINAPI CreateDirectoryA (_In_ LPCSTR lpPathName, _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
   mode_t mode = lpSecurityAttributes == NULL ? (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) : (S_IRWXU);
 
@@ -251,7 +251,7 @@ extern BOOL WINAPI CreateDirectoryA (LPCSTR lpPathName, LPSECURITY_ATTRIBUTES lp
   }
 }
 
-extern BOOL WINAPI CreateDirectoryW (LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+extern BOOL WINAPI CreateDirectoryW (_In_ LPCWSTR lpPathName, _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
   try
   {
@@ -267,7 +267,7 @@ extern BOOL WINAPI CreateDirectoryW (LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES l
   }
 }
 
-extern BOOL WINAPI DeleteFileA (LPCSTR  lpFileName)
+extern BOOL WINAPI DeleteFileA (_In_ LPCSTR  lpFileName)
 {
   if (unlink(lpFileName) == 0)
   {
@@ -292,13 +292,13 @@ extern BOOL WINAPI DeleteFileA (LPCSTR  lpFileName)
   }
 }
 
-extern BOOL WINAPI DeleteFileW (LPCWSTR lpFileName)
+extern BOOL WINAPI DeleteFileW (_In_ LPCWSTR lpFileName)
 {
   NanoWin::WStrToStrClone sFileName(lpFileName);
   return(DeleteFileA(sFileName.c_str()));
 }
 
-extern DWORD GetFileAttributesA (LPCSTR  lpFileName)
+extern DWORD GetFileAttributesA (_In_ LPCSTR  lpFileName)
 {
   struct stat st;
 
@@ -318,7 +318,7 @@ extern DWORD GetFileAttributesA (LPCSTR  lpFileName)
   return(result);
 }
 
-extern DWORD GetFileAttributesW (LPCWSTR lpFileName)
+extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName)
 {
   try
   {

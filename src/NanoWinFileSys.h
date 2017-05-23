@@ -49,14 +49,14 @@ extern BOOL  WINAPI PathFileExistsW (LPCWSTR lpPath);
 // Win32 API: Directory stuff
 // ------------------------------------------
 
-extern DWORD WINAPI GetCurrentDirectoryA (DWORD nBufferLength, LPSTR lpBuffer);
-extern DWORD WINAPI GetCurrentDirectoryW (DWORD nBufferLength, LPWSTR lpBuffer);
+extern DWORD WINAPI GetCurrentDirectoryA (_In_ DWORD nBufferLength, _Out_ LPSTR lpBuffer);
+extern DWORD WINAPI GetCurrentDirectoryW (_In_ DWORD nBufferLength, _Out_ LPWSTR lpBuffer);
 
-extern BOOL  WINAPI CreateDirectoryA (LPCSTR  lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
-extern BOOL  WINAPI CreateDirectoryW (LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+extern BOOL  WINAPI CreateDirectoryA (_In_ LPCSTR  lpPathName, _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+extern BOOL  WINAPI CreateDirectoryW (_In_ LPCWSTR lpPathName, _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 
-extern BOOL  WINAPI DeleteFileA (LPCSTR  lpFileName);
-extern BOOL  WINAPI DeleteFileW (LPCWSTR lpFileName);
+extern BOOL  WINAPI DeleteFileA (_In_ LPCSTR  lpFileName);
+extern BOOL  WINAPI DeleteFileW (_In_ LPCWSTR lpFileName);
 
 // File Attributes
 // ------------------------------------------
@@ -70,8 +70,11 @@ extern BOOL  WINAPI DeleteFileW (LPCWSTR lpFileName);
 // If the function succeeds, the return value contains the attributes of the specified file or directory.
 // For a list of attribute values and their descriptions, see File Attribute Constants.
 // If the function fails, the return value is INVALID_FILE_ATTRIBUTES. To get extended error information, call GetLastError.
-extern DWORD GetFileAttributesA (LPCSTR  lpFileName);
-extern DWORD GetFileAttributesW (LPCWSTR lpFileName);
+extern DWORD GetFileAttributesA (_In_ LPCSTR  lpFileName);
+extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName);
+
+// Unicode gates
+// ------------------------------------------
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define GetCurrentDirectory        GetCurrentDirectoryW
