@@ -67,6 +67,12 @@
 #define NW_MAKE_PLP_TYPES(TYPE,NAME)   NW_MAKE_P_TYPE(TYPE,NAME); NW_MAKE_LP_TYPE(TYPE,NAME);
 #define NW_MAKE_PLP_TYPES_BY(NAME)     NW_MAKE_PLP_TYPES(NAME,NAME);
 
+// Define pointer that can be null only (that is, you can pass it only as null)
+#define NW_PNULLONLY_TYPE(TYPE)        typedef struct NW_##TYPE##_NULLONLY { void *dummy; } *TYPE;
+
+// Define PTYPE_NULLONLY type version of source PTYPE
+#define NW_MAKE_PTYPE_NULLONLY(PTYPE)  NW_PNULLONLY_TYPE(PTYPE##_NULLONLY)
+
 #ifndef VOID
 #define VOID                           void      // WinNT.h // Decalred via define, not a typedef (historically)
 typedef void                          *PVOID;
@@ -205,12 +211,30 @@ typedef intptr_t                       SSIZE_T;  NW_MAKE_PLP_TYPES_BY(SSIZE_T); 
 
 // Handle types
 // -----------------------------------------------------------------------
-#define INVALID_HANDLE_VALUE           NULL    // Note: Under win32 defibed as "-1"
-typedef void*                          HANDLE;
-// Dll types
-typedef void*                          HINSTANCE;
-typedef void*                          HMODULE;
-typedef void*                          FARPROC;
+
+// A handle to an object (most of objects use handles dervied from it [but not all])
+typedef PVOID                          HANDLE;
+
+#define NW_HANDLE_SPEC_VALUE(VALUE)    ((HANDLE)((intptr_t)(VALUE)))
+#define INVALID_HANDLE_VALUE           NW_HANDLE_SPEC_VALUE(-1) // Note: Under win32 defibed as "-1", so it should differ from NULL
+
+// Dll-related types
+// -----------------------------------------------------------------------
+
+// A handle to an instance.
+// [Win32]: This is the base address of the module in memory.
+// [NanoWin]: This is the address of some module-related structure.
+// HMODULE and HINSTANCE are the same today, but represented different things in 16-bit Windows.
+typedef HANDLE                         HINSTANCE; 
+
+// A handle to a module.
+// [Win32]: The is the base address of the module in memory.
+// [NanoWin]: This is the address of some module-related structure.
+// HMODULE and HINSTANCE are the same today, but represented different things in 16-bit Windows.
+typedef HINSTANCE                      HMODULE;
+
+// Address of procedure (code address)
+typedef void*  FAR                     FARPROC;
 
 // Win32 Interface compiller
 // -----------------------------------------------------------------------
@@ -262,6 +286,19 @@ typedef unsigned char boolean;
 #define NW_ERRNO_T_DEFINED
 typedef int errno_t; // Not defined by GNU C (standard assumed errno is int always)
 #endif
+
+// NULLONLY Version of standard types
+// -----------------------------------------------------------------------
+// Used to restrict implemented param subset
+
+NW_MAKE_PTYPE_NULLONLY(PSTR);
+NW_MAKE_PTYPE_NULLONLY(LPSTR);
+NW_MAKE_PTYPE_NULLONLY(PWSTR);
+NW_MAKE_PTYPE_NULLONLY(LPWSTR);
+NW_MAKE_PTYPE_NULLONLY(PCSTR);
+NW_MAKE_PTYPE_NULLONLY(LPCSTR);
+NW_MAKE_PTYPE_NULLONLY(PCWSTR);
+NW_MAKE_PTYPE_NULLONLY(LPCWSTR);
 
 // Other usefull stuff
 // -----------------------------------------------------------------------
