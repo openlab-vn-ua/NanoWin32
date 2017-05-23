@@ -357,7 +357,14 @@ extern BOOL   FindNextFileW(HANDLE handle, WIN32_FIND_DATAW *state)
 
 extern BOOL   FindClose(HANDLE hFindFile)
 {
-  NanoWinFindFileCloseHandle((NanoWinFileFindHandle*)hFindFile);
+  if (hFindFile == NULL || hFindFile == INVALID_HANDLE_VALUE)
+  {
+    return FALSE;
+  }
+  else
+  {
+    NanoWinFindFileCloseHandle((NanoWinFileFindHandle*)hFindFile);
+  }
 
   return TRUE;
 }
