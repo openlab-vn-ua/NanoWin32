@@ -251,6 +251,23 @@ typedef void*  FAR                     FARPROC;
 #define OPTIONAL
 #endif
 
+// The Microsoft source-code annotation language (SAL) subset
+// -----------------------------------------------------------------------
+// Used by code analysys tools
+// Good practice to annotate at least pointer parameters
+
+#define _In_          // Input to called function
+#define _Inout_       // Input to called function, and output to caller
+#define _Out_         // Output to caller
+#define _Outptr_      // Output of pointer to caller [pointer-to-pointer]
+
+#define _In_opt_      // Input to called function [optional]
+#define _Inout_opt_   // Input to called function, and output to caller  [optional]
+#define _Out_opt_     // Output to caller  [optional]
+#define _Outptr_opt_  // Output of pointer to caller [pointer-to-pointer] [optional]
+
+#define _Success_(x)  // Success criteria for function (to enforce _Out_* annotations)
+
 // Some exotic generic types
 // -----------------------------------------------------------------------
 
