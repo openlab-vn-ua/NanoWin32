@@ -39,21 +39,19 @@
 
 NW_EXTERN_C_BEGIN
 
-extern BOOL WINAPI PathFileExistsA (const char    *lpPath);
-extern BOOL WINAPI PathFileExistsW (const wchar_t *lpPath);
+extern BOOL  WINAPI PathFileExistsA (LPCSTR lpPath);
+extern BOOL  WINAPI PathFileExistsW (LPCWSTR lpPath);
 
 // Win32 API: Directory stuff
 
-extern DWORD WINAPI GetCurrentDirectoryA(DWORD nBufferLength, LPSTR lpBuffer);
-extern DWORD WINAPI GetCurrentDirectoryW(DWORD nBufferLength, LPWSTR lpBuffer);
+extern DWORD WINAPI GetCurrentDirectoryA (DWORD nBufferLength, LPSTR lpBuffer);
+extern DWORD WINAPI GetCurrentDirectoryW (DWORD nBufferLength, LPWSTR lpBuffer);
 
-extern BOOL WINAPI CreateDirectoryA(LPCSTR                lpPathName,
-                                    LPSECURITY_ATTRIBUTES lpSecurityAttributes);
-extern BOOL WINAPI CreateDirectoryW(LPCWSTR               lpPathName,
-                                    LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+extern BOOL  WINAPI CreateDirectoryA (LPCSTR  lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+extern BOOL  WINAPI CreateDirectoryW (LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 
-extern BOOL WINAPI DeleteFileA     (LPCSTR  lpFileName);
-extern BOOL WINAPI DeleteFileW     (LPCWSTR lpFileName);
+extern BOOL  WINAPI DeleteFileA (LPCSTR  lpFileName);
+extern BOOL  WINAPI DeleteFileW (LPCWSTR lpFileName);
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define GetCurrentDirectory        GetCurrentDirectoryW
