@@ -2296,4 +2296,480 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrUprSTest)
     #undef STRFUN
 }
 
+NW_TEST(NanoWinMsSafeStringTestGroup, MbsToWcsSTest)
+{
+  #define MEMSET   memset
+
+  SETUP_S_TEST();
+
+  #define LEN   ( 128 )
+  #define INVALID_COUNT ( 0xABCD )
+  #define MAGIC         ((wchar_t)-1)
+
+  #define NW_CHECK_GUARDS() \
+   NW_CHECK_EQUAL_ULONGS(MAGIC,dest_with_guards[0]); \
+   NW_CHECK_EQUAL_ULONGS(MAGIC,dest_with_guards[LEN + 1]);
+
+  char      str1[LEN];
+  wchar_t   dest_with_guards[LEN + 2];
+  wchar_t  *dest = &dest_with_guards[1];
+  const unsigned char *dest_bytes = (unsigned char*)dest;
+
+  dest_with_guards[0]       = MAGIC;
+  dest_with_guards[LEN + 1] = MAGIC;
+
+  errno_t rc;
+  rsize_t nlen;
+  size_t  outc;
+  char helloStr[] = "hello";
+  wchar_t helloWStr[] = L"hello";
+
+  //--------------------------------------------------//
+  // simple conversion must succeed
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,LEN,helloStr,LEN - 1);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_MEMCMP(helloWStr,dest,sizeof(helloWStr));
+  NW_CHECK_EQUAL_ULONGS(6,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if src == NULL
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,LEN,NULL,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_EQUAL_ULONGS(0,dest[0]);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dst == NULL and dstsz > 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,NULL,LEN,helloStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_LONGS(INVALID_COUNT,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dst != NULL and dstsz == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,0,helloStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_LONGS(INVALID_COUNT,outc);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[0]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[1]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[2]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[3]);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if retval == NULL
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(NULL,dest,LEN,helloStr,LEN - 1);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_MEMCMP(helloWStr,dest,sizeof(helloWStr));
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dest == NULL, destsz == 0, count == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,NULL,0,helloStr,0);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_ULONGS(6,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dest == NULL, destsz == 0, count > 0 && count < len(src)
+  // (ms implementation doesn't check count argument and just returns full length
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,NULL,0,helloStr,2);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_ULONGS(6,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok len(src) > count
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,LEN,helloStr,2);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_MEMCMP(helloWStr,dest,2 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_ULONGS(0,dest[2]);
+  NW_CHECK_EQUAL_ULONGS(3,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check error if dstsz == len(src)
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,5,helloStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_ULONGS(0,dest[0]);
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check error if dstsz < len(src)
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,2,helloStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_ULONGS(0,dest[0]);
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check error if dstsz == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,0,helloStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[0]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[1]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[2]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[3]);
+  NW_CHECK_EQUAL_ULONGS(INVALID_COUNT,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dstsz > 0, count == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,LEN,helloStr,0);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_ULONGS(0,dest[0]);
+  NW_CHECK_EQUAL_ULONGS(1,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dstsz < count and count < len(src)
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,2,helloStr,3);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_ULONGS(L'\0',dest[0]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[4]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[5]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[6]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[7]);
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dstsz == 0 and count < len(src) (also ensures that
+  // writes outside dest happens
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,dest,0,helloStr,3);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[0]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[1]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[2]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[3]);
+  NW_CHECK_EQUAL_ULONGS(INVALID_COUNT,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dstsz == 0 and count == 0 with empty string
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = mbstowcs_s(&outc,NULL,0,"",0);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[0]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[1]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[2]);
+  NW_CHECK_EQUAL_BYTES('z',dest_bytes[3]);
+  NW_CHECK_EQUAL_ULONGS(1,outc);
+  NW_CHECK_GUARDS();
+
+  #undef NW_CHECK_GUARDS
+  #undef MAGIC
+  #undef INVALID_COUNT
+  #undef LEN
+ 
+  #undef MEMSET
+}
+
+NW_TEST(NanoWinMsSafeStringTestGroup, WcsToMbsSTest)
+{
+  #define MEMSET   memset
+
+  SETUP_S_TEST();
+
+  #define LEN   ( 128 )
+  #define INVALID_COUNT (0xABCD)
+  #define MAGIC         (0xEF)
+
+  #define NW_CHECK_GUARDS() \
+   NW_CHECK_EQUAL_BYTES(MAGIC,dest_with_guards[0]); \
+   NW_CHECK_EQUAL_BYTES(MAGIC,dest_with_guards[LEN + 1]);
+
+  wchar_t   str1[LEN];
+  char      dest_with_guards[LEN + 2];
+  char     *dest = &dest_with_guards[1];
+
+  dest_with_guards[0]       = MAGIC;
+  dest_with_guards[LEN + 1] = MAGIC;
+
+  errno_t rc;
+  rsize_t nlen;
+  size_t  outc;
+  char helloStr[] = "hello";
+  wchar_t helloWStr[] = L"hello";
+
+  //--------------------------------------------------//
+  // simple conversion must succeed
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,LEN,helloWStr,LEN - 1);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_STRCMP(helloStr,dest);
+  NW_CHECK_EQUAL_ULONGS(6,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if src == NULL
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,LEN,NULL,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_EQUAL_BYTES(0,dest[0]);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dst == NULL and dstsz > 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,NULL,LEN,helloWStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_LONGS(INVALID_COUNT,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dst != NULL and dstsz == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,0,helloWStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_LONGS(INVALID_COUNT,outc);
+  NW_CHECK_EQUAL_BYTES('z',dest[0]);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if retval == NULL
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(NULL,dest,LEN,helloWStr,LEN - 1);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_STRCMP(helloStr,dest);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dest == NULL, destsz == 0, count == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,NULL,0,helloWStr,0);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_ULONGS(6,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dest == NULL, destsz == 0, count > 0 && count < len(src)
+  // (ms implementation doesn't check count argument and just returns full length
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,NULL,0,helloWStr,2);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_ULONGS(6,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok len(src) > count
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,LEN,helloWStr,2);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_MEMCMP(helloStr,dest,2);
+  NW_CHECK_EQUAL_BYTES(0,dest[2]);
+  NW_CHECK_EQUAL_ULONGS(3,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check error if dstsz == len(src)
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,5,helloWStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_BYTES(0,dest[0]);
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check error if dstsz < len(src)
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,2,helloWStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_BYTES(0,dest[0]);
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check error if dstsz == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,0,helloWStr,LEN - 1);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_BYTES('z',dest[0]);
+  NW_CHECK_EQUAL_ULONGS(INVALID_COUNT,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dstsz > 0, count == 0
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,LEN,helloWStr,0);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_BYTES(0,dest[0]);
+  NW_CHECK_EQUAL_ULONGS(1,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dstsz < count and count < len(src)
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,2,helloWStr,3);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_BYTES('\0',dest[0]);
+///////  NW_CHECK_EQUAL_BYTES('z',dest[1]); // MS changes this (this conforms to standard)
+  NW_CHECK_EQUAL_ULONGS(0,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check fails if dstsz == 0 and count < len(src) (also ensures that
+  // writes outside dest happens
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,dest,0,helloWStr,3);
+
+  NW_CHECK_RC_ERR(rc);
+  NW_CHECK_EQUAL_BYTES('z',dest[0]);
+  NW_CHECK_EQUAL_ULONGS(INVALID_COUNT,outc);
+  NW_CHECK_GUARDS();
+
+  //--------------------------------------------------//
+  // check ok if dstsz == 0 and count == 0 with empty string
+
+  outc = INVALID_COUNT;
+  MEMSET(dest,'z',LEN);
+
+  rc = wcstombs_s(&outc,NULL,0,L"",0);
+
+  NW_CHECK_RC_OK(rc);
+  NW_CHECK_EQUAL_BYTES('z',dest[0]);
+  NW_CHECK_EQUAL_ULONGS(1,outc);
+  NW_CHECK_GUARDS();
+
+  #undef NW_CHECK_GUARDS
+  #undef MAGIC
+  #undef INVALID_COUNT
+  #undef LEN
+ 
+  #undef MEMSET
+}
+
 NW_END_TEST_GROUP()
