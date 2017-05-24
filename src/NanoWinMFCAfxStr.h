@@ -592,6 +592,8 @@ inline CString operator+ (const CString &s1, const CString &s2)
   return(result);
 }
 
+extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString, int iSubString, TCHAR chSep = '\n');
+
 #if defined(UNICODE) || defined(_UNICODE)
 #define CT2A(x) NanoWin::WStrToStrClone(x).c_str()
 #define CA2T(x) NanoWin::StrToWStrClone(x).c_str()
