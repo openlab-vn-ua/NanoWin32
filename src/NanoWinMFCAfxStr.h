@@ -64,11 +64,7 @@ class CSimpleString
 
   static int StringLength(const TCHAR *psz) // throw()
   {
-    #if defined(UNICODE) || defined(_UNICODE)
-    return(wsclen(psz));
-    #else
-    return(strlen(psz));
-    #endif
+    return(_tcslen(psz));
   }
 
   // Need some study (do we need this?)
