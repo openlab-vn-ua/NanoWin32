@@ -478,27 +478,30 @@ class CString : public CSimpleString
   }
 
   // Converts to lowercase
-  void MakeLower()
+  CString& MakeLower()
   {
     if (!IsEmpty())
     {
       _tcslwr(const_cast<TCHAR*>(strBuf.c_str()));
     }
+    return(*this);
   }
 
   // Converts to Uppercase
-  void MakeUpper()
+  CString& MakeUpper()
   {
     if (!IsEmpty())
     {
       _tcsupr(const_cast<TCHAR*>(strBuf.c_str()));
     }
+	return(*this);
   }
 
   // Reverces characters in a string
-  void MakeReverse()
+  CString& MakeReverse()
   {
     strBuf.reserve();
+	return(*this);
   }
 
   // Extracts last (rightmost) nCount characters and returns a copy of the extracted substring.
