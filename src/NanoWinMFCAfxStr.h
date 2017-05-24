@@ -694,12 +694,39 @@ class CString : public CSimpleString
   #undef REQUIRE
 };
 
+// CString 2 operand operators
+
 inline CString operator+ (const CString &s1, const CString &s2)
 {
   CString result = s1;
   result += s2;
   return(result);
 }
+
+// CString comparison operators
+
+#define CStringCompareOperatorForTypes(OP, arg1_t, arg2_t)     \
+inline BOOL operator OP (arg1_t s1, arg2_t s2)                 \
+{                                                              \
+  int result = _tcscmp(s1, s2);                                \
+  if (result OP 0) { return(TRUE); }                           \
+  return(FALSE);                                               \
+}
+
+#define CStringCompareOperator(OP) \
+        CStringCompareOperatorForTypes(OP, const CString &, const CString &) \
+        CStringCompareOperatorForTypes(OP, const CString &, CString::PCXSTR) \
+        CStringCompareOperatorForTypes(OP, CString::PCXSTR, const CString &) \
+
+CStringCompareOperator( == )
+CStringCompareOperator( != )
+CStringCompareOperator( > )
+CStringCompareOperator( < )
+CStringCompareOperator( >= )
+CStringCompareOperator( <= )
+
+// Functions
+// ------------------------------------------
 
 extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString, int iSubString, TCHAR chSep = '\n');
 
