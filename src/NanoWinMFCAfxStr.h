@@ -677,16 +677,22 @@ class CString : public CSimpleString
     return(*this);
   }
 
-  CString &operator+= (PCXSTR pszSrc)
+  const CString &operator+= (PCXSTR pszSrc)
   {
-	REQUIRE(pszSrc != NULL);
+    REQUIRE(pszSrc != NULL);
     strBuf += pszSrc;
     return(*this);
   }
 
-  CString &operator+= (const CString &src)
+  const CString &operator+= (const CString &src)
   {
     strBuf += (PCXSTR)src;
+    return(*this);
+  }
+
+  const CString& operator+= (TCHAR src)
+  {
+    AppendChar(src);
     return(*this);
   }
 
