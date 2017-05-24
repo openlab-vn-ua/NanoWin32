@@ -660,14 +660,52 @@ class CString : public CSimpleString
 
   int Replace(TCHAR chOld, TCHAR chNew)
   {
-    //TODO: implement this
-    return 0;
+    #if defined(UNICODE) || defined(_UNICODE)
+      #define cstring_str_t std::wstring
+    #else
+      #define cstring_str_t std::string
+    #endif
+
+    int replaceCount = 0;
+
+    for (cstring_str_t::size_type pos = strBuf.find(chOld);
+         pos != cstring_str_t::npos;
+         pos = strBuf.find(chOld,pos + 1))
+    {
+      strBuf[pos] = chNew;
+
+      replaceCount++;
+    }
+
+    #undef cstring_str_t
+
+    return replaceCount;
   }
 
   int Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
   {
-    //TODO: implement this
-    return 0;
+    #if defined(UNICODE) || defined(_UNICODE)
+      #define cstring_str_t std::wstring
+    #else
+      #define cstring_str_t std::string
+    #endif
+
+    int    replaceCount = 0;
+    size_t oldLen       = _tcslen(lpszOld);
+    size_t newLen       = _tcslen(lpszNew);
+
+    for (cstring_str_t::size_type pos = strBuf.find(lpszOld);
+         pos != cstring_str_t::npos;
+         pos = strBuf.find(lpszOld,pos + newLen))
+    {
+      strBuf.replace(pos,oldLen,lpszNew);
+
+      replaceCount++;
+    }
+
+    #undef cstring_str_t
+
+    return replaceCount;
   }
 
   protected:
