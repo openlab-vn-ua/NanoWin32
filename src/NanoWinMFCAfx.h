@@ -35,6 +35,8 @@
 // Basic CObject (subset)
 // --------------------------------------
 
+#define AFXAPI // just a marker for functions
+
 class CObject
 {
   public:
