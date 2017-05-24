@@ -55,10 +55,17 @@ DWORD GetEnvironmentVariableW
               )
 {
   // Note: will return number of char, not wchar_t required to store value (this seems not a big problem since the value returned is bigger wchar_t count then need)
+
+  if ((nSize > 0) && (lpBuffer != NULL))
+  {
+    lpBuffer[0] = '\0';
+  }
+
   DWORD result;
   WStrToStrClone     sName(lpName);
   WStrByStrResultBag sBuffer(nSize, lpBuffer);
   result = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize()); // TODO: Adjust result length
+  sBuffer.copyBag(lpBuffer, nSize); // we allow truncate here
   return(result);
 }
 
