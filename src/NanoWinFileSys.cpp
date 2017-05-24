@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <string>
@@ -267,10 +268,135 @@ extern BOOL WINAPI CreateDirectoryW (_In_ LPCWSTR lpPathName, _In_opt_ LPSECURIT
   }
 }
 
+static FILE *OpenFileForCopySrc(const char *fileName)
+{
+  FILE *result = fopen(fileName,"rb");
+
+  if (result == NULL)
+  {
+    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+  }
+
+  return result;
+}
+
+static FILE *OpenFileForCopyDst(const char *fileName, bool failIfExists)
+{
+  FILE *result = NULL;
+
+  if (failIfExists)
+  {
+    int handle = open(fileName,O_EXCL | O_CREAT);
+
+    if (handle >= 0)
+    {
+      result = fdopen(handle,"wb");
+
+      if (result == NULL)
+      {
+        close(handle);
+      }
+    }
+  }
+  else
+  {
+   result = fopen(fileName,"wb");
+  }
+
+  if (result == NULL)
+  {
+    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+  }
+
+  return result;
+}
+
+static bool CopyFileContent(FILE *dstFile, FILE *srcFile)
+{
+  constexpr size_t COPY_BLOCK_SIZE = 32 * 1024;
+
+  unsigned char buffer[COPY_BLOCK_SIZE];
+
+  bool done = false;
+  bool ok   = true;
+
+  while (ok && !done)
+  {
+    size_t read_size = fread(buffer,1,sizeof(buffer),srcFile);
+
+    if (read_size < sizeof(buffer))
+    {
+      ok = ferror(srcFile) == 0;
+    }
+
+    if (ok && read_size > 0)
+    {
+      if (fwrite(buffer, 1, read_size, dstFile) < read_size)
+      {
+        ok = false;
+      }
+    }
+    else
+    {
+      done = read_size == 0;
+    }
+  }
+
+  if (!ok)
+  {
+    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+  }
+
+  return ok;
+}
+
+static bool CopyFileAttributes(const char *dstFileName, const char *srcFileName)
+{
+  struct stat fileStat;
+
+  bool ok = false;
+
+  if (stat(srcFileName,&fileStat) == 0)
+  {
+    ok = chown(dstFileName, fileStat.st_uid, fileStat.st_gid) == 0;
+    ok = chmod(dstFileName, fileStat.st_mode & (~S_IFMT)) && ok;
+  }
+
+  return ok;
+}
+
 extern BOOL  WINAPI CopyFileA (_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName, _In_ BOOL bFailIfExists)
 {
-  SetLastError(ERROR_INVALID_FUNCTION); // TODO: Implement me
-  return(FALSE);
+  BOOL  ok = FALSE;
+  FILE *srcFileStream = OpenFileForCopySrc(lpExistingFileName);
+
+  if (srcFileStream != NULL)
+  {
+    FILE *dstFileStream = OpenFileForCopyDst(lpNewFileName,bFailIfExists);
+
+    if (dstFileStream != NULL)
+    {
+      ok = CopyFileContent(dstFileStream,srcFileStream);
+
+      if (fclose(dstFileStream) != 0)
+      {
+        if (ok)
+        {
+          ok = FALSE; // FIXME: set last error
+          SetLastError(NanoWinErrorByErrnoAtFail(errno));
+        }
+      }
+    }
+
+    fclose(srcFileStream);
+  }
+
+  if (ok)
+  {
+    CopyFileAttributes(lpNewFileName,lpExistingFileName);
+  }
+
+  return(ok);
 }
 
 extern BOOL  WINAPI CopyFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpNewFileName, _In_ BOOL bFailIfExists)
