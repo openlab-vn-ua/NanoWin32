@@ -71,8 +71,6 @@ NW_TEST(NanoWinFileFindTestGroup, FindFileFirstAUnexistTest)
 	HANDLE result = FindFirstFileA("testDir/unexist.txt", &state);
 
 	NW_CHECK_EQUAL(result, INVALID_HANDLE_VALUE);
-
-	FindClose(result);
 }
 
 NW_TEST(NanoWinFileFindTestGroup, FindFileFirstATest)
