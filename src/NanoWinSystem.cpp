@@ -67,7 +67,7 @@ extern void WINAPI GetSystemTime(_Out_ LPSYSTEMTIME lpSystemTime)
 
 static bool getIntFromLine(const char* line, int *result)
 {
-  if (sscanf(line, "%d", &result) != 1) { return(false); }
+  if (sscanf(line, "%d", result) != 1) { return(false); }
   return(true);
 }
 
@@ -153,7 +153,7 @@ extern BOOL WINAPI GetProcessMemoryInfo
     SetLastError(ERROR_NOT_SUPPORTED); return(FALSE);
   }
 
-  if ((sizeof(cb) == sizeof(PROCESS_MEMORY_COUNTERS)) || (sizeof(cb) == sizeof(PROCESS_MEMORY_COUNTERS_EX)))
+  if ((cb == sizeof(PROCESS_MEMORY_COUNTERS)) || (cb == sizeof(PROCESS_MEMORY_COUNTERS_EX)))
   {
     // OK, we support these cases
   }
@@ -164,7 +164,6 @@ extern BOOL WINAPI GetProcessMemoryInfo
 
   // Fill what we have with zeros
   memset(ppsmemCounters, 0 , cb);
-  ppsmemCounters->cb = cb;
 
   PROCESS_MEMORY_COUNTERS_EX result;
   if (!fillProcStatValues(&result))
@@ -173,6 +172,8 @@ extern BOOL WINAPI GetProcessMemoryInfo
   }
 
   memcpy(ppsmemCounters, &result, cb);
+
+  ppsmemCounters->cb = cb;
 
   return(TRUE);
 }
