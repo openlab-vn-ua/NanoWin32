@@ -575,9 +575,22 @@ class CString : public CSimpleString
     return(*this);
   }
 
+  CString &operator+= (const CString &src)
+  {
+    strBuf += (PCXSTR)src;
+    return(*this);
+  }
+
   #undef CHECKUP
   #undef REQUIRE
 };
+
+inline CString operator+ (const CString &s1, const CString &s2)
+{
+  CString result = s1;
+  result += s2;
+  return(result);
+}
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define CT2A(x) NanoWin::WStrToStrClone(x).c_str()
