@@ -27,14 +27,14 @@ extern void WINAPI GetLocalTime(_Out_ LPSYSTEMTIME lpSystemTime)
   if (clock_gettime(CLOCK_REALTIME, &result) != 0) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
   struct tm parts;
   if (localtime_r(&result.tv_sec, &parts) == NULL) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
-  lpSystemTime->wYear      = parts.tm_year+1900;
-  lpSystemTime->wMonth     = parts.tm_mon+1;
-  lpSystemTime->wDayOfWeek = parts.tm_wday;
-  lpSystemTime->wDay       = parts.tm_mday;
-  lpSystemTime->wHour      = parts.tm_hour;
-  lpSystemTime->wMinute    = parts.tm_min;
-  lpSystemTime->wSecond    = parts.tm_sec;
-  lpSystemTime->wMilliseconds = (result.tv_nsec / 1000000);
+  lpSystemTime->wYear      = (WORD)(parts.tm_year+1900);
+  lpSystemTime->wMonth     = (WORD)(parts.tm_mon+1);
+  lpSystemTime->wDayOfWeek = (WORD)parts.tm_wday;
+  lpSystemTime->wDay       = (WORD)parts.tm_mday;
+  lpSystemTime->wHour      = (WORD)parts.tm_hour;
+  lpSystemTime->wMinute    = (WORD)parts.tm_min;
+  lpSystemTime->wSecond    = (WORD)parts.tm_sec;
+  lpSystemTime->wMilliseconds = (WORD)(result.tv_nsec / 1000000);
   lpSystemTime->wMilliseconds %= 1000; // just in case
 }
 
@@ -48,14 +48,14 @@ extern void WINAPI GetSystemTime(_Out_ LPSYSTEMTIME lpSystemTime)
   if (clock_gettime(CLOCK_REALTIME, &result) != 0) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
   struct tm parts;
   if (gmtime_r(&result.tv_sec, &parts) == NULL) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
-  lpSystemTime->wYear      = parts.tm_year+1900;
-  lpSystemTime->wMonth     = parts.tm_mon+1;
-  lpSystemTime->wDayOfWeek = parts.tm_wday;
-  lpSystemTime->wDay       = parts.tm_mday;
-  lpSystemTime->wHour      = parts.tm_hour;
-  lpSystemTime->wMinute    = parts.tm_min;
-  lpSystemTime->wSecond    = parts.tm_sec;
-  lpSystemTime->wMilliseconds = (result.tv_nsec / 1000000);
+  lpSystemTime->wYear      = (WORD)(parts.tm_year+1900);
+  lpSystemTime->wMonth     = (WORD)(parts.tm_mon+1);
+  lpSystemTime->wDayOfWeek = (WORD)parts.tm_wday;
+  lpSystemTime->wDay       = (WORD)parts.tm_mday;
+  lpSystemTime->wHour      = (WORD)parts.tm_hour;
+  lpSystemTime->wMinute    = (WORD)parts.tm_min;
+  lpSystemTime->wSecond    = (WORD)parts.tm_sec;
+  lpSystemTime->wMilliseconds = (WORD)(result.tv_nsec / 1000000);
   lpSystemTime->wMilliseconds %= 1000; // just in case
 }
 
