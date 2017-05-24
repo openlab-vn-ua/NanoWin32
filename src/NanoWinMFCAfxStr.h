@@ -658,6 +658,18 @@ class CString : public CSimpleString
     }
   }
 
+  int Replace(TCHAR chOld, TCHAR chNew)
+  {
+    //TODO: implement this
+    return 0;
+  }
+
+  int Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
+  {
+    //TODO: implement this
+    return 0;
+  }
+
   protected:
 
   bool IsWhitespace(TCHAR src) { if (src < 0x20) { return(TRUE); } return(FALSE); }
