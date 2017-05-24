@@ -131,7 +131,7 @@ class CRect : public RECT
 {
   public:
 
-  CRect() // throw()
+  CRect()
   {
     left = 0;
     top = 0;
@@ -139,12 +139,39 @@ class CRect : public RECT
     bottom = 0;
   }
 
-  CRect(int inLeft, int inTop, int inRight, int inBottom) // throw()
+  CRect(int inLeft, int inTop, int inRight, int inBottom)
   {
     left = inLeft;
     top = inTop;
     right = inRight;
     bottom = inBottom;
+  }
+
+  void SetRect(int inLeft, int inTop, int inRight, int inBottom)
+  {
+    left = inLeft;
+    top = inTop;
+    right = inRight;
+    bottom = inBottom;
+  }
+
+  BOOL IsRectNull() const
+  {
+    if (left != 0) return(FALSE);
+    if (top != 0) return(FALSE);
+    if (right != 0) return(FALSE);
+    if (bottom != 0) return(FALSE);
+    return(TRUE);
+  }
+
+  BOOL IsRectEmpty() const
+  {
+    return(::IsRectEmpty(this));
+  }
+
+  void SetRectEmpty()
+  {
+    ::SetRectEmpty(this);
   }
 };
 
