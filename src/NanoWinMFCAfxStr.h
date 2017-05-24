@@ -298,7 +298,11 @@ class CSimpleString
   bool IsEmpty()
   const
   {
-    return(strBuf.empty());
+    //return(strBuf.empty()); // good looking, but slow
+    //Faster implementation:
+    const TCHAR *src = GetString();
+    if (src[0] == 0) { return(true); }
+    return(false);
   }
 
   // Truncates the string to the new length. // TODO: Check the case when string is already lesser length then nNewLength
@@ -383,6 +387,7 @@ class CString : public CSimpleString
 
   // Search
 
+  // The zero-based index of the first character in this CString object that matches the requested substring or characters; -1 if the substring or character is not found.
   int Find (LPCTSTR sub, int startPos = 0)
   const
   {
@@ -397,10 +402,26 @@ class CString : public CSimpleString
     }
   }
 
+  // The zero-based index of the first character in this CString object that matches the requested substring or characters; -1 if the substring or character is not found.
   int Find (TCHAR sch, int startPos = 0)
   const
   {
     std::string::size_type result = strBuf.find(sch, startPos);
+    if (result == strBuf.npos)
+    {
+      return(-1);
+    }
+    else
+    {
+      return(result);
+    }
+  }
+
+  // The index of the last character in this CString object that matches the requested character; –1 if the character is not found.
+  int ReverseFind(TCHAR sch)
+  const
+  {
+    std::string::size_type result = strBuf.rfind(sch);
     if (result == strBuf.npos)
     {
       return(-1);
@@ -540,6 +561,73 @@ class CString : public CSimpleString
   const // throw(CMemoryException)
   {
     return(Mid(0, nCount));
+  }
+
+  // Insert src at specified nIndex (zero based). If nIndex >= GetLength(), src will be appended
+  // Returns the length of the changed string. 
+  int Insert(int nIndex, TCHAR src)
+  {
+    REQUIRE(src != 0); // Cannot insert null character (we do not support binary strings)
+    if (IsEmpty())
+    {
+      strBuf.append(1, src);
+      return(strBuf.length());
+    }
+    else if (nIndex <= 0)
+    {
+      strBuf.insert(0, 1, src);
+      return(strBuf.length());
+    }
+    else
+    {
+      int dlen = strBuf.length();
+      if (nIndex >= dlen)
+      {
+        strBuf.append(1, src);
+        dlen++;
+      }
+      else
+      {
+        strBuf.insert(nIndex, 1, src);
+        dlen++;
+      }
+      return(dlen);
+    }
+  }
+
+  // Insert src at specified nIndex (zero based). If nIndex >= GetLength(), src will be appended
+  // Returns the length of the changed string. 
+  int Insert(int nIndex, LPCTSTR src)
+  {
+    REQUIRE(src != NULL);
+    if (src[0] == 0)
+    {
+      // src is empty - nothing to do
+      return(strBuf.length());
+    }
+    else if (IsEmpty())
+    {
+      strBuf.append(src);
+      return(strBuf.length());
+    }
+    else if (nIndex <= 0)
+    {
+      strBuf.insert(0, src);
+      return(strBuf.length());
+    }
+    else
+    {
+      int dlen = strBuf.length();
+      if (nIndex >= dlen)
+      {
+        strBuf.append(src);
+      }
+      else
+      {
+        strBuf.insert(nIndex, src);
+      }
+      return(strBuf.length());
+    }
   }
 
   // Other
