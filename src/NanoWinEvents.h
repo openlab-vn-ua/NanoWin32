@@ -26,7 +26,7 @@ extern BOOL ResetEvent(HANDLE hEvent);
 
 extern BOOL CloseEventHandle(HANDLE hObject);
 
-#ifdef UNICODE
+#if defined(UNICODE) || defined(_UNICODE)
 #define CreateEvent CreateEventW
 #else
 #define CreateEvent CreateEventA
