@@ -655,6 +655,73 @@ class CString : public CSimpleString
     }
   }
 
+  protected:
+
+  bool IsWhitespace(TCHAR src) { if (src < 0x20) { return(TRUE); } return(FALSE); }
+
+  public:
+
+  CString& TrimLeft()
+  {
+    const TCHAR *src = strBuf.c_str();
+    int   pos = 0;
+
+    while(src[pos] != 0)
+    {
+      if (IsWhitespace(src[pos]))
+      {
+        pos++;
+      }
+      else
+      {
+        break; // found non-ws
+      }
+    }
+
+    if (pos <= 0) { return(*this); } // nothing to do
+
+    if (src[pos] == 0) { Empty(); return(*this); } // whole string is ws
+
+    Delete(0, pos); // remove ws
+    return(*this);
+  }
+
+  CString& TrimRight()
+  {
+    const TCHAR *src = strBuf.c_str();
+    int   slen = strBuf.length();
+
+    if (slen <= 0) { return(*this); } // nothing to do
+
+    int pos = 0;
+
+    while(pos < slen)
+    {
+      if (IsWhitespace(src[slen-1-pos]))
+      {
+        pos++;
+      }
+      else
+      {
+        break; // found non-ws
+      }
+    }
+
+    if (pos <= 0) { return(*this); } // nothing to do
+
+    if (pos >= slen) { Empty(); return(*this); } // whole string is ws
+
+    Truncate(slen-pos); // remove ws
+    return(*this);
+  }
+
+  CString& Trim()
+  {
+    TrimRight();
+    TrimLeft();
+    return(*this);
+  }
+
   // Other
 
   int Compare(PCXSTR psz)
