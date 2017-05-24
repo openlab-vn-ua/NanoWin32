@@ -494,7 +494,7 @@ extern errno_t strncpy_s     (char *dest, rsize_t destsz, const char *src, rsize
 
 extern errno_t wcsncpy_s     (wchar_t *dest, rsize_t destsz, const wchar_t *src, rsize_t count)
 {
-  #define FN "wscncpy_s"
+  #define FN "wcsncpy_s"
   #define ITEM wchar_t
   #define STRNLEN              wcsnlen
   // <body> // invaliant for strcpy_s and wcscpy_s

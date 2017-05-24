@@ -107,8 +107,8 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 
 extern  char    *strlwr      (char    *s);
 extern  char    *strupr      (char    *s);
-extern  wchar_t *wsclwr      (wchar_t *s);
-extern  wchar_t *wscupr      (wchar_t *s);
+extern  wchar_t *wcslwr      (wchar_t *s);
+extern  wchar_t *wcsupr      (wchar_t *s);
 
 #ifndef NW_NO_MS_ISO_ALIASES // MS aliases for "obsolete" func
 #define _strnicmp            strnicmp

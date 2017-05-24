@@ -183,7 +183,7 @@ NW_EXTERN_C_END
 #define        strtok_s      strtok_r_s 
 
 // Search for tokens in str, acts like strtok_r + quick checks for valid args. [MS VC specific, not C11]
-#define        wsctok_s      wsctok_r_s
+#define        wcstok_s      wcstok_r_s
 
 #else
 
