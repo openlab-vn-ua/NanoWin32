@@ -107,24 +107,46 @@ class CSimpleString
     strBuf.shrink_to_fit();
   }
 
-  int GetAllocLength()
-  const
-  {
-    return(strBuf.capacity());
-  }
-
   int  GetLength()
   const
   {
     return(strBuf.length());
   }
 
-  // Need some study (do we need this?)
-  // PXSTR GetBuffer(int nMinBufferLength);
-  // PXSTR GetBufferSetLength(int nLength);
-  // PXSTR GetBuffer();
-  // void  ReleaseBuffer(int nNewLength = -1);
-  // void  ReleaseBufferSetLength(int nNewLength);  
+  // Preallocate/FreeExtra/GetAllocLength // TODO: Clarify what length here mean? TCHAR[Length] or TCHAR[Length+1] 
+
+  protected:
+
+  void FreeExtraSoftHint(void)
+  {
+    strBuf.reserve(0); // Implemenation-defined hint to free extra mem
+  }
+
+  public:
+
+  // Allocates a specific amount of bytes for the CSimpleStringT object.
+  // nLength is exact size of the CSimpleStringT character buffer in characters
+  // analog of TCHAR Preallocate[nLength]
+  void Preallocate(int nLength)
+  {
+    // Actually, some guard +1 space is here (thanks to std::string). BTW CAfxStringMgr::Allocate look like do the same :)
+
+    REQUIRE(nLength >= 0);
+    strBuf.reserve(nLength); 
+  }
+
+  void FreeExtra(void)
+  {
+    strBuf.shrink_to_fit();
+  }
+
+  int GetAllocLength()
+  const
+  {
+    return(strBuf.capacity());
+  }
+
+  // LockBuffer/UnlockBuffer
 
   // Make this strings buffer unique (that is, not {potentially} shared with other strings with same value)
   // Note: It is good idea to Preallocate(nLength) space in buffer first!
@@ -139,10 +161,68 @@ class CSimpleString
     // Fairly simple, since we do not implement value sharing optimisation
   }
 
+  // GetBuffer/ReleaseBuffer // TODO: Clarify what length here mean? TCHAR[Length] or TCHAR[Length+1] 
+
+  // Returns a pointer to the internal character buffer for the CSimpleStringT object.
+  // nMinBufferLength is a min count the characters buffer can hold. This value does not include space for a null terminator. "TCHAR GetBuffer[nMinBufferLength]"
+  // The buffer would be made unique (that is, not {potentially} shared with other strings with same value)
+  // TODO: Semantic is not clear here. Why do we need LockBuffer in that case? Is initial content preserved (guess no)?
+  PXSTR GetBuffer(int nMinBufferLength)
+  {
+    Preallocate(nMinBufferLength);
+    return(LockBuffer());
+  }
+
+  // Returns a pointer to the internal character buffer for the CSimpleStringT object.
+  // The buffer would be made unique (that is, not {potentially} shared with other strings with same value)
+  // Note: It is good idea to Preallocate(nLength) space in buffer first ???
+  // TODO: Semantic is not clear here. What length result buffer would have? Why do we need LockBuffer in that case? Is content preserved (guess no)?
+  PXSTR GetBuffer()
+  {
+    return(LockBuffer());
+  }
+
+  // Much a same as GetBuffer(int nLength), but preserves string content?
+  // The buffer would be made unique (that is, not {potentially} shared with other strings with same value)
+  PXSTR GetBufferSetLength(int nLength)
+  {
+    int len = GetLength();
+
+    if (len > nLength)
+    {
+      Truncate(nLength); FreeExtra();
+    }
+    else
+    {
+      Preallocate(nLength);
+    }
+
+    return(LockBuffer());
+  }
+
+  void  ReleaseBuffer(int nNewLength = -1)
+  {
+    if (nNewLength <= 0)
+    {
+      FreeExtraSoftHint(); // Adjust to actual capacity, if want to
+    }
+    else
+    {
+      Preallocate(nNewLength);
+    }
+  }
+
+  void  ReleaseBufferSetLength(int nNewLength)
+  {
+    Preallocate(nNewLength);
+  }
+
+  // Check to we need this (hope no)
   // IAtlStringMgr* GetManager() const throw();
   // void SetManager(IAtlStringMgr* pStringMgr);
 
   // Copy string to this CString
+
   void SetString(const TCHAR *src)
   {
     REQUIRE(src != NULL);
@@ -180,7 +260,7 @@ class CSimpleString
       // No overlap
       int clen = nLength;
       if (clen > slen) { clen = slen; }
-      Preallocate(clen); // would allocate clen+1
+      Preallocate(clen+1);
       TCHAR *dst = LockBuffer();
       _tcsncpy_s(dst, clen+1, src, clen); // Should create null terminated strings
       UnlockBuffer();
@@ -190,7 +270,7 @@ class CSimpleString
       // overlap
       int clen = nLength;
       if (clen > slen) { clen = slen; }
-      Preallocate(clen); // would allocate clen+1
+      Preallocate(clen+1);
       TCHAR *dst = LockBuffer();
       memmove_s(dst,clen*sizeof(*src),src,clen*sizeof(*src));
       dst[clen] = 0; // Null terminate
@@ -234,17 +314,6 @@ class CSimpleString
     {
       strBuf.resize(nNewLength);
     }
-  }
-
-  void Preallocate(int nLength)
-  {
-    REQUIRE(nLength >= 0);
-    strBuf.reserve(nLength);
-  }
-
-  void FreeExtra(void)
-  {
-    strBuf.shrink_to_fit();
   }
 
   // Constructors
@@ -372,7 +441,7 @@ class CString : public CSimpleString
     result = VSNPRINTF(NULL, 0, lpszFormat, args);
     CHECKUP(result >= 0);
     Empty();
-    Preallocate(result); // would preallocate +1 char
+    Preallocate(result+1);
     TCHAR *dst = LockBuffer();
     error_t cresult;
     cresult = VSPRINTF_S(dst, result, lpszFormat, args);
@@ -460,7 +529,7 @@ class CString : public CSimpleString
     // Trick: We can do things this way only because we know internals
     // This is may not work fine with MFC CString
     CString result;
-    result.Preallocate(nCount); // would preallocate +1 char
+    result.Preallocate(nCount+1);
     TCHAR *to = result.LockBuffer();
     _tcsncpy_s(to, nCount+1, from, nCount); // Should create null terminated strings
     to[nCount] = 0; // Just in case
