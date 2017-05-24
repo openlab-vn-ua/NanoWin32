@@ -630,6 +630,31 @@ class CString : public CSimpleString
     }
   }
 
+  // This method deletes a character or characters from a string starting with the character at nIndex (zero based).
+  // If nCount is longer than the string, the remainder of the string is removed.
+  int Delete(int nIndex, int nCount = 1)
+  {
+    if (IsEmpty())
+    {
+      return(0); // Nothing to do
+    }
+    else if (nCount <= 0)
+    {
+      return(strBuf.length()); // Nothing to do
+    }
+    else if (nIndex <= 0)
+    {
+      strBuf.erase(0, nCount);
+      return(strBuf.length());
+    }
+    else
+    {
+      // would throw an exception if nIndex is out of string range (this is aligned with MFC)
+      strBuf.erase(nIndex, nCount);
+      return(strBuf.length());
+    }
+  }
+
   // Other
 
   int Compare(PCXSTR psz)
