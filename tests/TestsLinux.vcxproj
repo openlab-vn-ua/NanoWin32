@@ -91,6 +91,7 @@
     <ClCompile Include="..\src\NanoWinMFCAfxMt.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxStr.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxWin.cpp" />
+    <ClCompile Include="..\src\NanoWinModule.cpp" />
     <ClCompile Include="..\src\NanoWinMsExtra.cpp" />
     <ClCompile Include="..\src\NanoWinMsSafeString.cpp" />
     <ClCompile Include="..\src\NanoWinOther.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="..\src\NanoWinMFCAfxMt.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxStr.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxWin.h" />
+    <ClInclude Include="..\src\NanoWinModule.h" />
     <ClInclude Include="..\src\NanoWinMsExtra.h" />
     <ClInclude Include="..\src\NanoWinMsSafeString.h" />
     <ClInclude Include="..\src\NanoWinOther.h" />
@@ -142,7 +144,7 @@
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Link>
-      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>dl;pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>$(RemoteTargetPath)</Command>
@@ -153,7 +155,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <Link>
-      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>dl;pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>$(RemoteTargetPath)</Command>
@@ -164,7 +166,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>dl;pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>$(RemoteTargetPath)</Command>
@@ -175,7 +177,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>dl;pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>$(RemoteTargetPath)</Command>
@@ -186,7 +188,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Link>
-      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>dl;pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>$(RemoteTargetPath)</Command>
@@ -197,7 +199,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <Link>
-      <LibraryDependencies>pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>dl;pthread;CppUTest;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>$(RemoteTargetPath)</Command>
