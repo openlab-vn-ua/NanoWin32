@@ -162,7 +162,7 @@ NW_BEGIN_TEST_GROUP(NanoWinStrConvertWin32APITestGroup)
 NW_BEGIN_SETUP_TEARDOWN
 NW_SETUP_METHOD()
  {
-//  setlocale(LC_CTYPE,"en_US.UTF-8");
+  setlocale(LC_CTYPE,"en_US.UTF-8");
  }
 NW_END_SETUP_TEARDOWN
 
@@ -184,6 +184,27 @@ NW_TEST(NanoWinStrConvertWin32APITestGroup,MultiByteToWideCharImplicitSize)
 
   #undef LEN
  }
+
+#ifdef LINUX
+NW_TEST(NanoWinStrConvertWin32APITestGroup, MultiByteToWideCharImplicitSizeCyrillic)
+{
+  #define LEN (128)
+
+  const char helloStr[] = "привет";
+  const wchar_t helloWStr[] = L"привет";
+
+  wchar_t dest[LEN];
+
+  memset(dest, 'z', sizeof(dest));
+
+  int result = MultiByteToWideChar(CP_ACP, 0, helloStr, -1, dest, LEN);
+
+  NW_CHECK_EQUAL_INTS(7, result);
+  NW_CHECK_EQUAL_MEMCMP(helloWStr, dest, sizeof(helloWStr));
+
+  #undef LEN
+}
+#endif // linux only test
 
 NW_TEST(NanoWinStrConvertWin32APITestGroup,MultiByteToWideCharExplicitSizeWithNullTerminator)
  {
@@ -299,6 +320,27 @@ NW_TEST(NanoWinStrConvertWin32APITestGroup,WideCharToMultiByteImplicitSize)
 
   #undef LEN
  }
+
+#ifdef LINUX
+NW_TEST(NanoWinStrConvertWin32APITestGroup, WideCharToMultiByteImplicitSizeCyrillic)
+{
+  #define LEN (128)
+
+  const char helloStr[] = "привет";
+  const wchar_t helloWStr[] = L"привет";
+
+  char dest[LEN];
+
+  memset(dest, 'z', sizeof(dest));
+
+  int result = WideCharToMultiByte(CP_ACP, 0, helloWStr, -1, dest, LEN, NULL, NULL);
+
+  NW_CHECK_EQUAL_INTS(strlen(helloStr) + 1, result);
+  NW_CHECK_EQUAL_STRCMP(helloStr, dest);
+
+  #undef LEN
+}
+#endif // linux only test
 
 NW_TEST(NanoWinStrConvertWin32APITestGroup,WideCharToMultiByteExplicitSizeWithNullTerminator)
  {
