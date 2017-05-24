@@ -76,8 +76,6 @@ NW_TEST(NanoWinFileFindTestGroup, FindFileFirstAUnexistTest)
 NW_TEST(NanoWinFileFindTestGroup, FindFileFirstATest)
 {
 	WIN32_FIND_DATA state;
-	char            firstFoundFileName   [WIN32_FIND_DATA_FNAME_MAX];
-	char            secondFoundFileName  [WIN32_FIND_DATA_FNAME_MAX];
 
 	HANDLE searchHandle = FindFirstFileA("testDir/testFile5*", &state);
 
