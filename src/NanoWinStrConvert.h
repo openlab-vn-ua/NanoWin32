@@ -10,6 +10,8 @@
 
 #include <string>
 
+#include "NanoWinTypes.h"
+
 namespace NanoWin
 {
   class StrConverter
@@ -100,9 +102,31 @@ namespace NanoWin
 }
 
 // Win32: Code conversion
+
+#if defined LINUX
 #define CP_ACP 0 // The only supported case
-#define MultiByteToWideChar(a,b,c,d,e,f)		mbstowcs(e,c,f)
-#define WideCharToMultiByte(a,b,c,d,e,f,g,h)	wcstombs(e, c, f)
+
+NW_EXTERN_C_BEGIN
+
+extern int MultiByteToWideChar(_In_      UINT   CodePage,
+                               _In_      DWORD  dwFlags,
+                               _In_      LPCSTR lpMultiByteStr,
+                               _In_      int    cbMultiByte,
+                               _Out_opt_ LPWSTR lpWideCharStr,
+                               _In_      int    cchWideChar);
+
+extern int WideCharToMultiByte(_In_      UINT    CodePage,
+                               _In_      DWORD   dwFlags,
+                               _In_      LPCWSTR lpWideCharStr,
+                               _In_      int     cchWideChar,
+                               _Out_opt_ LPSTR   lpMultiByteStr,
+                               _In_      int     cbMultiByte,
+                               _In_opt_  LPCSTR  lpDefaultChar,
+                               _Out_opt_ LPBOOL  lpUsedDefaultChar);
+
+NW_EXTERN_C_END
+
+#endif 
 
 #endif
 
