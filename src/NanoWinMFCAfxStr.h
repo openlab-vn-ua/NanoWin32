@@ -42,9 +42,11 @@ class CSimpleString
   protected:
 
   #if defined(UNICODE) || defined(_UNICODE)
-  std::wstring strBuf;
+  std::wstring                    strBuf;
+  typedef std::wstring            string_type;
   #else
-  std::string  strBuf;
+  std::string                     strBuf;
+  typedef std::string             string_type;
   #endif
 
   public:
@@ -500,7 +502,17 @@ class CString : public CSimpleString
   // Reverces characters in a string
   CString& MakeReverse()
   {
-    strBuf.reserve();
+    string_type::size_type len     = strBuf.length();
+    string_type::size_type halfLen = len / 2;
+
+    for (string_type::size_type i = 0; i < halfLen; i++)
+    {
+      TCHAR tmp = strBuf[i];
+
+      strBuf[i]           = strBuf[len - i - 1];
+      strBuf[len - i - 1] = tmp;
+    }
+
 	return(*this);
   }
 
