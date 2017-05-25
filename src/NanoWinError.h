@@ -34,6 +34,7 @@
 #define ERROR_INSUFFICIENT_BUFFER      (0x7A)    //   122 // The data area passed to a system call is too small
 #define ERROR_ALREADY_EXISTS           (0XB7)    //   183 // Cannot create a file when that file already exists
 #define ERROR_ENVVAR_NOT_FOUND         (0XCB)    //   203 // The system could not find the environment option that was entered
+#define ERROR_FILENAME_EXCED_RANGE     (0xCE)    //   206 // The filename or extension is too long
 
 #define ERROR_INVALID_FLAGS            (0x3EC)   //  1004 // Invalid flags
 #define ERROR_NO_UNICODE_TRANSLATION   (0x459)   //  1113 // No mapping for the Unicode character exists in the target multi-byte code page
