@@ -92,7 +92,7 @@ NW_TEST(NanoWinSHCreateDirectoryExTestGroup, SHCreateDirectoryDeepSubDirBackslas
   int result = SHCreateDirectoryExA(NULL,"shtopdir\\subdir1\\subsubdir1",NULL);
   
   NW_CHECK_EQUAL_INTS(ERROR_SUCCESS,result);
-  NW_CHECK_TRUE(NanoWinDirectoryExists("shtopdir\\subdir1\\subsubdir1"));
+  NW_CHECK_TRUE(NanoWinDirectoryExists("shtopdir/subdir1/subsubdir1"));
 }
 
 NW_TEST(NanoWinSHCreateDirectoryExTestGroup, SHCreateDirectoryAlreadyExistsTest)
