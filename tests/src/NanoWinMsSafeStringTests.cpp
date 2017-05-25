@@ -329,7 +329,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 	//--------------------------------------------------//
 	// TR example //
 
-	#if 0 // TODO: check correct behavior // OK
 	strcpy(dest, "                            ");
 	strcpy(str2, "goodbye");
 
@@ -342,7 +341,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 	ind = strcmp(dest, "good");
 
 	NW_CHECK_EQUAL(0, ind);
-	#endif
 
 	//--------------------------------------------------//
 
