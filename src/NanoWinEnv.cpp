@@ -64,9 +64,17 @@ DWORD GetEnvironmentVariableW
   DWORD result;
   WStrToStrClone     sName(lpName);
   WStrByStrResultBag sBuffer(nSize, lpBuffer);
-  result = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize()); // TODO: Adjust result length
+  GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize());
   sBuffer.copyBag(lpBuffer, nSize); // we allow truncate here
-  return(result);
+
+  if (lpBuffer != NULL)
+  {
+    return(wcslen(lpBuffer));
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 NW_EXTERN_C_END
