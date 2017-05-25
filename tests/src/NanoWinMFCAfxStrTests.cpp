@@ -23,16 +23,6 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceSimpleTCHARTest)
 	NW_CHECK_EQUAL_STRCMP(cString, "qbc qbc qbc");
 }
 
-NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceDifferentLengthTCHARTest)
-{
-	CString cString("abc abc abc qwe");
-
-	int n = cString.Replace("abc", "de");
-
-	NW_CHECK_EQUAL(3, n);
-	NW_CHECK_EQUAL_STRCMP(cString, "de de de qwe");
-}
-
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceSimpleLPCTSTRTest)
 {
 	CString cString("abc abc abc");
@@ -79,10 +69,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindSimpleTCHARTest)
 
 	NW_CHECK_EQUAL(1, n);
 
-	n = cString.Find("def");
-	NW_CHECK_EQUAL(3, n);
-
-	n = cString.Find("qqq");
+	n = cString.Find('q');
 	NW_CHECK_EQUAL(-1, n);
 }
 
@@ -94,9 +81,9 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindWithStartPosTCHARTest)
 
 	NW_CHECK_EQUAL(8, n);
 
-	n = cString.Find("def", 5);
+	n = cString.Find('q', 5);
 
-	NW_CHECK_EQUAL(10, n);
+	NW_CHECK_EQUAL(-1, n);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindSimpleLPCTSTRTest)
