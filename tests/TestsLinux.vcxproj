@@ -98,6 +98,7 @@
     <ClCompile Include="..\src\NanoWinPrivateProfile.cpp" />
     <ClCompile Include="..\src\NanoWinQueryPerf.cpp" />
     <ClCompile Include="..\src\NanoWinRECT.cpp" />
+    <ClCompile Include="..\src\NanoWinShellEx.cpp" />
     <ClCompile Include="..\src\NanoWinStrConvert.cpp" />
     <ClCompile Include="..\src\NanoWinSystem.cpp" />
     <ClCompile Include="..\src\NanoWinThreads.cpp" />
@@ -111,6 +112,7 @@
     <ClCompile Include="src\NanoWinPrivateProfileTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTestTools.cpp" />
     <ClCompile Include="src\NanoWinRECTTests.cpp" />
+    <ClCompile Include="src\NanoWinShellExTests.cpp" />
     <ClCompile Include="src\NanoWinStrConvertTests.cpp" />
     <ClCompile Include="src\NanoWinSystemTests.cpp" />
   </ItemGroup>
@@ -134,6 +136,7 @@
     <ClInclude Include="..\src\NanoWinPrivateProfile.h" />
     <ClInclude Include="..\src\NanoWinQueryPerf.h" />
     <ClInclude Include="..\src\NanoWinRECT.h" />
+    <ClInclude Include="..\src\NanoWinShellEx.h" />
     <ClInclude Include="..\src\NanoWinStrConvert.h" />
     <ClInclude Include="..\src\NanoWinSystem.h" />
     <ClInclude Include="..\src\NanoWinTCHAR.h" />

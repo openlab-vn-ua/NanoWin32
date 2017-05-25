@@ -42,9 +42,11 @@ class CSimpleString
   protected:
 
   #if defined(UNICODE) || defined(_UNICODE)
-  std::wstring strBuf;
+  std::wstring                    strBuf;
+  typedef std::wstring            string_type;
   #else
-  std::string  strBuf;
+  std::string                     strBuf;
+  typedef std::string             string_type;
   #endif
 
   public:
@@ -500,7 +502,17 @@ class CString : public CSimpleString
   // Reverces characters in a string
   CString& MakeReverse()
   {
-    strBuf.reserve();
+    string_type::size_type len     = strBuf.length();
+    string_type::size_type halfLen = len / 2;
+
+    for (string_type::size_type i = 0; i < halfLen; i++)
+    {
+      TCHAR tmp = strBuf[i];
+
+      strBuf[i]           = strBuf[len - i - 1];
+      strBuf[len - i - 1] = tmp;
+    }
+
 	return(*this);
   }
 
@@ -692,15 +704,30 @@ class CString : public CSimpleString
 
     int    replaceCount = 0;
     size_t oldLen       = _tcslen(lpszOld);
-    size_t newLen       = _tcslen(lpszNew);
 
-    for (cstring_str_t::size_type pos = strBuf.find(lpszOld);
-         pos != cstring_str_t::npos;
-         pos = strBuf.find(lpszOld,pos + newLen))
+    if (lpszNew != NULL)
     {
-      strBuf.replace(pos,oldLen,lpszNew);
+      size_t newLen = _tcslen(lpszNew);
 
-      replaceCount++;
+      for (cstring_str_t::size_type pos = strBuf.find(lpszOld);
+           pos != cstring_str_t::npos;
+           pos = strBuf.find(lpszOld,pos + newLen))
+      {
+        strBuf.replace(pos,oldLen,lpszNew);
+
+        replaceCount++;
+      }
+    }
+    else
+    {
+      for (cstring_str_t::size_type pos = strBuf.find(lpszOld);
+           pos != cstring_str_t::npos;
+           pos = strBuf.find(lpszOld,pos))
+      {
+        strBuf.erase(pos,oldLen);
+
+        replaceCount++;
+      }
     }
 
     #undef cstring_str_t
