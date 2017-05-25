@@ -455,7 +455,7 @@ extern errno_t strncpy_s     (char *dest, rsize_t destsz, const char *src, rsize
 	// check if it there is a room for null terminator in dest
     if (llim < destsz)
 	{
-      bsize = llim-1; // copy only body
+      bsize = llim; // copy only body
 	}
 	else
 	{
