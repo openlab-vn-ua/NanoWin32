@@ -127,6 +127,21 @@ class CFileException : public CSimpleException
 
 #include "NanoWinRECT.h"
 
+class CSize : public SIZE
+{
+  public:
+
+  CSize(int initCX, int initCY) // throw()
+  {
+    cx = initCX; cy = initCY;
+  }
+
+  CSize() // throw()
+  {
+    cx = 0; cy = 0;
+  }
+};
+
 class CRect : public RECT
 {
   public:
@@ -137,6 +152,14 @@ class CRect : public RECT
     top = 0;
     right = 0;
     bottom = 0;
+  }
+
+  CRect(const RECT &src)
+  {
+	  left = src.left;
+	  top = src.top;
+	  right = src.right;
+	  bottom = src.bottom;
   }
 
   CRect(int inLeft, int inTop, int inRight, int inBottom)
@@ -173,20 +196,20 @@ class CRect : public RECT
   {
     ::SetRectEmpty(this);
   }
-};
 
-class CSize : public SIZE
-{
-  public:
-
-  CSize(int initCX, int initCY) // throw()
+  int Width() const
   {
-    cx = initCX; cy = initCY;
+     return right - left;
   }
 
-  CSize() // throw()
+  int Height() const
   {
-    cx = 0; cy = 0;
+     return bottom - top;
+  }
+
+  CSize Size() const
+  {
+     return CSize(Width(), Height());
   }
 };
 
