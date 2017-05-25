@@ -714,6 +714,13 @@ class CString : public CSimpleString
 
   public:
 
+  int Remove(TCHAR ch)
+  {
+    CString sch;
+    sch.AppendChar(ch);
+    return(Replace(sch.GetString(), _T("")));
+  }
+
   CString& TrimLeft()
   {
     const TCHAR *src = strBuf.c_str();
@@ -839,10 +846,34 @@ inline BOOL operator OP (arg1_t s1, arg2_t s2)                 \
   return(FALSE);                                               \
 }
 
+#if defined(UNICODE) || defined(_UNICODE)
+#if !defined(NW_CSTRING_DISABLE_NARROW_WIDE_CONVERSION) // _CSTRING_DISABLE_NARROW_WIDE_CONVERSION
+
+#define CStringCompareOperatorForYCHAR( OP )                              \
+inline BOOL operator OP (const CString &s1, const CString::YCHAR *s2)     \
+{                                                                         \
+  CString s2x(s2);                                                        \
+  return(s1 OP s2x);                                                      \
+}                                                                         \
+                                                                          \
+inline BOOL operator OP (const CString::YCHAR *s1, const CString &s2)     \
+{                                                                         \
+	CString s1x(s1);                                                      \
+	return(s1x OP s2);                                                    \
+}                                                                         
+
+#endif 
+#endif
+
+#if !defined(CStringCompareOperatorForYCHAR)
+#define CStringCompareOperatorForYCHAR( OP ) // Nothing
+#endif
+
 #define CStringCompareOperator(OP) \
         CStringCompareOperatorForTypes(OP, const CString &, const CString &) \
         CStringCompareOperatorForTypes(OP, const CString &, CString::PCXSTR) \
         CStringCompareOperatorForTypes(OP, CString::PCXSTR, const CString &) \
+        CStringCompareOperatorForYCHAR(OP)                                   \
 
 CStringCompareOperator( == )
 CStringCompareOperator( != )
