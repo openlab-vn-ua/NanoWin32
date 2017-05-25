@@ -737,7 +737,7 @@ class CString : public CSimpleString
 
   protected:
 
-  bool IsWhitespace(TCHAR src) { if (src < 0x20) { return(TRUE); } return(FALSE); }
+  bool IsWhitespace(TCHAR src) { if (src <= 0x20) { return(TRUE); } return(FALSE); }
 
   public:
 
