@@ -22,17 +22,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceSimpleTCHARTest)
 	NW_CHECK_EQUAL(0, n);
 	NW_CHECK_EQUAL_STRCMP(cString, "qbc qbc qbc");
 }
-/*
-NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceNullTCHARTest)
-{
-	CString cString("abc abc abc");
 
-	int n = cString.Replace("ab", NULL);
-
-	NW_CHECK_EQUAL(3, n);
-	NW_CHECK_EQUAL_STRCMP(cString, "c c c");
-}
-*/
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceDifferentLengthTCHARTest)
 {
 	CString cString("abc abc abc qwe");
@@ -55,7 +45,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceSimpleLPCTSTRTest)
 	NW_CHECK_EQUAL(3, n);
 	NW_CHECK_EQUAL_STRCMP(cString, "qbc qbc qbc");
 }
-/*
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceNullLPCTSTRTest)
 {
 	CString cString("abc abc abc");
@@ -68,7 +58,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceNullLPCTSTRTest)
 	NW_CHECK_EQUAL(3, n);
 	NW_CHECK_EQUAL_STRCMP(cString, "c c c");
 }
-*/
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceDifferentLengthLPCTSTRTest)
 {
 	CString cString("abc abc abc qwe");
@@ -174,7 +164,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMakeUpperTest)
 
 	NW_CHECK_EQUAL_STRCMP(cString, "ABCDEFZZZ");
 }
-/*
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMakeReverseTest)
 {
 	CString cString("abcdef");
@@ -183,7 +173,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMakeReverseTest)
 
 	NW_CHECK_EQUAL_STRCMP(cString, "fedcba");
 }
-*/
+
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringRightTest)
 {
