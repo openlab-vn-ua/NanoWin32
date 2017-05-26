@@ -37,6 +37,8 @@
 
 #define AFXAPI // just a marker for functions
 
+class CPoint;
+
 class CObject
 {
   public:
@@ -218,7 +220,15 @@ class CRect : public RECT
           _In_ int t,
           _In_ int r,
           _In_ int b
-        ); // throw(); // TODO: LINUX: Implement me
+        ); // throw(); // TODO: Implement me
+
+
+  BOOL PtInRect(_In_ POINT point) const throw();  // TODO: Implement me
+
+  CPoint CenterPoint() const throw();  // TODO: Implement me
+
+  void InflateRect(_In_ SIZE size) throw(); // TODO: Implement me
+
 };
 
 #endif // linux
