@@ -167,6 +167,8 @@ class CArray : public CObject
   }
 
   void InsertAt(INT_PTR nIndex, ARG_TYPE newElement, INT_PTR nCount = 1);  // TODO: Implement me
+  void SetAt(INT_PTR nIndex, ARG_TYPE newElement); // TODO: Implement me
+  BOOL IsEmpty() const; // TODO: Implement me
 
   #undef REQUIRE
 };
@@ -399,6 +401,15 @@ class CMap : public CObject
     protected:
     CPair(ARG_KEY keyval) : key(keyval) {}
   };
+
+  void GetNextAssoc(POSITION& rNextPosition, KEY& rKey, VALUE& rValue) const; // TODO: Implement me
+
+  POSITION GetStartPosition() const; // TODO: Implement me
+
+  void InitHashTable(UINT hashSize, BOOL bAllocNow = TRUE);  // TODO: Implement me
+
+  BOOL Lookup(ARG_KEY key, VALUE& rValue) const;  // TODO: Implement me
+
 };
 
 class CStringArray : public CObject
