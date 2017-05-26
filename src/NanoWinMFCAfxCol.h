@@ -149,31 +149,223 @@ class CArray : public CObject
   {
     return GetAt(nIndex);
   }
+
+  #undef REQUIRE
 };
 
 template<class TYPE, class ARG_TYPE = const TYPE&>
 class CList : public CObject
 {
+  #define REQUIRE(f) if (!(f)) { throw "CList has invalid param:" #f; }
+  #define NODEPTR_TO_POSITION(n) ((POSITION)(void*)(n))
+  #define POSITION_TO_NODEPTR(p) ((Node*)(void*)(p))
+
   public:
 
-  // Gets the number of elements in this list.
-  INT_PTR GetCount() const;
-  // Searches the list sequentially to find the first element matching the specified searchValue.
-  POSITION Find(ARG_TYPE searchValue, POSITION startAfter = NULL) const;
+  CList()
+  {
+    head  = NULL;
+    tail  = NULL;
+    count = 0;
+  }
 
-  TYPE RemoveHead();
-  TYPE RemoveTail();
+  ~CList ()
+  {
+    RemoveAll();
+  }
+
+  // Gets the number of elements in this list.
+  INT_PTR GetCount() const
+  {
+    return count;
+  }
+
+  BOOL IsEmpty() const
+  {
+    return count == 0;
+  }
+
+  // Searches the list sequentially to find the first element matching the specified searchValue.
+  POSITION Find(ARG_TYPE searchValue, POSITION startAfter = NULL) const
+  {
+    Node *node = startAfter == NULL ? head : POSITION_TO_NODEPTR(startAfter);
+    bool found = false;
+
+    while (!found && node != NULL)
+    {
+      found = node->value == searchValue;
+
+      if (!found)
+      {
+        node = node->next;
+      }
+    }
+
+    return found ? NODEPTR_TO_POSITION(node) : NULL;
+  }
+
+  TYPE RemoveHead()
+  {
+    REQUIRE(!IsEmpty());
+
+    Node *node = head;
+
+    if (tail == head) // single element in list
+    {
+      head = NULL;
+      tail = NULL;
+      count = 0;
+    }
+    else
+    {
+      head = node->next;
+      head->prev = NULL;
+      count--;
+    }
+
+    TYPE result = node->value;
+
+    delete node;
+
+    return result;
+  }
+
+  TYPE RemoveTail()
+  {
+    REQUIRE(!IsEmpty());
+
+    Node *node = head;
+
+    if (tail == head) // single element in list
+    {
+      head = NULL;
+      tail = NULL;
+      count = 0;
+    }
+    else
+    {
+      tail = node->prev;
+      tail->next = NULL;
+      count--;
+    }
+
+    TYPE result = node->value;
+
+    delete node;
+
+    return result;
+  }
 
   // add before head or after tail
-  POSITION AddHead(ARG_TYPE newElement);
-  POSITION AddTail(ARG_TYPE newElement);
+  POSITION AddHead(ARG_TYPE newElement)
+  {
+    Node *node = new Node(newElement);
 
-  POSITION GetHeadPosition() const;
+    node->prev = NULL;
+    node->next = head;
 
-  TYPE& GetNext(POSITION& rPosition);
-  const TYPE& GetNext(POSITION& rPosition) const;
+    if (node->next != NULL)
+    {
+      node->next->prev = node;
+    }
+    else
+    {
+      tail = node;
+    }
 
-  void RemoveAll();
+    head = node;
+
+    count++;
+
+    return NODEPTR_TO_POSITION(node);
+  }
+
+  POSITION AddTail(ARG_TYPE newElement)
+  {
+    Node *node = new Node(newElement);
+
+    node->prev = tail;
+    node->next = NULL;
+
+    if (node->prev != NULL)
+    {
+      node->prev->next = node;
+    }
+    else
+    {
+      head = node;
+    }
+
+    tail = node;
+
+    count++;
+
+    return NODEPTR_TO_POSITION(node);
+  }
+
+  POSITION GetHeadPosition() const
+  {
+    return NODEPTR_TO_POSITION(head);
+  }
+
+  TYPE& GetNext(POSITION& rPosition)
+  {
+    REQUIRE(rPosition != NULL);
+
+    Node *node = POSITION_TO_NODEPTR(rPosition);
+
+    rPosition = NODEPTR_TO_POSITION(node->next);
+
+    return node->value;
+  }
+
+  const TYPE& GetNext(POSITION& rPosition) const
+  {
+    REQUIRE(rPosition != NULL);
+
+    Node *node = POSITION_TO_NODEPTR(rPosition);
+
+    rPosition = NODEPTR_TO_POSITION(node->next);
+
+    return node->value;
+   }
+
+  void RemoveAll()
+  {
+    Node *node = head;
+
+    head  = NULL;
+    tail  = NULL;
+    count = 0;
+
+    while (node != NULL)
+    {
+      Node *next = node->next;
+
+      delete node;
+
+      node = next;
+    }
+  }
+
+  private :
+
+  struct Node
+  {
+    Node (TYPE src, Node *prev = NULL, Node *next = NULL) { value = src; this->prev = prev; this->next = next; }
+
+    TYPE  value;
+    Node *prev;
+    Node *next;
+  };
+
+  Node   *head;
+  Node   *tail;
+  size_t  count;
+
+  #undef NODEPTR_TO_POSITION
+  #undef POSITION_TO_NODEPTR
+  #undef REQUIRE
 };
 
 template<class KEY, class ARG_KEY, class VALUE, class ARG_VALUE>
