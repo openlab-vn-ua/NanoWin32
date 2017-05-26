@@ -166,6 +166,8 @@ class CArray : public CObject
     return GetAt(nIndex);
   }
 
+  void InsertAt(INT_PTR nIndex, ARG_TYPE newElement, INT_PTR nCount = 1);  // TODO: Implement me
+
   #undef REQUIRE
 };
 
