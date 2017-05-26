@@ -88,6 +88,7 @@
     <ClCompile Include="..\src\NanoWinFileSys.cpp" />
     <ClCompile Include="..\src\NanoWinInternal.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfx.cpp" />
+    <ClCompile Include="..\src\NanoWinMFCAfxCol.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxMt.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxStr.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxWin.cpp" />
@@ -108,6 +109,7 @@
     <ClCompile Include="src\NanoWinFileFindTests.cpp" />
     <ClCompile Include="src\NanoWinFileSysTests.cpp" />
     <ClCompile Include="src\NanoWinInternalTests.cpp" />
+    <ClCompile Include="src\NanoWinMFCAfxColTests.cpp" />
     <ClCompile Include="src\NanoWinMFCAfxStrTests.cpp" />
     <ClCompile Include="src\NanoWinMsSafeStringTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTests.cpp" />
@@ -127,6 +129,7 @@
     <ClInclude Include="..\src\NanoWinFileSys.h" />
     <ClInclude Include="..\src\NanoWinInternal.h" />
     <ClInclude Include="..\src\NanoWinMFCAfx.h" />
+    <ClInclude Include="..\src\NanoWinMFCAfxCol.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxMt.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxStr.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxWin.h" />
