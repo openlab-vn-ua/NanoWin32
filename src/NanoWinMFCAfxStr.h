@@ -752,6 +752,8 @@ class CString : public CSimpleString
     return(Replace(sch.GetString(), _T("")));
   }
 
+  CString& TrimLeft(_In_ XCHAR chTarget); // TODO: Implement me
+
   CString& TrimLeft()
   {
     const TCHAR *src = strBuf.c_str();
@@ -776,6 +778,8 @@ class CString : public CSimpleString
     Delete(0, pos); // remove ws
     return(*this);
   }
+
+  CString& TrimRight(_In_ XCHAR chTarget); // TODO: Implement me
 
   CString& TrimRight()
   {
