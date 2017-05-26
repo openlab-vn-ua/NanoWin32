@@ -146,7 +146,7 @@ class CArray : public CObject
     typename storage_type::size_type size = storage.size();
 
     REQUIRE(nIndex >= 0);
-    REQUIRE(nIndex < size);
+    REQUIRE(nIndex < (INT_PTR)size);
 
     typename storage_type::size_type afterLastIndex = nIndex + nCount;
 
@@ -166,9 +166,25 @@ class CArray : public CObject
     return GetAt(nIndex);
   }
 
-  void InsertAt(INT_PTR nIndex, ARG_TYPE newElement, INT_PTR nCount = 1);  // TODO: Implement me
-  void SetAt(INT_PTR nIndex, ARG_TYPE newElement); // TODO: Implement me
-  BOOL IsEmpty() const; // TODO: Implement me
+  void InsertAt(INT_PTR nIndex, ARG_TYPE newElement, INT_PTR nCount = 1)
+  {
+    REQUIRE(nCount >= 0);
+
+    storage.insert(nIndex < storage.size() ? storage.cbegin() + nIndex : storage.cend(),nCount,newElement);
+  }
+
+  void SetAt(INT_PTR nIndex, ARG_TYPE newElement)
+  {
+    REQUIRE(nIndex >= 0);
+    REQUIRE(nIndex < storage.size());
+
+    storage[nIndex] = newElement;
+  }
+
+  BOOL IsEmpty() const
+  {
+    return storage.empty();
+  }
 
   #undef REQUIRE
 };
