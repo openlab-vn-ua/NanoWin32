@@ -169,17 +169,30 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
 	//--------------------------------------------------//
 
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	strcpy(str2, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
 	nlen = 5;
 	rc = strncpy_s(str1, 0, str2, nlen);
 
 	NW_CHECK_RC_ERR(rc);
+	// dest not modified
+	NW_CHECK_STR_NOT_EMPTY(str1);
+	NW_CHECK_TRUE(str1[0]=='a');
 
 	//--------------------------------------------------//
 
 	#ifndef SKIP_MS // TRP
+
+	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	strcpy(str2, "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
 	rc = strncpy_s(str1, (RSIZE_MAX_STR + 1), str2, nlen);
 
 	NW_CHECK_RC_ERR(rc);
+	// dest not modified
+	NW_CHECK_STR_NOT_EMPTY(str1);
+	NW_CHECK_TRUE(str1[0]=='a');
 	#endif
 
 	//--------------------------------------------------//
@@ -203,6 +216,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 	rc = strncpy_s(str1, 5, str2, (RSIZE_MAX_STR + 1));
 
 	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1); // count too big (unreasonable) target should be clear
 
 	//--------------------------------------------------//
 
@@ -442,17 +456,30 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 
 	//--------------------------------------------------//
 
+	wcscpy(str1, L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	wcscpy(str2, L"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
 	nlen = 5;
 	rc = wcsncpy_s(str1, 0, str2, nlen);
 
 	NW_CHECK_RC_ERR(rc);
+	// dest not modified
+	NW_CHECK_STR_NOT_EMPTY(str1);
+	NW_CHECK_TRUE(str1[0]=='a');
 
 	//--------------------------------------------------//
 
 	#ifndef SKIP_MS // TRP
+
+	wcscpy(str1, L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	wcscpy(str2, L"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
 	rc = wcsncpy_s(str1, (RSIZE_MAX_STR + 1), str2, nlen);
 
 	NW_CHECK_RC_ERR(rc);
+	// dest not modified
+	NW_CHECK_STR_NOT_EMPTY(str1);
+	NW_CHECK_TRUE(str1[0]=='a');
 	#endif
 
 	//--------------------------------------------------//
@@ -476,6 +503,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 	rc = wcsncpy_s(str1, 5, str2, (RSIZE_MAX_STR + 1));
 
 	NW_CHECK_RC_ERR(rc);
+	NW_CHECK_STR_EMPTY(str1); // count too big (unreasonable) target should be clear
 
 	//--------------------------------------------------//
 
