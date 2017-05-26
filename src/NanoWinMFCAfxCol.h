@@ -407,6 +407,12 @@ class CList : public CObject
 template<class KEY, class ARG_KEY, class VALUE, class ARG_VALUE>
 class CMap : public CObject
 {
+  #define REQUIRE(f) if (!(f)) { throw "CMapStringToPtr has invalid param:" #f; }
+  #define INDEX_TO_POSITION(i) ((POSITION)(void*)(i))
+  #define POSITION_TO_INDEX(p) ((intptr_t)(void*)(p))
+
+  typedef typename std::map<KEY,VALUE> storage_type;
+
   public:
 
   // CPair
@@ -418,14 +424,67 @@ class CMap : public CObject
     CPair(ARG_KEY keyval) : key(keyval) {}
   };
 
-  void GetNextAssoc(POSITION& rNextPosition, KEY& rKey, VALUE& rValue) const; // TODO: Implement me
+  void GetNextAssoc(POSITION& rNextPosition, KEY& rKey, VALUE& rValue) const
+  {
+    REQUIRE(rNextPosition != NULL);
 
-  POSITION GetStartPosition() const; // TODO: Implement me
+    intptr_t pos = POSITION_TO_INDEX(rNextPosition);
 
-  void InitHashTable(UINT hashSize, BOOL bAllocNow = TRUE);  // TODO: Implement me
+    typename storage_type::const_iterator it = storage.cbegin();
 
-  BOOL Lookup(ARG_KEY key, VALUE& rValue) const;  // TODO: Implement me
+    for (intptr_t i = 1; i < pos; i++)
+    {
+      ++it;
+    }
 
+    rKey   = it->first;
+    rValue = it->second;
+
+    ++it;
+
+    if (it != storage.cend())
+    {
+      rNextPosition = INDEX_TO_POSITION(pos + 1);
+    }
+    else
+    {
+      rNextPosition = NULL;
+    }
+  }
+
+  POSITION GetStartPosition() const
+  {
+    return storage.empty() ? NULL : INDEX_TO_POSITION(1);
+  }
+
+  void InitHashTable(UINT hashSize, BOOL bAllocNow = TRUE)
+  {
+    // ignore this call, just use default std::map
+  }
+
+  BOOL Lookup(ARG_KEY key, VALUE& rValue) const
+  {
+    typename storage_type::const_iterator it = storage.find(key);
+
+    if (it != storage.cend())
+    {
+      rValue = it->second;
+
+      return TRUE;
+    }
+    else
+    {
+      return FALSE;
+    }
+  }
+
+  private :
+
+  storage_type storage;
+
+  #undef POSITION_TO_INDEX
+  #undef INDEX_TO_POSITION
+  #undef REQUIRE
 };
 
 class CStringArray : public CObject
@@ -497,7 +556,7 @@ class CMapStringToPtr : public CObject
 
   POSITION GetStartPosition() const
   {
-    return INDEX_TO_POSITION(1); // zero index is reserved for invalid position
+    return storage.empty() ? NULL : INDEX_TO_POSITION(1);
   }
 
   void GetNextAssoc(POSITION& rNextPosition, CString& rKey, void*& rValue) const
