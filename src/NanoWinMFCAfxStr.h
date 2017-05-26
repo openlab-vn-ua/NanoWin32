@@ -456,6 +456,9 @@ class CString : public CSimpleString
     #define VSPRINTF_S vsprintf_s
     #endif
 
+    va_list argsCopy;
+    va_copy(argsCopy,args);
+
     ssize_t result;
     result = VSNPRINTF(NULL, 0, lpszFormat, args);
     CHECKUP(result >= 0);
@@ -463,9 +466,10 @@ class CString : public CSimpleString
     Preallocate(result+1);
     TCHAR *dst = LockBuffer();
     error_t cresult;
-    cresult = VSPRINTF_S(dst, result, lpszFormat, args);
+    cresult = VSPRINTF_S(dst, result + 1, lpszFormat, argsCopy);
+    va_end(argsCopy);
     UnlockBuffer();
-    CHECKUP(cresult == 0);
+    CHECKUP(cresult >= 0);
 
     #undef  VSNPRINTF
     #undef  VSPRINTF_S
