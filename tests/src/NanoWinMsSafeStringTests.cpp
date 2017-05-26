@@ -2853,4 +2853,136 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsToMbsSTest)
   #undef MEMSET
 }
 
+NW_TEST(NanoWinMsSafeStringTestGroup, StrTokSTest)
+{
+	SETUP_S_TEST();
+
+	#define LEN   ( 128 )
+
+	char        str1[LEN];
+	const char *delm;
+	char       *state;
+	char       *token;
+	char        str2[LEN]; // just placeholder to be non-null
+
+	//--------------------------------------------------//
+
+	strcpy(str1, "Quick brown\tfox");
+	delm = " \t";
+	state = str2; // No matter where
+
+	token = strtok_s(str1, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(strcmp(token,"Quick"),0);
+	token = strtok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(strcmp(token,"brown"),0);
+	token = strtok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(strcmp(token,"fox"),0);
+	token = strtok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	//--------------------------------------------------//
+
+	strcpy(str1, "Test Pattern");
+	delm = " ";
+	state = str2; // No matter where, just non-null
+
+	token = strtok_s(NULL, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+	token = strtok_s(str1, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	state = NULL;
+	token = strtok_s(NULL, delm, &state); // cannot continue with undefined state
+	NW_CHECK_TRUE(token == NULL);
+
+	token = strtok_s(NULL, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+	token = strtok_s(str1, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	token = strtok_s(str1, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(strcmp(token,"Test"),0);
+	token = strtok_s(NULL, NULL, &state);
+	NW_CHECK_TRUE(token == NULL); // invalid delim, state should be unaffected
+	token = strtok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(strcmp(token,"Pattern"),0);
+	token = strtok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	//--------------------------------------------------//
+
+	#undef LEN
+}
+
+NW_TEST(NanoWinMsSafeStringTestGroup, WcsTokSTest)
+{
+	SETUP_S_TEST();
+
+	#define LEN   ( 128 )
+
+	wchar_t        str1[LEN];
+	const wchar_t *delm;
+	wchar_t       *state;
+	wchar_t       *token;
+	wchar_t        str2[LEN]; // just placeholder to be non-null
+
+	//--------------------------------------------------//
+
+	wcscpy(str1, L"Quick brown\tfox");
+	delm = L" \t";
+	state = str2; // No matter where
+
+	token = wcstok_s(str1, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(wcscmp(token,L"Quick"),0);
+	token = wcstok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(wcscmp(token,L"brown"),0);
+	token = wcstok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(wcscmp(token,L"fox"),0);
+	token = wcstok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	//--------------------------------------------------//
+
+	wcscpy(str1, L"Test Pattern");
+	delm = L" ";
+	state = str2; // No matter where, just non-null
+
+	token = wcstok_s(NULL, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+	token = wcstok_s(str1, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	state = NULL;
+	token = wcstok_s(NULL, delm, &state); // cannot continue with undefined state
+	NW_CHECK_TRUE(token == NULL);
+
+	token = wcstok_s(NULL, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+	token = wcstok_s(str1, NULL, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	token = wcstok_s(str1, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(wcscmp(token,L"Test"),0);
+	token = wcstok_s(NULL, NULL, &state);
+	NW_CHECK_TRUE(token == NULL); // invalid delim, state should be unaffected
+	token = wcstok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token != NULL);
+	NW_CHECK_EQUAL(wcscmp(token,L"Pattern"),0);
+	token = wcstok_s(NULL, delm, &state);
+	NW_CHECK_TRUE(token == NULL);
+
+	//--------------------------------------------------//
+
+	#undef LEN
+}
+
 NW_END_TEST_GROUP()

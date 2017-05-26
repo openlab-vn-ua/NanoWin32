@@ -190,10 +190,10 @@ NW_EXTERN_C_END
 // Define line MS VC style prototypes (this will get a chance to someone to overload strtok_s and wcstok_s in a C11 compilant way, so both co-exist)
 
 // Search for tokens in str, acts like strtok_r + quick checks for valid args. [MS VC specific, not C11]
-inline char   *strtok_s      (char *str, const char *delim, char **context) { return(strtok_s(str, delim, context)); }
+inline char   *strtok_s      (char *str, const char *delim, char **context) { return(strtok_r_s(str, delim, context)); }
 
 // Search for tokens in str, acts like wcstok(_r) + quick checks for valid args. [MS VC specific, not C11]
-inline wchar_t*wcstok_s      (wchar_t *str, const wchar_t *delim, wchar_t **context) { return(wcstok_s(str, delim, context)); }
+inline wchar_t*wcstok_s      (wchar_t *str, const wchar_t *delim, wchar_t **context) { return(wcstok_r_s(str, delim, context)); }
 
 #endif
 
