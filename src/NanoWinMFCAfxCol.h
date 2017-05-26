@@ -12,6 +12,7 @@
 
 #if defined LINUX
 
+#include <map>
 #include <vector>
 // MFC subset (collection classes)
 
@@ -156,7 +157,7 @@ class CArray : public CObject
       afterLastIndex = size;
     }
 
-    storage.erase(nIndex,afterLastIndex);
+    storage.erase(storage.cbegin() + nIndex,storage.cbegin() + afterLastIndex);
   }
   // void InsertAt(INT_PTR nStartIndex, CArray* pNewArray);
 
@@ -446,18 +447,104 @@ class CStringArray : public CObject
 
 class CMapStringToPtr : public CObject
 {
+  #define REQUIRE(f) if (!(f)) { throw "CMapStringToPtr has invalid param:" #f; }
+  #define INDEX_TO_POSITION(i) ((POSITION)(void*)(i))
+  #define POSITION_TO_INDEX(p) ((intptr_t)(void*)(p))
+
+  typedef std::map<CString,void*>  storage_type;
+  typedef storage_type::value_type pair_type;
+
   public:
-  void RemoveAll();
-  INT_PTR GetCount() const;
-  POSITION GetStartPosition() const;
-  void GetNextAssoc(POSITION& rNextPosition, CString& rKey, void*& rValue) const;
+
+  void RemoveAll()
+  {
+    storage.clear();
+  }
+
+  INT_PTR GetCount() const
+  {
+    return storage.size();
+  }
+
+  POSITION GetStartPosition() const
+  {
+    return INDEX_TO_POSITION(1); // zero index is reserved for invalid position
+  }
+
+  void GetNextAssoc(POSITION& rNextPosition, CString& rKey, void*& rValue) const
+  {
+    REQUIRE(rNextPosition != NULL);
+
+    intptr_t pos = POSITION_TO_INDEX(rNextPosition);
+
+    storage_type::const_iterator it = storage.cbegin();
+
+    for (intptr_t i = 1; i < pos; i++)
+    {
+      ++it;
+    }
+
+    rKey   = it->first;
+    rValue = it->second;
+
+    ++it;
+
+    if (it != storage.cend())
+    {
+      rNextPosition = INDEX_TO_POSITION(pos + 1);
+    }
+    else
+    {
+      rNextPosition = NULL;
+    }
+  }
 
   // Lookup
-  BOOL Lookup(LPCTSTR key, void*& rValue) const;
-  BOOL LookupKey(LPCTSTR key, LPCTSTR& rKey) const;
+  BOOL Lookup(LPCTSTR key, void*& rValue) const
+  {
+    storage_type::const_iterator it = storage.find(key);
+
+    if (it != storage.cend())
+    {
+      rValue = it->second;
+
+      return TRUE;
+    }
+    else
+    {
+      return FALSE;
+    }
+  }
+
+  BOOL LookupKey(LPCTSTR key, LPCTSTR& rKey) const
+  {
+    storage_type::const_iterator it = storage.find(key);
+
+    if (it != storage.cend())
+    {
+      rKey = it->first.GetString();
+
+      return TRUE;
+    }
+    else
+    {
+      return FALSE;
+    }
+  }
 
   // add a new (key, value) pair
-  void SetAt(LPCTSTR key, void* newValue);
+  void SetAt(LPCTSTR key, void* newValue)
+  {
+    storage[key] = newValue;
+  }
+
+  private :
+
+  std::map<CString,void*> storage;
+
+  #undef POSITION_TO_INDEX
+  #undef INDEX_TO_POSITION
+  #undef REQUIRE
 };
 
 // Functions
