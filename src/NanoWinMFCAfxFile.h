@@ -139,6 +139,8 @@ class CFileFind : public CObject
 	result <<= (sizeof(ULONG)*8);
 	result |= m_state.nFileSizeLow;
   }
+
+  virtual CString GetFilePath() const; // TODO: Implement me
 };
 
 #endif // linux
