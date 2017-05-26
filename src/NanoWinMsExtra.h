@@ -54,11 +54,17 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 
 // share.h subset
 
-#define SH_DENYNO           (0x40) // The only supported value so far
+#define SH_DENYRW           (0x10) // deny read/write mode  // opt
+#define SH_DENYWR           (0x20) // deny write mode       // opt
+#define SH_DENYRD           (0x30) // deny read mode        // opt
+#define SH_DENYNO           (0x40) // No lock  // TODO: Implement me first
 #define fsopen(fn,m,sc)     (fopen((fn),(m)))  // TODO: Refine me (incomplete implemenation)
 #define wfsopen(fn,m,sc)    (wfopen((fn),(m))) // TODO: Refine me (incomplete implemenation)
 
 #ifndef NW_NO_MS_ISO_ALIASES // MS-style aliases for "obsolete/nonconformant" func
+#define _SH_DENYRW          SH_DENYRW
+#define _SH_DENYWR          SH_DENYWR
+#define _SH_DENYRD          SH_DENYRD
 #define _SH_DENYNO          SH_DENYNO
 #define _fsopen             fsopen
 #define _wfsopen            wfsopen
