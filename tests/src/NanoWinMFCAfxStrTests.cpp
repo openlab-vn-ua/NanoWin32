@@ -310,7 +310,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareNoCaseTest)
 	res = cString.CompareNoCase("ABcdE");
 	NW_CHECK(res > 0);
 }
-/*
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 {
 	CString str;
@@ -319,7 +319,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 
 	NW_CHECK_EQUAL_STRCMP("2 * 2 equal 4", str);
 }
-*/
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringOperatorAssignTest)
 {
 	CString cString("zzz");

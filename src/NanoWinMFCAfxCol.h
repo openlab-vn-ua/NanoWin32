@@ -252,7 +252,7 @@ class CList : public CObject
   {
     REQUIRE(!IsEmpty());
 
-    Node *node = head;
+    Node *node = tail;
 
     if (tail == head) // single element in list
     {

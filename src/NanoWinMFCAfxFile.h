@@ -59,7 +59,7 @@ class CFileFind : public CObject
 
   virtual ~CFileFind()
   {
-    CloseContext(); // TODO: Check does MFC source class closes search automatically?
+    CloseContext();
   }
 
   virtual BOOL FindFile(LPCTSTR pstrName = NULL, DWORD dwUnused = 0)
