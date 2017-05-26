@@ -179,7 +179,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMidTest)
 
 	NW_CHECK_EQUAL_STRCMP(resStr, "cdef");
 }
-/*
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMidWithCounterTest)
 {
 	CString cString("abcdefabcdef");
@@ -188,8 +188,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMidWithCounterTest)
 
 	NW_CHECK_EQUAL_STRCMP("cdefa", resStr);
 }
-*/
-/*
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringLeftTest)
 {
 	CString cString("abcdef");
@@ -198,7 +197,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringLeftTest)
 
 	NW_CHECK_EQUAL_STRCMP("abc", resStr);
 }
-*/
+
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringInsertTCHARTest)
 {
