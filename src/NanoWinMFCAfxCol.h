@@ -82,6 +82,21 @@ class CArray : public CObject
     return storage.size() - 1;
   }
 
+  INT_PTR Append(const CArray& src)
+  {
+    typename storage_type::size_type srcSize = src.storage.size();
+    typename storage_type::size_type dstSize = storage.size();
+
+    storage.reserve(dstSize + srcSize);
+
+    for (auto it = src.storage.cbegin(); it != src.storage.cend(); ++it)
+    {
+      storage.push_back(*it);
+    }
+
+    return (INT_PTR)dstSize;
+  }
+
   void Copy(const CArray& src)
   {
     if (&src == this) return;
@@ -387,18 +402,46 @@ class CStringArray : public CObject
 {
   public:
 
-  INT_PTR GetSize() const;
-  INT_PTR GetCount() const;
+  INT_PTR GetSize() const
+  {
+    return storage.GetSize();
+  }
 
-  void RemoveAll();
-  void Add(const CString &item);
+  INT_PTR GetCount() const
+  {
+    return storage.GetCount();
+  }
 
-  const CString& GetAt(INT_PTR nIndex) const;
+  void RemoveAll()
+  {
+    storage.RemoveAll();
+  }
 
-  INT_PTR Append(const CStringArray& src);
+  void Add(const CString &item)
+  {
+    storage.Add(item);
+  }
 
-  const CString& operator[](INT_PTR nIndex) const;
+  const CString& GetAt(INT_PTR nIndex) const
+  {
+    return storage.GetAt(nIndex);
+  }
+
+  INT_PTR Append(const CStringArray& src)
+  {
+    return storage.Append(src.storage);
+  }
+
+  const CString& operator[](INT_PTR nIndex) const
+  {
+    return storage[nIndex];
+  }
   // CString& operator[](INT_PTR nIndex);
+
+  private :
+
+  // we can use CArray since our implementation always uses copy operation for elements (unlike original CArray)
+  CArray<CString> storage;
 };
 
 class CMapStringToPtr : public CObject
