@@ -37,8 +37,6 @@
 
 #define AFXAPI // just a marker for functions
 
-class CPoint;
-
 class CObject
 {
   public:
@@ -144,6 +142,21 @@ class CSize : public SIZE
   }
 };
 
+class CPoint : public POINT
+{
+  public:
+
+  CPoint(int initX, int initY) // throw()
+  {
+    x = initX; y = initY;
+  }
+
+  CPoint() // throw()
+  {
+    x = 0; y = 0;
+  }
+};
+
 class CRect : public RECT
 {
   public:
@@ -214,25 +227,53 @@ class CRect : public RECT
      return CSize(Width(), Height());
   }
 
-  void DeflateRect
-        (
-          _In_ int l,
-          _In_ int t,
-          _In_ int r,
-          _In_ int b
-        ); // throw(); // TODO: Implement me
+  BOOL PtInRect(_In_ POINT point)
+  const // throw();
+  {
+    return(FALSE); // TODO: Implement Win32 API and then itmplement me
+  }
 
+  CPoint CenterPoint()
+  const // throw();
+  {
+    return(CPoint(((left+right)/2),((top+bottom)/2)));
+  }
 
-  BOOL PtInRect(_In_ POINT point) const throw();  // TODO: Implement me
+  void DeflateRect(_In_ int l, _In_ int t, _In_ int r, _In_ int b) // throw();
+  {
+    left += l;
+	top += t;
+	right -= r;
+	bottom -= b;
+  }
 
-  CPoint CenterPoint() const throw();  // TODO: Implement me
+  void DeflateRect(_In_ int x, _In_ int y) // throw();
+  {
+    // InflateRect(this, -x, -y); // TODO: Implement Win32 API and then itmplement me
+  }
 
-  void InflateRect(
-	  _In_ int x,
-	  _In_ int y) throw(); // TODO: Implement me
+  void DeflateRect(_In_ SIZE isize) // throw();
+  {
+    DeflateRect(isize.cx, isize.cy);
+  }
 
-  void InflateRect(_In_ SIZE size) throw(); // TODO: Implement me
+  void InflateRect(_In_ int l, _In_ int t, _In_ int r, _In_ int b) // throw();
+  {
+    left -= l;
+	top -= t;
+	right += r;
+	bottom += b;
+  }
 
+  void InflateRect(_In_ int x, _In_ int y) // throw();
+  {
+    // InflateRect(this, x, y); // TODO: Implement Win32 API and then itmplement me
+  }
+
+  void InflateRect(_In_ SIZE isize) // throw();
+  {
+    InflateRect(isize.cx, isize.cy);
+  }
 };
 
 #endif // linux
