@@ -28,10 +28,15 @@ extern  DWORD GetEnvironmentVariableW
                 DWORD   nSize
               );
 
+extern BOOL WINAPI SetEnvironmentVariableA(_In_ const char *lpName, _In_opt_ const char *lpValue); // TODO: Implement me
+extern BOOL WINAPI SetEnvironmentVariableW(_In_ const wchar_t *lpName,	_In_opt_ const wchar_t *lpValue); // TODO: Implement me
+
 #if defined(UNICODE) || defined(_UNICODE)
-#define	GetEnvironmentVariable  GetEnvironmentVariableW
+#define GetEnvironmentVariable  GetEnvironmentVariableW
+#define SetEnvironmentVariable  SetEnvironmentVariableW
 #else
 #define GetEnvironmentVariable  GetEnvironmentVariableA
+#define SetEnvironmentVariable  SetEnvironmentVariableA
 #endif
 
 NW_EXTERN_C_END

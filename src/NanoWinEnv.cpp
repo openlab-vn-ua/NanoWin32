@@ -67,6 +67,7 @@ DWORD GetEnvironmentVariableW
   GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize());
   sBuffer.copyBag(lpBuffer, nSize); // we allow truncate here
 
+  // TODO: Verify result length policy here
   if (lpBuffer != NULL)
   {
     return(wcslen(lpBuffer));
