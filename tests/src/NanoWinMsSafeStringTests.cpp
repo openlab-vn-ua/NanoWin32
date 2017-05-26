@@ -372,6 +372,40 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 
 	NW_CHECK_EQUAL(0, ind);
 
+	//--------------------------------------------------//
+
+	// **** Truncate tests ****
+
+    #if (defined(_TRUNCATE) && defined(STRUNCATE))
+
+	//--------------------------------------------------//
+
+	strcpy(str1, "qwertyuiopasdfghjklzxcvbnm");
+	strcpy(str2, "1234567");
+
+	rc = strncpy_s(str1, 5, str2, _TRUNCATE);
+
+	NW_CHECK_EQUAL_INTS(rc, STRUNCATE);
+
+	// be sure the results are the same as strcmp //
+	NW_CHECK_EQUAL(strcmp(str1, "1234"), 0);
+
+	//--------------------------------------------------//
+
+	strcpy(str1, "qwertyuiopasdfghjklzxcvbnm");
+	strcpy(str2, "1234567");
+
+	rc = strncpy_s(str1, 1, str2, _TRUNCATE);
+
+	NW_CHECK_EQUAL_INTS(rc, STRUNCATE);
+
+	// be sure the results are the same as strcmp //
+	NW_CHECK_EQUAL(strcmp(str1, ""), 0);
+
+	//--------------------------------------------------//
+
+	#endif
+
 	#undef MAX
 	#undef LEN
 }
@@ -610,6 +644,38 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 	ind = wcscmp(str1, str2);
 
 	NW_CHECK_EQUAL(0, ind);
+
+	// **** Truncate tests ****
+
+    #if (defined(_TRUNCATE) && defined(STRUNCATE))
+
+	//--------------------------------------------------//
+
+	wcscpy(str1, L"qwertyuiopasdfghjklzxcvbnm");
+	wcscpy(str2, L"1234567");
+
+	rc = wcsncpy_s(str1, 5, str2, _TRUNCATE);
+
+	NW_CHECK_EQUAL_INTS(rc, STRUNCATE);
+
+	// be sure the results are the same as strcmp //
+	NW_CHECK_EQUAL(wcscmp(str1, L"1234"), 0);
+
+	//--------------------------------------------------//
+
+	wcscpy(str1, L"qwertyuiopasdfghjklzxcvbnm");
+	wcscpy(str2, L"1234567");
+
+	rc = wcsncpy_s(str1, 1, str2, _TRUNCATE);
+
+	NW_CHECK_EQUAL_INTS(rc, STRUNCATE);
+
+	// be sure the results are the same as strcmp //
+	NW_CHECK_EQUAL(wcscmp(str1, L""), 0);
+
+	//--------------------------------------------------//
+
+	#endif
 
 	#undef MAX
 	#undef LEN
