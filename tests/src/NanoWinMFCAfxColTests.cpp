@@ -1,3 +1,4 @@
+#include <map>
 #include "NWUnitTest.h"
 
 #ifdef __linux
