@@ -22,7 +22,7 @@
 #endif
 
 #define NW_CHECK_RC_OK(rc)        NW_CHECK_EQUAL_INTS(EOK,rc)
-#define NW_CHECK_RC_ERR(rc)       NW_CHECK_FALSE(rc == EOK)
+#define NW_CHECK_RC_ERR(rc)       NW_CHECK_TRUE(rc != EOK)
 #define NW_CHECK_STR_EMPTY(s)     NW_CHECK_TRUE((s)[0] == '\0')
 #define NW_CHECK_STR_NOT_EMPTY(s) NW_CHECK_TRUE((s)[0] != '\0')
 
@@ -185,14 +185,14 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrNCpySTest)
 	//--------------------------------------------------//
 	//--------------------------------------------------//
 
-	#if 0 // TODO: check correct behavior
+	#ifndef SKIP_MS
 	strcpy(str1, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 	str2[0] = '\0';
 
 	rc = strncpy_s(str1, 5, str2, 0);
 
-	NW_CHECK_RC_ERR(rc);
-	NW_CHECK_STR_EMPTY(str1);
+	NW_CHECK_RC_ERR(rc); // Under MS rc==EOK, that is against the standard
+	NW_CHECK_STR_EMPTY(str1); // Will be "" MS, that is ok
 	#endif
 
 	//--------------------------------------------------//
@@ -424,14 +424,14 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 	//--------------------------------------------------//
 	//--------------------------------------------------//
 
-	#if 0 // TODO: check correct behavior
+	#ifndef SKIP_MS
 	wcscpy(str1, L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 	str2[0] = '\0';
 
 	rc = wcsncpy_s(str1, 5, str2, 0);
 
-	NW_CHECK_RC_ERR(rc);
-	NW_CHECK_STR_EMPTY(str1);
+	NW_CHECK_RC_ERR(rc); // Under MS rc==EOK, that is against the standard
+	NW_CHECK_STR_EMPTY(str1); // Will be "" MS, that is ok
 	#endif
 
 	//--------------------------------------------------//
@@ -568,7 +568,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 	//--------------------------------------------------//
 	// TR example //
 
-	#if 0 // TODO: check correct behavior 
 	wcscpy(dest, L"                            ");
 	wcscpy(str2, L"goodbye");
 
@@ -581,7 +580,6 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsNCpySTest)
 	ind = wcscmp(dest, L"good");
 
 	NW_CHECK_EQUAL(0, ind);
-	#endif
 
 	//--------------------------------------------------//
 

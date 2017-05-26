@@ -429,7 +429,7 @@ extern errno_t strncpy_s     (char *dest, rsize_t destsz, const char *src, rsize
   if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
   if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
-  if (count  <= 0)             { return_after_err_handler(FN SP "count is zero"               , NULL, ERANGE); } // { dest[0] = 0; return(EOK); } // alternative approach
+  if (count  <= 0)             { return_after_err_FILLDST(FN SP "count is zero"               , NULL, ERANGE); } // { dest[0] = 0; return(EOK); } // alternative approach
   // count > 0, something have to be done
   if (count  >  RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
   if (src    == NULL)          { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
@@ -511,7 +511,7 @@ extern errno_t wcsncpy_s     (wchar_t *dest, rsize_t destsz, const wchar_t *src,
   if (destsz <= 0)             { return_after_err_handler(FN SP "destsz is zero"              , NULL, ERANGE); }
   if (destsz >  RSIZE_MAX_CNT) { return_after_err_handler(FN SP "destsz too large"            , NULL, ERANGE); }
   // dest valid, now we have to fill dest in case of fail
-  if (count  <= 0)             { return_after_err_handler(FN SP "count is zero"               , NULL, ERANGE); } // { dest[0] = 0; return(EOK); } // alternative approach
+  if (count  <= 0)             { return_after_err_FILLDST(FN SP "count is zero"               , NULL, ERANGE); } // { dest[0] = 0; return(EOK); } // alternative approach
   // count > 0, something have to be done
   if (count  >  RSIZE_MAX_CNT) { return_after_err_FILLDST(FN SP "count too large"             , NULL, EINVAL); }
   if (src    == NULL)          { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
@@ -537,7 +537,7 @@ extern errno_t wcsncpy_s     (wchar_t *dest, rsize_t destsz, const wchar_t *src,
 	// check if it there is a room for null terminator in dest
     if (llim < destsz)
 	{
-      bsize = llim-1; // copy only body
+      bsize = llim; // copy only body
 	}
 	else
 	{
