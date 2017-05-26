@@ -227,6 +227,10 @@ class CRect : public RECT
 
   CPoint CenterPoint() const throw();  // TODO: Implement me
 
+  void InflateRect(
+	  _In_ int x,
+	  _In_ int y) throw(); // TODO: Implement me
+
   void InflateRect(_In_ SIZE size) throw(); // TODO: Implement me
 
 };
