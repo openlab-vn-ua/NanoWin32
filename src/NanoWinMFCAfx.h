@@ -211,6 +211,14 @@ class CRect : public RECT
   {
      return CSize(Width(), Height());
   }
+
+  void DeflateRect
+        (
+          _In_ int l,
+          _In_ int t,
+          _In_ int r,
+          _In_ int b
+        ); // throw(); // TODO: LINUX: Implement me
 };
 
 #endif // linux
