@@ -501,6 +501,11 @@ class CStringArray : public CObject
     return storage.GetCount();
   }
 
+  BOOL IsEmpty() const
+  {
+    return storage.IsEmpty();
+  }
+
   void RemoveAll()
   {
     storage.RemoveAll();
