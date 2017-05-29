@@ -478,6 +478,11 @@ class CMap : public CObject
     }
   }
 
+  void SetAt(ARG_KEY key, ARG_VALUE newValue)
+  {
+    storage[key] = newValue;
+  }
+
   private :
 
   storage_type storage;
