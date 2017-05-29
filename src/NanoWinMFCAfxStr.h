@@ -24,76 +24,153 @@
 #include "NanoWinTCHAR.h"
 #include "NanoWinMFCAfx.h"
 
-#if defined(UNICODE) || defined(_UNICODE)
 #include <wchar.h>
 #include "NanoWinStrConvert.h"
-#endif
 
-// Class to implement CSimpleString subset. [Only null-terminated strings supported]
+class NanoWinStringUtils
+{
+  public:
+  // _tcslen
+  static int  base_tcslen    (const wchar_t *psz) { return(wcslen(psz)); }
+  static int  base_tcslen    (const char    *psz) { return(strlen(psz)); }
+
+  // _tcsncpy_s
+  static void base_tcsncpy_s (wchar_t* pchDest, int nDestMax, const wchar_t* pchSrc, int nChars) { wcsncpy_s(pchDest, nDestMax, pchSrc, nChars); }
+  static void base_tcsncpy_s (char*    pchDest, int nDestMax, const char*    pchSrc, int nChars) { strncpy_s(pchDest, nDestMax, pchSrc, nChars); }
+
+  // _tcslwr
+  static void base_tcslwr    (wchar_t* pchDest) { wcslwr(pchDest); }
+  static void base_tcslwr    (char*    pchDest) { strlwr(pchDest); }
+
+  // _tcsups
+  static void base_tcsupr    (wchar_t* pchDest) { wcsupr(pchDest); }
+  static void base_tcsupr    (char*    pchDest) { strupr(pchDest); }
+
+  // _tcscmp
+  static int  base_tcscmp    (const char*    s1, const char*    s2) { return(strcmp(s1, s2)); }
+  static int  base_tcscmp    (const wchar_t* s1, const wchar_t* s2) { return(wcscmp(s1, s2)); }
+  static int  base_tcsicmp   (const char*    s1, const char*    s2) { return(stricmp(s1, s2)); }
+  static int  base_tcsicmp   (const wchar_t* s1, const wchar_t* s2) { return(wcsicmp(s1, s2)); }
+
+  #define VSNPRINTF  vsnprintf
+  #define VSPRINTF_S vsprintf_s
+  #define XCHAR      char
+  #define STDSTRING  std::string
+
+  static int base_vsprintf(STDSTRING &out, const XCHAR *lpszFormat, va_list args)
+  {
+    // Body invariant to char/wchar
+    va_list argsCopy;
+    va_copy(argsCopy,args);
+
+    ssize_t result;
+    result = VSNPRINTF(NULL, 0, lpszFormat, args);
+    if (result < 0) { return(result); }
+    out.clear(); // this->Empty();
+	if (result == 0) { return(0); } // Nothing to output and out already clear
+    out.reserve(result+1); // this->Preallocate(result+1)
+    XCHAR *dst = const_cast<XCHAR*>(out.c_str()); // this->LockBuffer()
+    error_t cresult;
+    cresult = VSPRINTF_S(dst, result + 1, lpszFormat, argsCopy);
+    va_end(argsCopy);
+    //this->UnlockBuffer();
+    if (cresult < 0) { result = -1; } // Catch of unlikely error // Note: Out may be overwritten in this point
+	return(result);
+  }
+
+  #undef  VSNPRINTF
+  #undef  VSPRINTF_S
+  #undef  XCHAR
+  #undef  STDSTRING
+
+  #define VSNPRINTF  vswprintf
+  #define VSPRINTF_S vswprintf_s
+  #define XCHAR      wchar_t
+  #define STDSTRING  std::wstring
+
+  static int base_vsprintf(STDSTRING &out, const XCHAR *lpszFormat, va_list args)
+  {
+    // Body invariant to char/wchar
+    va_list argsCopy;
+    va_copy(argsCopy,args);
+
+    ssize_t result;
+    result = VSNPRINTF(NULL, 0, lpszFormat, args);
+    if (result < 0) { return(result); }
+    out.clear(); // this->Empty();
+	if (result == 0) { return(0); } // Nothing to output and out already clear
+    out.reserve(result+1); // this->Preallocate(result+1)
+    XCHAR *dst = const_cast<XCHAR*>(out.c_str()); // this->LockBuffer()
+    error_t cresult;
+    cresult = VSPRINTF_S(dst, result + 1, lpszFormat, argsCopy);
+    va_end(argsCopy);
+    //this->UnlockBuffer();
+    if (cresult < 0) { result = -1; } // Catch of unlikely error // Note: Out may be overwritten in this point
+	return(result);
+  }
+
+  #undef  VSNPRINTF
+  #undef  VSPRINTF_S
+  #undef  XCHAR
+  #undef  STDSTRING
+};
+
+// Class to implement CSimpleStringT subset. [Only null-terminated strings supported]
 // Note that for MBCS strings, CString still counts, returns, and manipulates strings based on 8-bit characters,
 // and your application must interpret MBCS lead and trail bytes itself
-class CSimpleString
+
+template<typename TXCHAR, typename TYCHAR, class TStringBuf>
+class CSimpleStringT
 {
   // Note: Current (simple) implemenation not use value sharing optimisation, so all strings has its own independent buffer
 
-  #define REQUIRE(f) if (!(f)) { throw "CSimpleString has invalid param:" #f; }
-  #define CHECKUP(f) if (!(f)) { throw "CSimpleString operation failed:" #f; }
+  #define REQUIRE(f) if (!(f)) { throw "CSimpleStringT has invalid param:" #f; }
+  #define CHECKUP(f) if (!(f)) { throw "CSimpleStringT operation failed:" #f; }
 
   protected:
 
-  #if defined(UNICODE) || defined(_UNICODE)
-  std::wstring                    strBuf;
-  typedef std::wstring            string_type;
-  #else
-  std::string                     strBuf;
-  typedef std::string             string_type;
-  #endif
+  typedef TStringBuf                     strBuf_type;
+  typedef typename TStringBuf::size_type strBuf_size_type;
+
+  TStringBuf           strBuf;
 
   public:
 
-  #if defined(UNICODE) || defined(_UNICODE)
-  typedef wchar_t      XCHAR;  // "Native"    char type for string (TCHAR) [wchar_t]
-  typedef char         YCHAR;  // "Alternate" char type for string [char]
-  #else
-  typedef char         XCHAR;  // "Native"    char type for string (TCHAR) [char]
-  typedef wchar_t      YCHAR;  // "Alternate" char type for string [wchar_t]
-  #endif
+  typedef TXCHAR       XCHAR;  // "Native"    char type for string (TCHAR) [char    for CStringA, wchar_t for CStringW]
+  typedef TYCHAR       YCHAR;  // "Alternate" char type for string         [wchar_t for CStringA, char    for CStringW]
 
   typedef XCHAR       *PXSTR;  // TCHAR*
   typedef const XCHAR *PCXSTR; // const TCHAR*
   typedef YCHAR       *PYSTR;  // [Non-native char type] *
   typedef const YCHAR *PCYSTR; // const [Non-native char type] *
 
-  static int StringLength(const TCHAR *psz) // throw()
-  {
-    return(_tcslen(psz));
-  }
+  static int  StringLength   (const XCHAR   *psz) { return(NanoWinStringUtils::base_tcslen(psz)); }
 
   // Need some study (do we need this?)
-  // static void CopyChars(XCHAR* pchDest, const XCHAR* pchSrc, int nChars) throw(); // XCHAR=TCHAR here
-  // static void CopyCharsOverlapped(XCHAR* pchDest, const XCHAR* pchSrc, int nChars) throw(); // XCHAR=TCHAR here
+  // static void CopyChars(XCHAR* pchDest, const XCHAR* pchSrc, int nChars) throw(); // XCHAR=XCHAR here
+  // static void CopyCharsOverlapped(XCHAR* pchDest, const XCHAR* pchSrc, int nChars) throw(); // XCHAR=XCHAR here
 
   public:
 
-  // CSimpleString
+  // CSimpleStringT
 
   // Need some study (do we need this?)
   // void Append(const CSimpleStringT& strSrc);
 
-  void Append(const TCHAR *text)
+  void Append(const XCHAR *text)
   {
     REQUIRE(text != NULL);
     strBuf.append(text);
   }
 
-  void Append(const TCHAR *text, int nLength)
+  void Append(const XCHAR *text, int nLength)
   {
     REQUIRE(text != NULL);
     REQUIRE(nLength >= 0);
     strBuf.append(text, nLength);
   }
 
-  void AppendChar(TCHAR item)
+  void AppendChar(XCHAR item)
   {
     REQUIRE(item != 0); // TODO: Check assumption
     strBuf.append(1, item);
@@ -111,7 +188,7 @@ class CSimpleString
     return(strBuf.length());
   }
 
-  // Preallocate/FreeExtra/GetAllocLength // TODO: Clarify what length here mean? TCHAR[Length] or TCHAR[Length+1] 
+  // Preallocate/FreeExtra/GetAllocLength // TODO: Clarify what length here mean? XCHAR[Length] or XCHAR[Length+1] 
 
   protected:
 
@@ -124,7 +201,7 @@ class CSimpleString
 
   // Allocates a specific amount of bytes for the CSimpleStringT object.
   // nLength is exact size of the CSimpleStringT character buffer in characters
-  // analog of TCHAR Preallocate[nLength]
+  // analog of XCHAR Preallocate[nLength]
   void Preallocate(int nLength)
   {
     // Actually, some guard +1 space is here (thanks to std::string). BTW CAfxStringMgr::Allocate look like do the same :)
@@ -148,9 +225,9 @@ class CSimpleString
 
   // Make this strings buffer unique (that is, not {potentially} shared with other strings with same value)
   // Note: It is good idea to Preallocate(nLength) space in buffer first!
-  TCHAR *LockBuffer()
+  XCHAR *LockBuffer()
   {
-    return(const_cast<TCHAR *>(strBuf.c_str())); // Fairly simple, since we do not implement value sharing optimisation
+    return(const_cast<XCHAR *>(strBuf.c_str())); // Fairly simple, since we do not implement value sharing optimisation
   }
 
   // Unlock buffer previously locked by LockBuffer()
@@ -159,10 +236,10 @@ class CSimpleString
     // Fairly simple, since we do not implement value sharing optimisation
   }
 
-  // GetBuffer/ReleaseBuffer // TODO: Clarify what length here mean? TCHAR[Length] or TCHAR[Length+1] 
+  // GetBuffer/ReleaseBuffer // TODO: Clarify what length here mean? XCHAR[Length] or XCHAR[Length+1] 
 
   // Returns a pointer to the internal character buffer for the CSimpleStringT object.
-  // nMinBufferLength is a min count the characters buffer can hold. This value does not include space for a null terminator. "TCHAR GetBuffer[nMinBufferLength]"
+  // nMinBufferLength is a min count the characters buffer can hold. This value does not include space for a null terminator. "XCHAR GetBuffer[nMinBufferLength]"
   // The buffer would be made unique (that is, not {potentially} shared with other strings with same value)
   // TODO: Semantic is not clear here. Why do we need LockBuffer in that case? Is initial content preserved (guess no)?
   PXSTR GetBuffer(int nMinBufferLength)
@@ -221,7 +298,7 @@ class CSimpleString
 
   // Copy string to this CString
 
-  void SetString(const TCHAR *src)
+  void SetString(const XCHAR *src)
   {
     REQUIRE(src != NULL);
     if (src == strBuf.c_str()) { return; } // Copy to myself: nothing to do
@@ -229,12 +306,12 @@ class CSimpleString
   }
 
   // No more then nLength char + checks if we are in the same buffer as the current string
-  void SetString(const TCHAR *src, int nLength)
+  void SetString(const XCHAR *src, int nLength)
   {
     REQUIRE(src != NULL);
     if (nLength <= 0)          { Empty(); return; }
     int dlen = strBuf.length();
-    const TCHAR *dst = strBuf.c_str();
+    const XCHAR *dst = strBuf.c_str();
     if (src == dst)
     {
       // Copy to myself, but at most first nLength chars only
@@ -259,8 +336,8 @@ class CSimpleString
       int clen = nLength;
       if (clen > slen) { clen = slen; }
       Preallocate(clen+1);
-      TCHAR *dst = LockBuffer();
-      _tcsncpy_s(dst, clen+1, src, clen); // Should create null terminated strings
+      XCHAR *dst = LockBuffer();
+      NanoWinStringUtils::base_tcsncpy_s(dst, clen+1, src, clen); // Should create null terminated strings
       UnlockBuffer();
     }
     else
@@ -269,20 +346,20 @@ class CSimpleString
       int clen = nLength;
       if (clen > slen) { clen = slen; }
       Preallocate(clen+1);
-      TCHAR *dst = LockBuffer();
+      XCHAR *dst = LockBuffer();
       memmove_s(dst,clen*sizeof(*src),src,clen*sizeof(*src));
       dst[clen] = 0; // Null terminate
       UnlockBuffer();
     }
   }
 
-  const TCHAR *GetString()
+  const XCHAR *GetString()
   const
   {
     return(strBuf.c_str());
   }
 
-  TCHAR GetAt(int iChar)
+  XCHAR GetAt(int iChar)
   const
   {
     REQUIRE(iChar >= 0);
@@ -290,11 +367,11 @@ class CSimpleString
     return(GetString()[iChar]);
   }
 
-  void SetAt(int iChar, TCHAR ch)
+  void SetAt(int iChar, XCHAR ch)
   {
     REQUIRE(iChar >= 0);
     REQUIRE(iChar < GetLength()); // TODO: Check do we need this check at runtime?
-    const_cast<TCHAR*>(GetString())[iChar] = ch; // Works like this since we do not share values, unlike MFC
+    const_cast<XCHAR*>(GetString())[iChar] = ch; // Works like this since we do not share values, unlike MFC
   }
 
   bool IsEmpty()
@@ -302,7 +379,7 @@ class CSimpleString
   {
     //return(strBuf.empty()); // good looking, but slow
     //Faster implementation:
-    const TCHAR *src = GetString();
+    const XCHAR *src = GetString();
     if (src[0] == 0) { return(true); }
     return(false);
   }
@@ -320,15 +397,15 @@ class CSimpleString
 
   // Constructors
 
-  CSimpleString()
+  CSimpleStringT()
   {
     // Do defaults
   }
 
-  CSimpleString(const TCHAR *value) : strBuf(value) {}
+  CSimpleStringT(const XCHAR *value) : strBuf(value) {}
 
-  #if defined(UNICODE) || defined(_UNICODE)
-  CSimpleString(const char *value)
+  #if !defined(NW_CSTRING_DISABLE_NARROW_WIDE_CONVERSION) // _CSTRING_DISABLE_NARROW_WIDE_CONVERSION
+  CSimpleStringT(const YCHAR *value)
   {
     strBuf = NanoWin::StrConverter::Convert(value);
   }
@@ -336,18 +413,18 @@ class CSimpleString
 
   // Operators
 
-  void operator= (const TCHAR *value)
+  void operator= (const XCHAR *value)
   {
     strBuf = value;
   }
 
-  operator LPCTSTR ()
+  operator PCXSTR ()
   const
   {
     return(strBuf.c_str());
   }
 
-  TCHAR operator[] (int nIndex)
+  XCHAR operator[] (int nIndex)
   const
   {
     return(GetAt(nIndex));
@@ -366,35 +443,51 @@ class CSimpleString
 // Class to implement CString subset. [Only null-terminated strings supported]
 // Note that for MBCS strings, CString still counts, returns, and manipulates strings based on 8-bit characters,
 // and your application must interpret MBCS lead and trail bytes itself
-class CString : public CSimpleString
+template<typename TXCHAR, typename TYCHAR, class TStringBuf>
+class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
 {
   #define REQUIRE(f) if (!(f)) { throw "CString has invalid param:" #f; }
   #define CHECKUP(f) if (!(f)) { throw "CString operation failed:" #f; }
 
+  protected:
+
+  typedef CSimpleStringT<TXCHAR, TYCHAR, TStringBuf> parent;
+
+  typedef typename parent::strBuf_type       strBuf_type;
+  typedef typename parent::strBuf_size_type  strBuf_size_type;
+
   public:
+
+  typedef typename parent::XCHAR  XCHAR;
+  typedef typename parent::YCHAR  YCHAR;
+
+  typedef typename parent::PXSTR  PXSTR;
+  typedef typename parent::PCXSTR PCXSTR;
+  typedef typename parent::PYSTR  PYSTR;
+  typedef typename parent::PCYSTR PCYSTR;
 
   // CString subset
 
   // Constructors
-  CString()
+  CStringT()
   {
     // Do defaults
   }
 
-  CString(const TCHAR *value) : CSimpleString(value) {}
+  CStringT(const XCHAR *value) : parent(value) {}
 
-  #if defined(UNICODE) || defined(_UNICODE)
-  CString(const char *value)  : CSimpleString(value) {}
+  #if !defined(NW_CSTRING_DISABLE_NARROW_WIDE_CONVERSION) // _CSTRING_DISABLE_NARROW_WIDE_CONVERSION
+  CStringT(const YCHAR *value) : parent(value) {}
   #endif
 
   // Search
 
   // The zero-based index of the first character in this CString object that matches the requested substring or characters; -1 if the substring or character is not found.
-  int Find (LPCTSTR sub, int startPos = 0)
+  int Find (PCXSTR sub, int startPos = 0)
   const
   {
-    std::string::size_type result = strBuf.find(sub, startPos);
-    if (result == strBuf.npos)
+    strBuf_size_type result = this->strBuf.find(sub, startPos);
+    if (result == strBuf_type::npos)
     {
       return(-1);
     }
@@ -405,11 +498,11 @@ class CString : public CSimpleString
   }
 
   // The zero-based index of the first character in this CString object that matches the requested substring or characters; -1 if the substring or character is not found.
-  int Find (TCHAR sch, int startPos = 0)
+  int Find (XCHAR sch, int startPos = 0)
   const
   {
-    std::string::size_type result = strBuf.find(sch, startPos);
-    if (result == strBuf.npos)
+    strBuf_size_type result = this->strBuf.find(sch, startPos);
+    if (result == strBuf_type::npos)
     {
       return(-1);
     }
@@ -420,11 +513,11 @@ class CString : public CSimpleString
   }
 
   // The index of the last character in this CString object that matches the requested character; –1 if the character is not found.
-  int ReverseFind(TCHAR sch)
+  int ReverseFind(XCHAR sch)
   const
   {
-    std::string::size_type result = strBuf.rfind(sch);
-    if (result == strBuf.npos)
+    strBuf_size_type result = this->strBuf.rfind(sch);
+    if (result == strBuf_type::npos)
     {
       return(-1);
     }
@@ -434,48 +527,15 @@ class CString : public CSimpleString
     }
   }
 
-  #if defined(AFX_NW_STR_EXTRA)
-  #if defined(UNICODE) || defined(_UNICODE)
-  int Find(const CString &sub, int startPos = 0)
-  const
-  {
-    return(Find(sub.GetString(), startPos));
-  }
-  #endif
-  #endif
-
   // Manipulation
 
   void FormatV(LPCTSTR lpszFormat, va_list args)
   {
-    #if defined(UNICODE) || defined(_UNICODE)
-    #define VSNPRINTF  vswprintf // vswnprintf
-    #define VSPRINTF_S vswprintf_s
-    #else
-    #define VSNPRINTF  vsnprintf
-    #define VSPRINTF_S vsprintf_s
-    #endif
-
-    va_list argsCopy;
-    va_copy(argsCopy,args);
-
-    ssize_t result;
-    result = VSNPRINTF(NULL, 0, lpszFormat, args);
-    CHECKUP(result >= 0);
-    Empty();
-    Preallocate(result+1);
-    TCHAR *dst = LockBuffer();
-    error_t cresult;
-    cresult = VSPRINTF_S(dst, result + 1, lpszFormat, argsCopy);
-    va_end(argsCopy);
-    UnlockBuffer();
-    CHECKUP(cresult >= 0);
-
-    #undef  VSNPRINTF
-    #undef  VSPRINTF_S
+    int result = NanoWinStringUtils::base_vsprintf(this->strBuf, lpszFormat, args);
+	CHECKUP(result >= 0);
   }
 
-  void Format(LPCTSTR lpszFormat, ...)
+  void Format(PCXSTR lpszFormat, ...)
   {
     va_list args;
     va_start (args, lpszFormat);
@@ -484,37 +544,37 @@ class CString : public CSimpleString
   }
 
   // Converts to lowercase
-  CString& MakeLower()
+  CStringT& MakeLower()
   {
-    if (!IsEmpty())
+    if (!this->IsEmpty())
     {
-      _tcslwr(const_cast<TCHAR*>(strBuf.c_str()));
+      NanoWinStringUtils::base_tcslwr(const_cast<XCHAR*>(this->strBuf.c_str()));
     }
     return(*this);
   }
 
   // Converts to Uppercase
-  CString& MakeUpper()
+  CStringT& MakeUpper()
   {
-    if (!IsEmpty())
+    if (!this->IsEmpty())
     {
-      _tcsupr(const_cast<TCHAR*>(strBuf.c_str()));
+      NanoWinStringUtils::base_tcsupr(const_cast<XCHAR*>(this->strBuf.c_str()));
     }
 	return(*this);
   }
 
   // Reverces characters in a string
-  CString& MakeReverse()
+  CStringT& MakeReverse()
   {
-    string_type::size_type len     = strBuf.length();
-    string_type::size_type halfLen = len / 2;
+    strBuf_size_type len     = this->strBuf.length();
+    strBuf_size_type halfLen = len / 2;
 
-    for (string_type::size_type i = 0; i < halfLen; i++)
+    for (strBuf_size_type i = 0; i < halfLen; i++)
     {
-      TCHAR tmp = strBuf[i];
+      XCHAR tmp = this->strBuf[i];
 
-      strBuf[i]           = strBuf[len - i - 1];
-      strBuf[len - i - 1] = tmp;
+      this->strBuf[i]           = this->strBuf[len - i - 1];
+      this->strBuf[len - i - 1] = tmp;
     }
 
 	return(*this);
@@ -522,36 +582,36 @@ class CString : public CSimpleString
 
   // Extracts last (rightmost) nCount characters and returns a copy of the extracted substring.
   // If nCount exceeds the string length, then the entire string is extracted.
-  CString Right(int nCount)
+  CStringT Right(int nCount)
   const // throw(CMemoryException)
   {
-    if (IsEmpty())             { return("");    }
+    if (this->IsEmpty())       { return("");    }
     if (nCount <= 0)           { return("");    }
-    int len = GetLength();
+    int len = this->GetLength();
     if (nCount >= len)         { return(*this); }
-    const TCHAR *from = strBuf.c_str();
+    const XCHAR *from = this->strBuf.c_str();
     from += (len-nCount);
     return(from);
   }
 
-  CString Mid(int nFirst)
+  CStringT Mid(int nFirst)
   const // throw(CMemoryException)
   {
-    if (IsEmpty())             { return("");    }
+    if (this->IsEmpty())       { return("");    }
     if (nFirst <= 0)           { return(*this); }
-    int len = GetLength();
+    int len = this->GetLength();
     if (nFirst >= len)         { return("");    }
-    const TCHAR *from = strBuf.c_str();
+    const XCHAR *from = this->strBuf.c_str();
     from += nFirst;
     return(from);
   }
 
-  CString Mid(int nFirst, int nCount)
+  CStringT Mid(int nFirst, int nCount)
   const // throw(CMemoryException)
   {
     if (nCount <= 0)           { return("");    }
-    if (IsEmpty())             { return("");    }
-    int len = GetLength();
+    if (this->IsEmpty())       { return("");    }
+    int len = this->GetLength();
     if (nFirst >= len)         { return("");    }
 
     if ((nFirst+nCount) > len)
@@ -559,15 +619,15 @@ class CString : public CSimpleString
       nCount = len - nFirst;
     }
 
-    const TCHAR *from = strBuf.c_str();
+    const XCHAR *from = this->strBuf.c_str();
     from += nFirst;
 
     // Trick: We can do things this way only because we know internals
     // This is may not work fine with MFC CString
-    CString result;
+    CStringT result;
     result.Preallocate(nCount+1);
-    TCHAR *to = result.LockBuffer();
-    _tcsncpy_s(to, nCount+1, from, nCount); // Should create null terminated strings
+    XCHAR *to = result.LockBuffer();
+    NanoWinStringUtils::base_tcsncpy_s(to, nCount+1, from, nCount); // Should create null terminated strings
     to[nCount] = 0; // Just in case
     result.UnlockBuffer();
     CHECKUP(to[nCount] == 0);
@@ -576,7 +636,7 @@ class CString : public CSimpleString
 
   // Extracts the first (leftmost) nCount characters and returns a copy of the extracted substring.
   // If nCount exceeds the string length, then the entire string is extracted.
-  CString Left(int nCount)
+  CStringT Left(int nCount)
   const // throw(CMemoryException)
   {
     return(Mid(0, nCount));
@@ -584,30 +644,30 @@ class CString : public CSimpleString
 
   // Insert src at specified nIndex (zero based). If nIndex >= GetLength(), src will be appended
   // Returns the length of the changed string. 
-  int Insert(int nIndex, TCHAR src)
+  int Insert(int nIndex, XCHAR src)
   {
     REQUIRE(src != 0); // Cannot insert null character (we do not support binary strings)
-    if (IsEmpty())
+    if (this->IsEmpty())
     {
-      strBuf.append(1, src);
-      return(strBuf.length());
+      this->strBuf.append(1, src);
+      return(this->strBuf.length());
     }
     else if (nIndex <= 0)
     {
-      strBuf.insert(0, 1, src);
-      return(strBuf.length());
+      this->strBuf.insert(0, 1, src);
+      return(this->strBuf.length());
     }
     else
     {
-      int dlen = strBuf.length();
+      int dlen = this->strBuf.length();
       if (nIndex >= dlen)
       {
-        strBuf.append(1, src);
+        this->strBuf.append(1, src);
         dlen++;
       }
       else
       {
-        strBuf.insert(nIndex, 1, src);
+        this->strBuf.insert(nIndex, 1, src);
         dlen++;
       }
       return(dlen);
@@ -622,30 +682,30 @@ class CString : public CSimpleString
     if (src[0] == 0)
     {
       // src is empty - nothing to do
-      return(strBuf.length());
+      return(this->strBuf.length());
     }
-    else if (IsEmpty())
+    else if (this->IsEmpty())
     {
-      strBuf.append(src);
-      return(strBuf.length());
+      this->strBuf.append(src);
+      return(this->strBuf.length());
     }
     else if (nIndex <= 0)
     {
-      strBuf.insert(0, src);
-      return(strBuf.length());
+      this->strBuf.insert(0, src);
+      return(this->strBuf.length());
     }
     else
     {
-      int dlen = strBuf.length();
+      int dlen = this->strBuf.length();
       if (nIndex >= dlen)
       {
-        strBuf.append(src);
+        this->strBuf.append(src);
       }
       else
       {
-        strBuf.insert(nIndex, src);
+        this->strBuf.insert(nIndex, src);
       }
-      return(strBuf.length());
+      return(this->strBuf.length());
     }
   }
 
@@ -653,115 +713,99 @@ class CString : public CSimpleString
   // If nCount is longer than the string, the remainder of the string is removed.
   int Delete(int nIndex, int nCount = 1)
   {
-    if (IsEmpty())
+    if (this->IsEmpty())
     {
       return(0); // Nothing to do
     }
     else if (nCount <= 0)
     {
-      return(strBuf.length()); // Nothing to do
+      return(this->strBuf.length()); // Nothing to do
     }
     else if (nIndex <= 0)
     {
-      strBuf.erase(0, nCount);
-      return(strBuf.length());
+      this->strBuf.erase(0, nCount);
+      return(this->strBuf.length());
     }
     else
     {
       // would throw an exception if nIndex is out of string range (this is aligned with MFC)
-      strBuf.erase(nIndex, nCount);
-      return(strBuf.length());
+      this->strBuf.erase(nIndex, nCount);
+      return(this->strBuf.length());
     }
   }
 
-  int Replace(TCHAR chOld, TCHAR chNew)
+  int Replace(XCHAR chOld, XCHAR chNew)
   {
-    #if defined(UNICODE) || defined(_UNICODE)
-      #define cstring_str_t std::wstring
-    #else
-      #define cstring_str_t std::string
-    #endif
-
     int replaceCount = 0;
 
-    for (cstring_str_t::size_type pos = strBuf.find(chOld);
-         pos != cstring_str_t::npos;
-         pos = strBuf.find(chOld,pos + 1))
+    for (strBuf_size_type pos = this->strBuf.find(chOld);
+         pos != strBuf_type::npos;
+         pos = this->strBuf.find(chOld,pos + 1))
     {
-      strBuf[pos] = chNew;
+      this->strBuf[pos] = chNew;
 
       replaceCount++;
     }
-
-    #undef cstring_str_t
 
     return replaceCount;
   }
 
   int Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
   {
-    #if defined(UNICODE) || defined(_UNICODE)
-      #define cstring_str_t std::wstring
-    #else
-      #define cstring_str_t std::string
-    #endif
-
     int    replaceCount = 0;
-    size_t oldLen       = _tcslen(lpszOld);
+    size_t oldLen       = this->StringLength(lpszOld);
 
     if (lpszNew != NULL)
     {
-      size_t newLen = _tcslen(lpszNew);
+      size_t newLen = this->StringLength(lpszNew);
 
-      for (cstring_str_t::size_type pos = strBuf.find(lpszOld);
-           pos != cstring_str_t::npos;
-           pos = strBuf.find(lpszOld,pos + newLen))
+      for (strBuf_size_type pos = this->strBuf.find(lpszOld);
+           pos != strBuf_type::npos;
+           pos = this->strBuf.find(lpszOld,pos + newLen))
       {
-        strBuf.replace(pos,oldLen,lpszNew);
+        this->strBuf.replace(pos,oldLen,lpszNew);
 
         replaceCount++;
       }
     }
     else
     {
-      for (cstring_str_t::size_type pos = strBuf.find(lpszOld);
-           pos != cstring_str_t::npos;
-           pos = strBuf.find(lpszOld,pos))
+      for (strBuf_size_type pos = this->strBuf.find(lpszOld);
+           pos != strBuf_type::npos;
+           pos = this->strBuf.find(lpszOld,pos))
       {
-        strBuf.erase(pos,oldLen);
+        this->strBuf.erase(pos,oldLen);
 
         replaceCount++;
       }
     }
-
-    #undef cstring_str_t
 
     return replaceCount;
   }
 
   protected:
 
-  bool IsWhitespace(TCHAR src) { if (src <= 0x20) { return(TRUE); } return(FALSE); }
+  static bool IsWhitespace(XCHAR src) { if (src <= 0x20) { return(TRUE); } return(FALSE); }
 
   public:
 
-  int Remove(TCHAR ch)
+  int Remove(XCHAR ch)
   {
-    CString sch;
+    CStringT sch;
     sch.AppendChar(ch);
-    return(Replace(sch.GetString(), _T("")));
+    return(this->Replace(sch.GetString(), _T("")));
   }
 
-  CString& TrimLeft(_In_ XCHAR chTarget); // TODO: Implement me
+  void TrimLeft(_In_ XCHAR chTarget); // TODO: Implement me
 
-  CString& TrimLeft()
+  void TrimLeft()
   {
-    const TCHAR *src = strBuf.c_str();
+    const XCHAR *src = this->strBuf.c_str();
     int   pos = 0;
 
     while(src[pos] != 0)
     {
-      if (IsWhitespace(src[pos]))
+      if (this->IsWhitespace(src[pos]))
       {
         pos++;
       }
@@ -771,28 +815,27 @@ class CString : public CSimpleString
       }
     }
 
-    if (pos <= 0) { return(*this); } // nothing to do
+    if (pos <= 0) { return; } // nothing to do
 
-    if (src[pos] == 0) { Empty(); return(*this); } // whole string is ws
+    if (src[pos] == 0) { this->Empty(); return; } // whole string is ws
 
-    Delete(0, pos); // remove ws
-    return(*this);
+    this->Delete(0, pos); // remove ws
   }
 
-  CString& TrimRight(_In_ XCHAR chTarget); // TODO: Implement me
+  void TrimRight(_In_ XCHAR chTarget); // TODO: Implement me
 
-  CString& TrimRight()
+  void TrimRight()
   {
-    const TCHAR *src = strBuf.c_str();
-    int   slen = strBuf.length();
+    const XCHAR *src = this->strBuf.c_str();
+    int   slen = this->strBuf.length();
 
-    if (slen <= 0) { return(*this); } // nothing to do
+    if (slen <= 0) { return; } // nothing to do
 
     int pos = 0;
 
     while(pos < slen)
     {
-      if (IsWhitespace(src[slen-1-pos]))
+      if (this->IsWhitespace(src[slen-1-pos]))
       {
         pos++;
       }
@@ -802,19 +845,17 @@ class CString : public CSimpleString
       }
     }
 
-    if (pos <= 0) { return(*this); } // nothing to do
+    if (pos <= 0) { return; } // nothing to do
 
-    if (pos >= slen) { Empty(); return(*this); } // whole string is ws
+    if (pos >= slen) { this->Empty(); return; } // whole string is ws
 
-    Truncate(slen-pos); // remove ws
-    return(*this);
+    this->Truncate(slen-pos); // remove ws
   }
 
-  CString& Trim()
+  void Trim()
   {
-    TrimRight();
-    TrimLeft();
-    return(*this);
+    this->TrimRight();
+    this->TrimLeft();
   }
 
   // Other
@@ -822,39 +863,39 @@ class CString : public CSimpleString
   int Compare(PCXSTR psz)
   const
   {
-    return(_tcscmp(GetString(), psz));
+    return(NanoWinStringUtils::base_tcscmp(this->GetString(), psz));
   }
 
   int CompareNoCase(PCXSTR psz)
   const
   {
-    return(_tcsicmp(GetString(), psz));
+    return(NanoWinStringUtils::base_tcsicmp(this->GetString(), psz));
   }
 
   // Operators [bit advanced version]
 
-  const CString& operator= (const TCHAR *value)
+  const CStringT& operator= (const XCHAR *value)
   {
-    strBuf = value;
+    this->strBuf = value;
     return(*this);
   }
 
-  const CString &operator+= (PCXSTR pszSrc)
+  const CStringT& operator+= (PCXSTR pszSrc)
   {
     REQUIRE(pszSrc != NULL);
-    strBuf += pszSrc;
+    this->strBuf += pszSrc;
     return(*this);
   }
 
-  const CString &operator+= (const CString &src)
+  const CStringT& operator+= (const CStringT &src)
   {
-    strBuf += (PCXSTR)src;
+    this->strBuf += (PCXSTR)src;
     return(*this);
   }
 
-  const CString& operator+= (TCHAR src)
+  const CStringT& operator+= (XCHAR src)
   {
-    AppendChar(src);
+    this->AppendChar(src);
     return(*this);
   }
 
@@ -862,29 +903,38 @@ class CString : public CSimpleString
   #undef REQUIRE
 };
 
+typedef CStringT<char, wchar_t, std::string>  CStringA;
+typedef CStringT<wchar_t, char, std::wstring> CStringW;
+
 // CString 2 operand operators
 
-inline CString operator+ (const CString &s1, const CString &s2)
-{
-  CString result = s1;
-  result += s2;
-  return(result);
-}
+inline CStringA operator+ (const CStringA &s1, const CStringA &s2)
+ {
+   CStringA result = s1;
+   result += s2;
+   return(result);
+ }
+
+inline CStringW operator+ (const CStringW &s1, const CStringW &s2)
+ {
+   CStringW result = s1;
+   result += s2;
+   return(result);
+ }
 
 // CString comparison operators
 
-#define CStringCompareOperatorForTypes(OP, arg1_t, arg2_t)     \
-inline BOOL operator OP (arg1_t s1, arg2_t s2)                 \
-{                                                              \
-  int result = _tcscmp(s1, s2);                                \
-  if (result OP 0) { return(TRUE); }                           \
-  return(FALSE);                                               \
+#define CStringCompareOperatorForTypes(CString, OP, arg1_t, arg2_t)  \
+inline BOOL operator OP (arg1_t s1, arg2_t s2)                       \
+{                                                                    \
+  int result = NanoWinStringUtils::base_tcscmp(s1, s2);                  \
+  if (result OP 0) { return(TRUE); }                                 \
+  return(FALSE);                                                     \
 }
 
-#if defined(UNICODE) || defined(_UNICODE)
 #if !defined(NW_CSTRING_DISABLE_NARROW_WIDE_CONVERSION) // _CSTRING_DISABLE_NARROW_WIDE_CONVERSION
 
-#define CStringCompareOperatorForYCHAR( OP )                              \
+#define CStringCompareOperatorForYCHAR(CString, OP)                       \
 inline BOOL operator OP (const CString &s1, const CString::YCHAR *s2)     \
 {                                                                         \
   CString s2x(s2);                                                        \
@@ -898,31 +948,34 @@ inline BOOL operator OP (const CString::YCHAR *s1, const CString &s2)     \
 }                                                                         
 
 #endif 
-#endif
 
 #if !defined(CStringCompareOperatorForYCHAR)
-#define CStringCompareOperatorForYCHAR( OP ) // Nothing
+#define CStringCompareOperatorForYCHAR(CString, OP) // Nothing
 #endif
 
-#define CStringCompareOperator(OP) \
-        CStringCompareOperatorForTypes(OP, const CString &, const CString &) \
-        CStringCompareOperatorForTypes(OP, const CString &, CString::PCXSTR) \
-        CStringCompareOperatorForTypes(OP, CString::PCXSTR, const CString &) \
-        CStringCompareOperatorForYCHAR(OP)                                   \
+#define CStringCompareOperator(CString, OP) \
+        CStringCompareOperatorForTypes(CString, OP, const CString &, const CString &) \
+        CStringCompareOperatorForTypes(CString, OP, const CString &, CString::PCXSTR) \
+        CStringCompareOperatorForTypes(CString, OP, CString::PCXSTR, const CString &) \
+        CStringCompareOperatorForYCHAR(CString, OP)                                   \
 
-CStringCompareOperator( == )
-CStringCompareOperator( != )
-CStringCompareOperator( > )
-CStringCompareOperator( < )
-CStringCompareOperator( >= )
-CStringCompareOperator( <= )
+#define CStringCompareAll(CString) \
+        CStringCompareOperator(CString, == ) \
+        CStringCompareOperator(CString, != ) \
+        CStringCompareOperator(CString, > ) \
+        CStringCompareOperator(CString, < ) \
+        CStringCompareOperator(CString, >= ) \
+        CStringCompareOperator(CString, <= ) \
+
+CStringCompareAll(CStringA);
+CStringCompareAll(CStringW);
 
 // Some tricks (define back-alias in reverce way to give some code chance to compile)
 
 #if defined(UNICODE) || defined(_UNICODE)
-#define CStringW     CString
+#define CString      CStringW
 #else
-#define CStringA     CString
+#define CString      CStringA
 #endif
 
 // Functions
