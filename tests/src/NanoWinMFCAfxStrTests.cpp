@@ -263,27 +263,27 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimLeftTest)
 {
 	CString cString("	  abcdefabc ");
 
-	CString resStr = cString.TrimLeft();
+	cString.TrimLeft();
 
-	NW_CHECK_EQUAL_STRCMP("abcdefabc ", resStr);
+	NW_CHECK_EQUAL_STRCMP("abcdefabc ", cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimRightTest)
 {
 	CString cString(" abcdefabc		  ");
 
-	CString resStr = cString.TrimRight();
+	cString.TrimRight();
 
-	NW_CHECK_EQUAL_STRCMP(" abcdefabc", resStr);
+	NW_CHECK_EQUAL_STRCMP(" abcdefabc", cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimTest)
 {
 	CString cString("	  abcdefabc		  ");
 
-	CString resStr = cString.Trim();
+	cString.Trim();
 
-	NW_CHECK_EQUAL_STRCMP("abcdefabc", resStr);
+	NW_CHECK_EQUAL_STRCMP("abcdefabc", cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareTest)
@@ -318,6 +318,10 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 	str.Format("%d%s%d%s%d", 2, " * ", 2, " equal ", 4);
 
 	NW_CHECK_EQUAL_STRCMP("2 * 2 equal 4", str);
+
+	str.Format("", 2, 3, 4, 5); // format string is empty, args does not matter
+
+	NW_CHECK_EQUAL_STRCMP("", str);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringOperatorAssignTest)
