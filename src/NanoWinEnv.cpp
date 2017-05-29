@@ -54,27 +54,39 @@ DWORD GetEnvironmentVariableW
                 DWORD   nSize
               )
 {
-  // Note: will return number of char, not wchar_t required to store value (this seems not a big problem since the value returned is bigger wchar_t count then need)
+  // Note: will return number of char, not wchar_t required to store value (in case var not fit or target buffer is null)
+  // (this seems not a big problem since the value returned is bigger wchar_t count then need)
 
   if ((nSize > 0) && (lpBuffer != NULL))
   {
     lpBuffer[0] = '\0';
   }
 
-  DWORD result;
+  DWORD resulta;
   WStrToStrClone     sName(lpName);
   WStrByStrResultBag sBuffer(nSize, lpBuffer);
-  GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize());
+  resulta = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize());
   sBuffer.copyBag(lpBuffer, nSize); // we allow truncate here
 
-  // TODO: Verify result length policy here
-  if (lpBuffer != NULL)
+  if (resulta == 0)
   {
-    return(wcslen(lpBuffer));
+    return(0); // No var found
+  }
+  else if (lpBuffer != NULL)
+  {
+    DWORD resultw = wcslen(lpBuffer);
+    if ((resultw+1) < nSize)
+    {
+      return(resultw); // Fit, return real length
+    }
+    else
+    {
+      return(resulta); // Return ascii lenght (pessimistic expectation)
+    }
   }
   else
   {
-    return 0;
+    return(resulta); // Return ascii lenght (pessimistic expectation)
   }
 }
 
