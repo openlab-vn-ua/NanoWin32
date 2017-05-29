@@ -922,13 +922,110 @@ CStringCompareOperator( <= )
 
 extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString, int iSubString, TCHAR chSep = '\n');
 
+// In-Place converters
+// ------------------------------------------
+
+#include "NanoWinStrConvert.h"
+
+namespace NanoWin
+{
+  class WStrToStrCloneInPlace : public WStrToStrClone
+  {
+    public:
+    WStrToStrCloneInPlace (const wchar_t *src) : WStrToStrClone(src)
+    {
+    }
+
+    operator char* ()
+    {
+      return(const_cast<char*>(this->c_str()));
+    }
+  };
+
+  class StrToWStrCloneInPlace : public StrToWStrClone
+  {
+    public:
+    StrToWStrCloneInPlace (const char *src) : StrToWStrClone(src)
+    {
+    }
+
+    operator wchar_t* ()
+    {
+      return(const_cast<wchar_t*>(this->c_str()));
+    }
+  };
+
+  class WStrToCStrCloneInPlace : public WStrToStrClone
+  {
+    public:
+    WStrToCStrCloneInPlace (const wchar_t *src) : WStrToStrClone(src)
+    {
+    }
+
+    operator const char* ()
+    const
+    {
+      return(this->c_str());
+    }
+  };
+
+  class StrToWCStrCloneInPlace : public StrToWStrClone
+  {
+    public:
+    StrToWCStrCloneInPlace (const char *src) : StrToWStrClone(src)
+    {
+    }
+
+    operator const wchar_t* ()
+    const
+    {
+      return(this->c_str());
+    }
+  };
+}
+
+#define USES_CONVERSION // Nothing to do here all T2W stuff works automatically
+
+#define CW2A(x)  NanoWin::WStrToStrCloneInPlace(x)
+#define CA2W(x)  NanoWin::StrToWStrCloneInPlace(x)
+#define CW2CA(x) NanoWin::WStrToCStrCloneInPlace(x)
+#define CA2CW(x) NanoWin::StrToWCStrCloneInPlace(x)
+
 #if defined(UNICODE) || defined(_UNICODE)
-#define CT2A(x) NanoWin::WStrToStrClone(x).c_str()
-#define CA2T(x) NanoWin::StrToWStrClone(x).c_str()
+#define CT2A(x)  CW2A(x)
+#define CA2T(x)  CA2W(x)
+#define CT2CA(x) CW2CA(x)
+#define CA2CT(x) CA2CW(x)
+#define CT2W(x)  (x)
+#define CW2T(x)  (x)
+#define CT2CW(x) (const_cast<const wchar_t*>(x))
+#define CW2CT(x) (const_cast<const TCHAR*>(x))
 #else
-#define CT2A(x) (x)
-#define CA2T(x) (x)
+#define CT2A(x)  (x)
+#define CA2T(x)  (x)
+#define CT2CA(x) (const_cast<const char*>(x))
+#define CA2CT(x) (const_cast<const TCHAR*>(x))
+#define CT2W(x)  CA2W(x)
+#define CW2T(x)  CW2A(x)
+#define CT2CW(x) CA2CW(x) 
+#define CW2CT(x) CW2CA(x)
 #endif
+
+// Compatibility macroses (without lead C)
+// [Obsolete, since name mislead: actually args must be const and result change not propagated back]
+
+#define W2A(x)   CW2A(x)
+#define A2W(x)   CA2W(x)
+#define W2CA(x)  CW2CA(x)
+#define A2CW(x)  CA2CW(x)
+#define T2A(x)   CT2A(x)
+#define A2T(x)   CA2T(x)
+#define T2CA(x)  CT2CA(x)
+#define A2CT(x)  CA2CT(x)
+#define T2W(x)   CT2W(x)
+#define W2T(x)   CW2T(x)
+#define T2CW(x)  CT2CW(x)
+#define W2CT(x)  CW2CT(x)
 
 #endif // linux
 #endif // ...Included
