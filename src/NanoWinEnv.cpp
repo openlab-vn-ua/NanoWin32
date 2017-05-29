@@ -78,4 +78,61 @@ DWORD GetEnvironmentVariableW
   }
 }
 
+extern BOOL WINAPI SetEnvironmentVariableA(_In_ const char *lpName, _In_opt_ const char *lpValue)
+{
+  int result = lpValue != NULL ? setenv(lpName,lpValue,1) : unsetenv(lpName);
+
+  if (result != 0)
+  {
+    switch (errno)
+    {
+      case (EINVAL) :
+      {
+        SetLastError(ERROR_INVALID_PARAMETER);
+      } break;
+
+      case (ENOMEM) :
+      {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+      } break;
+
+      default :
+      {
+        SetLastError(NanoWinErrorByErrnoAtFail(errno));
+      }
+    }
+
+    return FALSE;
+  }
+  else
+  {
+    return TRUE;
+  }
+}
+
+extern BOOL WINAPI SetEnvironmentVariableW(_In_ const wchar_t *lpName, _In_opt_ const wchar_t *lpValue)
+{
+  try
+  {
+    std::string lpNameMb = NanoWin::StrConverter::Convert(lpName);
+
+    if (lpValue != NULL)
+    {
+      std::string lpValueMb = NanoWin::StrConverter::Convert(lpValue);
+
+      return SetEnvironmentVariableA(lpNameMb.c_str(),lpValueMb.c_str());
+    }
+    else
+    {
+      return SetEnvironmentVariableA(lpNameMb.c_str(),NULL);
+    }
+  }
+  catch (NanoWin::StrConverter::Error)
+  {
+    SetLastError(ERROR_NO_UNICODE_TRANSLATION);
+
+    return FALSE;
+  }
+}
+
 NW_EXTERN_C_END
