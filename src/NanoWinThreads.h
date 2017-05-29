@@ -27,6 +27,8 @@ extern BOOL TerminateThread
 	DWORD  dwExitCode
 );
 
+extern VOID WINAPI ExitThread(_In_ DWORD dwExitCode);
+
 extern BOOL CloseThreadHandle(HANDLE hThread);
 
 extern DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds);

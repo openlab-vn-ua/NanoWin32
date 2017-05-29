@@ -149,6 +149,12 @@ BOOL TerminateThread(HANDLE hThread, DWORD dwExitCode)
   return pthread_cancel((pthread_t)hThread) == 0 ? TRUE : FALSE;
 }
 
+
+VOID ExitThread(_In_ DWORD dwExitCode)
+{
+  pthread_exit((void*)dwExitCode);
+}
+
 BOOL CloseThreadHandle(HANDLE hThread)
 {
   //FIXME: simplified implementation - just trying to detach the thread
