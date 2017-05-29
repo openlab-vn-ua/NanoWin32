@@ -94,7 +94,7 @@ typedef uint16_t                       USHORT;   NW_MAKE_PLP_TYPES_BY(USHORT); /
 // This gives some overloaded functions more chances to compile
 typedef int32_t                        INT;      // WinDef.h
 typedef uint32_t                       UINT;     // WinDef.h
-typedef unsigned long                  DWORD;    // IntSafe.h
+typedef uint32_t                       DWORD;    // IntSafe.h
 typedef signed long                    LONG;     // WinNT.h
 typedef unsigned long                  ULONG;    // WinNT.h
 #else
