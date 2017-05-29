@@ -917,6 +917,14 @@ CStringCompareOperator( < )
 CStringCompareOperator( >= )
 CStringCompareOperator( <= )
 
+// Some tricks (define back-alias in reverce way to give some code chance to compile)
+
+#if defined(UNICODE) || defined(_UNICODE)
+#define CStringW     CString
+#else
+#define CStringA     CString
+#endif
+
 // Functions
 // ------------------------------------------
 
@@ -983,7 +991,7 @@ namespace NanoWin
     }
   };
 
-  template<XT>
+  template<typename XT>
   class CXTPtrToXTPtrRef
   {
     protected:
@@ -1002,7 +1010,7 @@ namespace NanoWin
     }
   };
 
-  template<T>
+  template<typename XT>
   class CXTPtrToCXTPtrRef
   {
     protected:
@@ -1015,7 +1023,7 @@ namespace NanoWin
       this->src = src;
     }
 
-    operator const T* ()
+    operator const XT* ()
     const
     {
       return(this->src);
