@@ -1005,6 +1005,7 @@ namespace NanoWin
     }
 
     operator XT* ()
+    const // This is not good, but just to make stuff compile where const passed as source
     {
       return(const_cast<XT*>(this->src));
     }
