@@ -12,7 +12,7 @@ NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinEnvTestGroup)
 
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableATest)
 {
-	DWORD count = -1;
+	DWORD count;
 
 	count = GetEnvironmentVariableA("PATH", NULL, 0);
 
@@ -22,7 +22,7 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableATest)
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableASetVarTest)
 {
 	char buff[MAX_LEN];
-	DWORD count = -1;
+	DWORD count;
 	
 	BOOL res = SetEnvironmentVariableA("NW_TEST_ENV_1", "test");
 
@@ -32,11 +32,11 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableASetVarTest)
 
 	NW_CHECK(res > 0);
 }
-/*
+
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableASmallBufTest)
 {
 	char buff[MAX_LEN];
-	DWORD count = -1;
+	DWORD count;
 
 	BOOL res = SetEnvironmentVariableA("NW_TEST_ENV_1", "test");
 
@@ -46,11 +46,11 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableASmallBufTest)
 
 	NW_CHECK_EQUAL_LONGS(5, count);
 }
-*/
+
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableARemoveVarTest)
 {
 	char buff[MAX_LEN];
-	DWORD count = -1;
+	DWORD count;
 
 	BOOL res = SetEnvironmentVariableA("NW_TEST_ENV_1", NULL);
 
@@ -60,20 +60,20 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableARemoveVarTest)
 
 	NW_CHECK_EQUAL_LONGS(0, count);
 }
-/*
+
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWTest)
 {
-	DWORD count = -1;
+	DWORD count;
 
 	count = GetEnvironmentVariableW(L"PATH", NULL, 0);
 
 	NW_CHECK(count > 0);
 }
-*/
+
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWSetVarTest)
 {
 	wchar_t buff[MAX_LEN];
-	DWORD count = -1;
+	DWORD count;
 
 	BOOL res = SetEnvironmentVariableW(L"NW_TEST_ENV_2", L"test");
 
@@ -83,11 +83,11 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWSetVarTest)
 
 	NW_CHECK(res > 0);
 }
-/*
+
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWSmallBufTest)
 {
 	wchar_t buff[MAX_LEN];
-	DWORD count = -1;
+	DWORD count;
 
 	BOOL res = SetEnvironmentVariableW(L"NW_TEST_ENV_2", L"test");
 
@@ -97,11 +97,11 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWSmallBufTest)
 
 	NW_CHECK_EQUAL_LONGS(5, count);
 }
-*/
+
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWRemoveVarTest)
 {
 	wchar_t buff[MAX_LEN];
-	DWORD count = -1;
+	DWORD count;
 
 	BOOL res = SetEnvironmentVariableW(L"NW_TEST_ENV_2", NULL);
 
