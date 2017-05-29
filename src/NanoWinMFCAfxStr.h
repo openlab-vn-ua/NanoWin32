@@ -982,50 +982,89 @@ namespace NanoWin
       return(this->c_str());
     }
   };
+
+  template<XT>
+  class CXTPtrToXTPtrRef
+  {
+    protected:
+
+    const XT *src;
+
+    public:
+    CXTPtrToXTPtrRef (const XT *src)
+    {
+      this->src = src;
+    }
+
+    operator XT* ()
+    {
+      return(const_cast<XT*>(this->src));
+    }
+  };
+
+  template<T>
+  class CXTPtrToCXTPtrRef
+  {
+    protected:
+
+    const XT *src;
+
+    public:
+    CXTPtrToCXTPtrRef (const XT *src)
+    {
+      this->src = src;
+    }
+
+    operator const T* ()
+    const
+    {
+      return(this->src);
+    }
+  };
 }
 
 #define USES_CONVERSION // Nothing to do here all T2W stuff works automatically
 
-#define CW2A(x)  NanoWin::WStrToStrCloneInPlace(x)
-#define CA2W(x)  NanoWin::StrToWStrCloneInPlace(x)
-#define CW2CA(x) NanoWin::WStrToCStrCloneInPlace(x)
-#define CA2CW(x) NanoWin::StrToWCStrCloneInPlace(x)
+#define CW2A     NanoWin::WStrToStrCloneInPlace
+#define CA2W     NanoWin::StrToWStrCloneInPlace
+#define CW2CA    NanoWin::WStrToCStrCloneInPlace
+#define CA2CW    NanoWin::StrToWCStrCloneInPlace
 
 #if defined(UNICODE) || defined(_UNICODE)
-#define CT2A(x)  CW2A(x)
-#define CA2T(x)  CA2W(x)
-#define CT2CA(x) CW2CA(x)
-#define CA2CT(x) CA2CW(x)
-#define CT2W(x)  (x)
-#define CW2T(x)  (x)
-#define CT2CW(x) (const_cast<const wchar_t*>(x))
-#define CW2CT(x) (const_cast<const TCHAR*>(x))
+#define CT2A     CW2A
+#define CA2T     CA2W
+#define CT2CA    CW2CA
+#define CA2CT    CA2CW
+#define CT2W     CXTPtrToXTPtrRef<wchar_t>
+#define CW2T     CXTPtrToXTPtrRef<TCHAR>
+#define CT2CW    CXTPtrToCXTPtrRef<wchar_t>
+#define CW2CT    CXTPtrToCXTPtrRef<TCHAR>
 #else
-#define CT2A(x)  (x)
-#define CA2T(x)  (x)
-#define CT2CA(x) (const_cast<const char*>(x))
-#define CA2CT(x) (const_cast<const TCHAR*>(x))
-#define CT2W(x)  CA2W(x)
-#define CW2T(x)  CW2A(x)
-#define CT2CW(x) CA2CW(x) 
-#define CW2CT(x) CW2CA(x)
+#define CT2A     CXTPtrToXTPtrRef<char>
+#define CA2T     CXTPtrToXTPtrRef<TCHAR>
+#define CT2CA    CXTPtrToCXTPtrRef<char>
+#define CA2CT    CXTPtrToCXTPtrRef<TCHAR>
+#define CT2W     CA2W
+#define CW2T     CW2A
+#define CT2CW    CA2CW
+#define CW2CT    CW2CA
 #endif
 
 // Compatibility macroses (without lead C)
 // [Obsolete, since name mislead: actually args must be const and result change not propagated back]
 
-#define W2A(x)   CW2A(x)
-#define A2W(x)   CA2W(x)
-#define W2CA(x)  CW2CA(x)
-#define A2CW(x)  CA2CW(x)
-#define T2A(x)   CT2A(x)
-#define A2T(x)   CA2T(x)
-#define T2CA(x)  CT2CA(x)
-#define A2CT(x)  CA2CT(x)
-#define T2W(x)   CT2W(x)
-#define W2T(x)   CW2T(x)
-#define T2CW(x)  CT2CW(x)
-#define W2CT(x)  CW2CT(x)
+#define W2A      CW2A
+#define A2W      CA2W
+#define W2CA     CW2CA
+#define A2CW     CA2CW
+#define T2A      CT2A
+#define A2T      CA2T
+#define T2CA     CT2CA
+#define A2CT     CA2CT
+#define T2W      CT2W
+#define W2T      CW2T
+#define T2CW     CT2CW
+#define W2CT     CW2CT
 
 #endif // linux
 #endif // ...Included
