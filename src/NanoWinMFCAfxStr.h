@@ -945,6 +945,7 @@ namespace NanoWin
     }
 
     operator char* ()
+    const // This is not good, but just to make stuff compile where const passed as source
     {
       return(const_cast<char*>(this->c_str()));
     }
@@ -958,6 +959,7 @@ namespace NanoWin
     }
 
     operator wchar_t* ()
+    const // This is not good, but just to make stuff compile where const passed as source
     {
       return(const_cast<wchar_t*>(this->c_str()));
     }
