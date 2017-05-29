@@ -17,6 +17,9 @@
 #include <ctype.h> // tolower
 #include <wctype.h> // towlower
 
+#define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
+#define return_after_err_handler(etext,earg,errcode) return(errcode)
+
 NW_EXTERN_C_BEGIN
 
 extern FILE  *wfopen(const wchar_t *name, const wchar_t *mode)
@@ -39,10 +42,42 @@ extern int    _wmkdir(const wchar_t *dirname)
 
 extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *varname)
 {
-  // TODO: Implement me
-  if (buffer != NULL) { (*buffer) = NULL; }
-  if (numberOfElements != NULL) { (*numberOfElements) = 0; }
-  return(ENOMEM);
+  if (buffer  == NULL) { return_after_err_handler("_dupenv_s: buffer is null" , NULL, EINVAL); }
+  if (varname == NULL) { return_after_err_handler("_dupenv_s: varname is null", NULL, EINVAL); }
+
+  char *value = getenv(varname);
+
+  if (value != NULL)
+  {
+    size_t valueLen = strlen(value);
+
+    *buffer = (char*)malloc(valueLen + 1);
+
+    if (*buffer != NULL)
+    {
+      strcpy(*buffer,value);
+
+      if (numberOfElements != NULL)
+      {
+        *numberOfElements = valueLen + 1;
+      }
+
+      return 0;
+    }
+    else
+    {
+      errno = ENOMEM;
+
+      return errno;
+    }
+  }
+  else
+  {
+    *buffer = NULL;
+    *numberOfElements = 0;
+
+    return 0;
+  }
 }
 
 // extern errno_t _wdupenv_s(wchar_t **buffer, size_t *numberOfElements, const wchar_t *varname); // TODO: Implement me
