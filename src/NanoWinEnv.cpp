@@ -37,14 +37,14 @@ DWORD GetEnvironmentVariableA
     return(0);
   }
 
-  int resultlen = strlen(result);
+  size_t resultlen = strlen(result);
 
   if ((nSize > 0) && (lpBuffer != NULL))
   {
     strcpy_s(lpBuffer, nSize, result);
   }
 
-  return(resultlen);
+  return(nSize < resultlen + 1 ? resultlen + 1 : resultlen);
 }
 
 DWORD GetEnvironmentVariableW
