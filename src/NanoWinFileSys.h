@@ -61,8 +61,8 @@ extern BOOL  WINAPI DeleteFileW (_In_ LPCWSTR lpFileName);
 extern BOOL  WINAPI CopyFileA (_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName, _In_ BOOL bFailIfExists);
 extern BOOL  WINAPI CopyFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpNewFileName, _In_ BOOL bFailIfExists);
 
-extern BOOL WINAPI  MoveFileA (_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName); // TODO: Implement me
-extern BOOL WINAPI  MoveFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpNewFileName); // TODO: Implement me
+extern BOOL WINAPI  MoveFileA (_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName);
+extern BOOL WINAPI  MoveFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpNewFileName);
 
 // File Attributes
 // ------------------------------------------

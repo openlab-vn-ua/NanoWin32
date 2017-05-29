@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 #include <string>
 
 NW_EXTERN_C_BEGIN
@@ -478,6 +479,37 @@ extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName)
   {
     SetLastError(ERROR_NO_UNICODE_TRANSLATION);
     return INVALID_FILE_ATTRIBUTES;
+  }
+}
+
+extern BOOL WINAPI  MoveFileA(_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName)
+{
+  if (rename(lpExistingFileName, lpNewFileName) == 0)
+  {
+    return TRUE;
+  }
+  else
+  {
+    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+
+    return FALSE;
+  }
+}
+
+extern BOOL WINAPI  MoveFileW(_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpNewFileName)
+{
+  try
+  {
+    std::string lpExistingFileNameMb = NanoWin::StrConverter::Convert(lpExistingFileName);
+    std::string lpNewFileNameMb = NanoWin::StrConverter::Convert(lpNewFileName);
+
+    return MoveFileA(lpExistingFileNameMb.c_str(),lpNewFileNameMb.c_str());
+  }
+  catch (NanoWin::StrConverter::Error)
+  {
+    SetLastError(ERROR_NO_UNICODE_TRANSLATION);
+
+    return FALSE;
   }
 }
 
