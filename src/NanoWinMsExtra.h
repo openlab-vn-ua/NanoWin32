@@ -139,6 +139,7 @@ extern  wchar_t *wcsupr      (wchar_t *s);
 #define _wgetcwd             wgetcwd  // TODO: Align better: there is only _wgetcwd under win32 (check does wgetcwd ever existed?)
 #define _chdir               chdir
 #define _getpid              getpid
+#define _stat                stat     // works both for struct _stat and function _stat
 #endif
 
 // Other MS-specific functions
