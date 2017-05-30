@@ -1,6 +1,7 @@
 #include "NWUnitTest.h"
 
 #ifdef __linux
+#include <unistd.h>
 #include "NanoWinEvents.h"
 #include "NanoWinThreads.h"
 #else
@@ -11,6 +12,7 @@
  #define WaitForSingleEvent WaitForSingleObject
  #define WaitForSingleThread WaitForSingleObject
  #define WaitForMultipleEvents WaitForMultipleObjects
+ #define WaitForMultipleThreads WaitForMultipleObjects
 #endif
 
 static HANDLE EventSignalSingleWaitTestSignal;
@@ -182,6 +184,44 @@ NW_TEST(NanoWinEventsTestGroup,EventAutoResetWaitForAlreadySignaledEventTest)
   NW_CHECK_EQUAL_ULONGS(WAIT_OBJECT_0,WaitForSingleEvent(eventHandle,100));
 
   NW_CHECK_TRUE(CloseEventHandle(eventHandle));
+ };
+
+NW_END_TEST_GROUP()
+
+static DWORD WINAPI ThreadsTestSleepingThread (void *args)
+ {
+  intptr_t sleepTimeInMicroSeconds = (intptr_t)args;
+
+#ifdef LINUX
+  usleep(sleepTimeInMicroSeconds);
+#else
+  Sleep(sleepTimeInMicroSeconds / 1000);
+#endif
+
+  return 0;
+ }
+
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinThreadsTestGroup)
+
+NW_TEST(NanoWinThreadsTestGroup,WaitForMultipleThreadsTest)
+ {
+  HANDLE threadHandles[2];
+
+  threadHandles[0] = CreateThread(NULL,0,ThreadsTestSleepingThread,(void*)500000L,0,NULL);
+  threadHandles[1] = CreateThread(NULL,0,ThreadsTestSleepingThread,(void*)200000L,0,NULL);
+
+  NW_CHECK_FALSE(threadHandles[0] == NULL);
+  NW_CHECK_FALSE(threadHandles[1] == NULL);
+
+  DWORD waitResult = WaitForMultipleThreads(2,threadHandles,FALSE,1000);
+
+  NW_CHECK_TRUE(waitResult == WAIT_OBJECT_0 || waitResult == WAIT_OBJECT_0 + 1);
+
+  NW_CHECK_EQUAL_ULONGS(WAIT_OBJECT_0,WaitForSingleThread(threadHandles[0],INFINITE));
+  NW_CHECK_EQUAL_ULONGS(WAIT_OBJECT_0,WaitForSingleThread(threadHandles[1],INFINITE));
+
+  NW_CHECK_TRUE(CloseThreadHandle(threadHandles[0]));
+  NW_CHECK_TRUE(CloseThreadHandle(threadHandles[1]));
  };
 
 NW_END_TEST_GROUP()
