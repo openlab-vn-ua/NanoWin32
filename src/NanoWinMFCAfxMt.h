@@ -109,5 +109,12 @@ class CEvent
   HANDLE m_hObject;
 };
 
+class CMutex // TODO: Implement me
+{
+  public:
+  virtual BOOL Lock(DWORD dwTimeout = INFINITE);
+  virtual BOOL Unlock();
+};
+
 #endif // linux
 #endif // ...Included
