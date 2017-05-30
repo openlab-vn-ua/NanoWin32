@@ -33,6 +33,14 @@ extern BOOL CloseThreadHandle(HANDLE hThread);
 
 extern DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds);
 
+extern DWORD WaitForMultipleThreads // WaitForMultipleObjects implementation for events
+(
+  DWORD         nCount,
+  const HANDLE *lpHandles,
+  BOOL          bWaitAll,
+  DWORD         dwMilliseconds
+);
+
 NW_EXTERN_C_END
 
 #endif

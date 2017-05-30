@@ -3,17 +3,36 @@
 #include <pthread.h>
 #include <errno.h>
 
+#include "NanoWinEvents.h"
 #include "NanoWinThreads.h"
+#include "NanoWinError.h"
 
 #define NW32_MILLISECONDS_IN_SECOND     (1000)
 #define NW32_NANOSECONDS_IN_MILLISECOND (1000000L)
 #define NW32_NANOSECONDS_IN_SECOND      (NW32_MILLISECONDS_IN_SECOND * NW32_NANOSECONDS_IN_MILLISECOND)
 
-typedef struct
+namespace
 {
-  LPTHREAD_START_ROUTINE startFunc;
-  LPVOID                 parameter;
-} NW32ThreadStartInfo;
+  struct NanoWinThread
+  {
+    pthread_t threadHandle;
+    HANDLE eventHandle;
+  };
+
+  struct NW32ThreadStartInfo
+  {
+    LPTHREAD_START_ROUTINE startFunc;
+    LPVOID                 parameter;
+    NanoWinThread         *threadInfo;
+  };
+}
+
+static void NW32ThreadsCleanUpFuncSignalEvent(void *arg)
+{
+  HANDLE eventHandle = (HANDLE)arg;
+
+  SetEvent(eventHandle);
+}
 
 static void *NW32ThreadsThreadFunc(void *params)
 {
@@ -23,7 +42,13 @@ static void *NW32ThreadsThreadFunc(void *params)
 
   free(params);
 
-  DWORD result = startFunc(parameter);
+  DWORD result = 0;
+
+  pthread_cleanup_push(NW32ThreadsCleanUpFuncSignalEvent,startInfo->threadInfo->eventHandle);
+
+  result = startFunc(parameter);
+
+  pthread_cleanup_pop(1);
 
   return (void*)(intptr_t)result;
 }
@@ -64,24 +89,43 @@ HANDLE CreateThread(LPSECURITY_ATTRIBUTES  lpThreadAttributes,
 
   HANDLE               result = NULL;
   NW32ThreadStartInfo *threadStartInfo = (NW32ThreadStartInfo*)malloc(sizeof(NW32ThreadStartInfo));
+  NanoWinThread       *threadInfo = (NanoWinThread*)malloc(sizeof(NanoWinThread));
 
-  if (threadStartInfo != NULL)
+  if (threadStartInfo != NULL && threadInfo != NULL)
   {
-    pthread_t threadHandle;
+    threadStartInfo->startFunc  = lpStartAddress;
+    threadStartInfo->parameter  = lpParameter;
+    threadStartInfo->threadInfo = threadInfo;
 
-    threadStartInfo->startFunc = lpStartAddress;
-    threadStartInfo->parameter = lpParameter;
+    threadInfo->eventHandle = CreateEventA(NULL,TRUE,FALSE,NULL);
 
-    if (pthread_create(&threadHandle, NULL, NW32ThreadsThreadFunc, threadStartInfo) == 0)
+    if (threadInfo->eventHandle != NULL)
     {
-      result = (HANDLE)threadHandle;
-
-      if (lpThreadId != NULL)
+      if (pthread_create(&threadInfo->threadHandle, NULL, NW32ThreadsThreadFunc, threadStartInfo) == 0)
       {
-        GenerateThreadIdByThreadHandle(lpThreadId, threadHandle);
+        result = (HANDLE)threadInfo;
+
+        if (lpThreadId != NULL)
+        {
+          GenerateThreadIdByThreadHandle(lpThreadId, threadInfo->threadHandle);
+        }
       }
     }
-    else
+  }
+
+  if (result == NULL)
+  {
+    if (threadInfo != NULL)
+    {
+      if (threadInfo->eventHandle != NULL)
+      {
+        CloseEventHandle(threadInfo->eventHandle);
+      }
+
+      free(threadInfo);
+    }
+
+    if (threadStartInfo != NULL)
     {
       free(threadStartInfo);
     }
@@ -121,11 +165,11 @@ DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds)
 
     TimeSpecAddTimeInMillis(&timeout, dwMilliseconds);
 
-    join_status = pthread_timedjoin_np((pthread_t)hThread, &threadResult, &timeout);
+    join_status = pthread_timedjoin_np(((NanoWinThread*)hThread)->threadHandle, &threadResult, &timeout);
   }
   else
   {
-    join_status = pthread_join((pthread_t)hThread, &threadResult);
+    join_status = pthread_join(((NanoWinThread*)hThread)->threadHandle, &threadResult);
   }
 
   if      (join_status == 0)
@@ -142,13 +186,43 @@ DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds)
   }
 }
 
+extern DWORD WaitForMultipleThreads (DWORD         nCount,
+                                     const HANDLE *lpHandles,
+                                     BOOL          bWaitAll,
+                                     DWORD         dwMilliseconds)
+{
+  if (nCount == 0 || lpHandles == NULL)
+  {
+    SetLastError(ERROR_INVALID_PARAMETER);
+    return WAIT_FAILED;
+  }
+
+  HANDLE *eventHandles = (HANDLE*)malloc(sizeof(HANDLE) * nCount);
+
+  if (eventHandles == NULL)
+  {
+    SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+    return WAIT_FAILED;
+  }
+
+  for (DWORD i = 0; i < nCount; i++)
+  {
+    eventHandles[i] = ((NanoWinThread*)lpHandles[i])->eventHandle;
+  }
+
+  DWORD result = WaitForMultipleEvents(nCount,eventHandles,bWaitAll,dwMilliseconds);
+
+  free(eventHandles);
+
+  return result;
+}
+
 BOOL TerminateThread(HANDLE hThread, DWORD dwExitCode)
 {
   //FIXME: dwExitCode is not used (no GetExitCodeThread call is implemented)
 
-  return pthread_cancel((pthread_t)hThread) == 0 ? TRUE : FALSE;
+  return pthread_cancel(((NanoWinThread*)hThread)->threadHandle) == 0 ? TRUE : FALSE;
 }
-
 
 VOID ExitThread(_In_ DWORD dwExitCode)
 {
@@ -160,7 +234,9 @@ BOOL CloseThreadHandle(HANDLE hThread)
   //FIXME: simplified implementation - just trying to detach the thread
   //       without tracking if it was already joined in WaitForSingleThread call
 
-  pthread_detach((pthread_t)hThread);
+  pthread_detach(((NanoWinThread*)hThread)->threadHandle);
+
+  CloseEventHandle(((NanoWinThread*)hThread)->eventHandle);
 
   return TRUE;
 }
