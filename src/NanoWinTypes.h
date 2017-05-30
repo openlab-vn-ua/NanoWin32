@@ -362,6 +362,9 @@ typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 // Other misc stuff
 // -----------------------------------------------------------------------
 
+#define NW_NOCOPY_CONSTRUCTOR(ClassName) private: ClassName(const ClassName &src) { }
+#define NW_NOASSIGN_OPERATOR(ClassName)  private: void operator= (const ClassName &src) { }
+
 #ifndef NW_EXTERN_C
 #if defined(__cplusplus)
 #define NW_EXTERN_C extern "C"
