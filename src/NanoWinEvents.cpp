@@ -6,6 +6,10 @@
 
 #include "NanoWinEvents.h"
 
+#define NW32_MILLISECONDS_IN_SECOND     (1000)
+#define NW32_NANOSECONDS_IN_MILLISECOND (1000000L)
+#define NW32_NANOSECONDS_IN_SECOND      (NW32_MILLISECONDS_IN_SECOND * NW32_NANOSECONDS_IN_MILLISECOND)
+
 namespace {
 
   class NW32EventError {};
@@ -480,12 +484,18 @@ namespace {
   (struct timespec    *ts,
    DWORD               millis)
   {
-    unsigned long nsec = ts->tv_nsec + (millis % 1000) * 1000000LU;
+    long seconds = millis / NW32_MILLISECONDS_IN_SECOND;
+    long nanoSeconds = ((long)(millis % NW32_MILLISECONDS_IN_SECOND)) * NW32_NANOSECONDS_IN_MILLISECOND;
 
-    ts->tv_sec += millis / 1000 + nsec / 1000000000LU;
-    ts->tv_nsec += nsec % 1000000000LU;
+    ts->tv_sec += seconds;
+    ts->tv_nsec += nanoSeconds;
+
+    if (ts->tv_nsec >= NW32_NANOSECONDS_IN_SECOND)
+    {
+      ts->tv_sec += ts->tv_nsec / NW32_NANOSECONDS_IN_SECOND;
+      ts->tv_nsec %= NW32_NANOSECONDS_IN_SECOND;
+    }
   }
-
 }
 
 extern HANDLE CreateEventA(
