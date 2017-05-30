@@ -46,6 +46,9 @@ namespace NanoWin
 
     char  preallocatedBuffer[PREALLOCATED_STRING_LEN + 1];
     char *buffer;
+
+    NW_NOCOPY_CONSTRUCTOR(WStrToStrClone);
+    NW_NOASSIGN_OPERATOR(WStrToStrClone);
   };
 }
 
@@ -65,6 +68,9 @@ namespace NanoWin
     // TODO: Optimize me like WStrToStrClone (uncritical)
     std::wstring       result;
     bool               resultIsNull;
+
+    NW_NOCOPY_CONSTRUCTOR(StrToWStrClone);
+    NW_NOASSIGN_OPERATOR(StrToWStrClone);
   };
 }
 
@@ -97,7 +103,10 @@ namespace NanoWin
     std::string        sBag;
     size_t             nBagSize;
     size_t             nSrcSize;
-	bool               bSrcIsNull;
+    bool               bSrcIsNull;
+
+    NW_NOCOPY_CONSTRUCTOR(WStrByStrResultBag);
+    NW_NOASSIGN_OPERATOR(WStrByStrResultBag);
   };
 }
 
