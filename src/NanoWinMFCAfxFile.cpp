@@ -9,6 +9,8 @@
 
 #include "NanoWinError.h"
 
+const FILE *CFile::hFileNull = NULL;
+
 NW_EXTERN_C_BEGIN
 
 

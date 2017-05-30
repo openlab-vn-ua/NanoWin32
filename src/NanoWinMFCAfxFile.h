@@ -143,5 +143,74 @@ class CFileFind : public CObject
   virtual CString GetFilePath() const; // TODO: Implement me
 };
 
+// MFC Files
+// ------------------------------------
+
+class CFile : public CObject // TODO: LINUX: Implement me (via FILE)
+{
+  public:
+
+  enum OpenFlags
+  {
+    modeRead         = (int)0x00000, // +
+    modeWrite        = (int)0x00001, // +
+    modeReadWrite    = (int)0x00002,
+
+    shareCompat      = (int)0x00000,
+    shareExclusive   = (int)0x00010,
+    shareDenyWrite   = (int)0x00020,
+    shareDenyRead    = (int)0x00030,
+    shareDenyNone    = (int)0x00040, // +
+
+//  modeNoInherit    = (int)0x00080,
+
+    #if defined(UNICODE) || defined(_UNICODE)
+    typeUnicode      = (int)0x00400, // used in derived classes (e.g. CStdioFile) only // +
+    #endif
+
+    modeCreate       = (int)0x01000, // +
+    modeNoTruncate   = (int)0x02000,
+    typeText         = (int)0x04000, // used in derived classes (e.g. CStdioFile) only // +
+    typeBinary       = (int)0x08000, // used in derived classes (e.g. CStdioFile) only
+//  osNoBuffer       = (int)0x10000,
+//	osWriteThrough   = (int)0x20000,
+//	osRandomAccess   = (int)0x40000,
+//	osSequentialScan = (int)0x80000,
+  };
+
+  public:
+  FILE              *m_hFile;
+
+  static const FILE *hFileNull; // = NULL;
+
+  protected:
+
+  BOOL IsOpen()
+  {
+    return(m_hFile != hFileNull);
+  }
+
+  public:
+
+                     CFile (LPCTSTR lpszFileName,  UINT nOpenFlags); // throw()
+  virtual           ~CFile ();
+
+//virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL);  // nothrow() // Good to have, but not required
+  virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags); // nothrow()
+  virtual void       Close();
+  virtual void       Abort(); // Close if open, // nothrow()
+
+  virtual UINT       Read  (void* lpBuf, UINT nCount);
+  virtual void       Write (const void* lpBuf, UINT nCount);
+  virtual void       Flush ();
+
+  virtual ULONGLONG  Seek  (LONGLONG lOff, UINT nFrom);
+
+  void               SeekToBegin();
+  ULONGLONG          SeekToEnd();
+
+  virtual ULONGLONG  GetLength() const;
+};
+
 #endif // linux
 #endif // ...Included
