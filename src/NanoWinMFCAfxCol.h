@@ -483,6 +483,11 @@ class CMap : public CObject
     storage[key] = newValue;
   }
 
+  ARG_VALUE &operator[](ARG_KEY key)
+  {
+    return(storage[key]);
+  }
+
   private :
 
   storage_type storage;
