@@ -48,6 +48,13 @@
 #define CALLBACK  // __stdcall 
 #define APIENTRY  WINAPI
 
+// Function naming style
+#if defined(__cplusplus)
+#define WINBASEAPI extern "C"
+#else
+#define WINBASEAPI extern
+#endif
+
 // Basic windows types
 // -----------------------------------------------------------------------
 
@@ -77,6 +84,8 @@
 #define VOID                           void      // WinNT.h // Decalred via define, not a typedef (historically)
 typedef void                          *PVOID;
 typedef void FAR                      *LPVOID;
+typedef const void                    *PCVOID;
+typedef const void FAR                *LPCVOID;
 #endif
 
 // WinDef.h
@@ -268,6 +277,11 @@ typedef void*  FAR                     FARPROC;
 
 #define _Success_(x)  // Success criteria for function (to enforce _Out_* annotations)
 
+// Some other annotations
+
+#define _In_z_
+#define _Out_writes_z_(n)
+
 // Some exotic generic types
 // -----------------------------------------------------------------------
 
@@ -347,6 +361,18 @@ typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 
 // Other misc stuff
 // -----------------------------------------------------------------------
+
+#ifndef NW_EXTERN_C
+#if defined(__cplusplus)
+#define NW_EXTERN_C extern "C"
+#else
+#define NW_EXTERN_C extern
+#endif
+#endif
+
+#ifndef NW_EXTERN
+#define NW_EXTERN  extern // for Cpp functions
+#endif
 
 #ifndef NW_EXTERN_C_BEGIN
 #ifdef __cplusplus
