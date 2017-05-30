@@ -397,6 +397,17 @@ class CSimpleStringT
 
   // Constructors
 
+  protected:
+ 
+  CSimpleStringT(XCHAR value) // Not good, but allow to init CString with ' ' constant. Bad because CString a = 5 works also. [made protected]
+  { 
+    if (value != 0) // '\0' cannot be appended to acsiiz string
+    {
+      strBuf.push_back(value);
+    }
+  }
+
+  public:
   CSimpleStringT()
   {
     // Do defaults
@@ -474,6 +485,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     // Do defaults
   }
 
+  CStringT(XCHAR value) : parent(value) {} // Not good, but allow to init CString with ' ' constant. Bad because CString a = 5 works also.
   CStringT(const XCHAR *value) : parent(value) {}
 
   #if !defined(NW_CSTRING_DISABLE_NARROW_WIDE_CONVERSION) // _CSTRING_DISABLE_NARROW_WIDE_CONVERSION
@@ -899,6 +911,12 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     return(*this);
   }
 
+  XCHAR operator[] (int nIndex)
+  const
+  {
+    return(this->GetAt(nIndex));
+  }
+
   #undef CHECKUP
   #undef REQUIRE
 };
@@ -916,6 +934,20 @@ inline CStringA operator+ (const CStringA &s1, const CStringA &s2)
  }
 
 inline CStringW operator+ (const CStringW &s1, const CStringW &s2)
+ {
+   CStringW result = s1;
+   result += s2;
+   return(result);
+ }
+
+inline CStringA operator+ (const CStringA &s1, const char s2)
+ {
+   CStringA result = s1;
+   result += s2;
+   return(result);
+ }
+
+inline CStringW operator+ (const CStringW &s1, const wchar_t s2)
  {
    CStringW result = s1;
    result += s2;
@@ -1002,6 +1034,24 @@ namespace NanoWin
     {
       return(const_cast<char*>(this->c_str()));
     }
+
+	#if defined(__GNUC__)
+
+	// conversion operator from const char* may not work under GCC. This goes not look optimal, but works
+
+	operator const std::string ()
+    const
+	{
+      return(std::string(this->c_str()));
+	}
+
+	operator const CStringA ()
+    const
+	{
+      return(CStringA(this->c_str()));
+	}
+
+	#endif
   };
 
   class StrToWStrCloneInPlace : public StrToWStrClone
@@ -1016,6 +1066,24 @@ namespace NanoWin
     {
       return(const_cast<wchar_t*>(this->c_str()));
     }
+
+	#if defined(__GNUC__)
+
+	// conversion operator from const char* may not work under GCC. This goes not look optimal, but works
+
+	operator const std::wstring ()
+    const
+	{
+      return(std::wstring(this->c_str()));
+	}
+
+	operator const CStringW ()
+    const
+	{
+      return(CStringW(this->c_str()));
+	}
+
+	#endif
   };
 
   class WStrToCStrCloneInPlace : public WStrToStrClone
