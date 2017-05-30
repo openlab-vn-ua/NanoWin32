@@ -192,6 +192,7 @@ class CFile : public CObject // TODO: LINUX: Implement me (via FILE)
 
   public:
 
+                     CFile (); // nothrow()
                      CFile (LPCTSTR lpszFileName,  UINT nOpenFlags); // throw()
   virtual           ~CFile ();
 
