@@ -107,7 +107,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, CFileFindUnexistTest)
 
 	NW_CHECK_FALSE(res);
 }
-/*
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileTest)
 {
 	CFileFind find;
@@ -124,7 +124,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileTest)
 	CString resStr = find.GetFileName();
 	NW_CHECK_EQUAL_STRCMP("testFile512.txt", resStr.GetString());
 }
-*//*
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, FindNextFileTest)
 {
 	CFileFind find;
@@ -165,7 +165,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindNextFileTest)
 		NW_CHECK_EQUAL_STRCMP("testFile256.txt", resStr.GetString());
 	}
 }
-*/
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, FindCloseTest)
 {
 	CFileFind find;
@@ -188,7 +188,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindCloseTest)
 	res = find.FindFile(str2);
 	NW_CHECK_TRUE(res);
 }
-/*
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, IsDirectoryTest)
 {
 	CFileFind find;
@@ -221,7 +221,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, IsDirectoryTest)
 	NW_CHECK_EQUAL_STRCMP("testSubDir", resStr.GetString());
 	NW_CHECK_TRUE(find.IsDirectory() != 0);
 }
-*/
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, IsDotsTest)
 {
 	CFileFind find;
@@ -244,7 +244,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, IsDotsTest)
 		}
 	}
 }
-/*
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, GetLengthTest)
 {
 	CFileFind find;
@@ -285,7 +285,8 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetLengthTest)
 		NW_CHECK_EQUAL_LONGS(256, find.GetLength());
 	}
 }
-*//*
+
+#ifndef __GNUC__
 NW_TEST(NanoWinMFCAfxFileTestGroup, GetFilePathTest)
 {
 	CFileFind find;
@@ -311,5 +312,6 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetFilePathTest)
 
 	NW_CHECK(strcmp(fullFileName, resStr.GetString()) == 0);
 }
-*/
+#endif
+
 NW_END_TEST_GROUP()
