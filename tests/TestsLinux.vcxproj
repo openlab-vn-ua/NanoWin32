@@ -84,11 +84,13 @@
     <ClCompile Include="..\src\NanoWinEnv.cpp" />
     <ClCompile Include="..\src\NanoWinError.cpp" />
     <ClCompile Include="..\src\NanoWinEvents.cpp" />
+    <ClCompile Include="..\src\NanoWinFile.cpp" />
     <ClCompile Include="..\src\NanoWinFileFind.cpp" />
     <ClCompile Include="..\src\NanoWinFileSys.cpp" />
     <ClCompile Include="..\src\NanoWinInternal.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfx.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxCol.cpp" />
+    <ClCompile Include="..\src\NanoWinMFCAfxFile.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxMt.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxStr.cpp" />
     <ClCompile Include="..\src\NanoWinMFCAfxWin.cpp" />
@@ -126,11 +128,13 @@
     <ClInclude Include="..\src\NanoWinEnv.h" />
     <ClInclude Include="..\src\NanoWinError.h" />
     <ClInclude Include="..\src\NanoWinEvents.h" />
+    <ClInclude Include="..\src\NanoWinFile.h" />
     <ClInclude Include="..\src\NanoWinFileFind.h" />
     <ClInclude Include="..\src\NanoWinFileSys.h" />
     <ClInclude Include="..\src\NanoWinInternal.h" />
     <ClInclude Include="..\src\NanoWinMFCAfx.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxCol.h" />
+    <ClInclude Include="..\src\NanoWinMFCAfxFile.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxMt.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxStr.h" />
     <ClInclude Include="..\src\NanoWinMFCAfxWin.h" />
