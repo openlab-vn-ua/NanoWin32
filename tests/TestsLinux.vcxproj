@@ -115,6 +115,7 @@
     <ClCompile Include="src\NanoWinMFCAfxColTests.cpp" />
     <ClCompile Include="src\NanoWinMFCAfxFileTests.cpp" />
     <ClCompile Include="src\NanoWinMFCAfxStrTests.cpp" />
+    <ClCompile Include="src\NanoWinMfcAfxTests.cpp" />
     <ClCompile Include="src\NanoWinMsSafeStringTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTestTools.cpp" />
