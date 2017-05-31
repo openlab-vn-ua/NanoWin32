@@ -20,7 +20,8 @@
 class CFileFind : public CObject
 {
   protected:
-  WIN32_FIND_DATA   m_state;
+  WIN32_FIND_DATA  *m_found_state;
+  WIN32_FIND_DATA  *m_next_state;
   HANDLE            m_handle;
   BOOL              m_state_filled;
 
@@ -55,10 +56,24 @@ class CFileFind : public CObject
   {
     m_handle = NULL;
     m_state_filled = FALSE;
+
+    m_next_state  = (WIN32_FIND_DATA*)malloc(sizeof(WIN32_FIND_DATA));
+    m_found_state = (WIN32_FIND_DATA*)malloc(sizeof(WIN32_FIND_DATA));
+
+    if (m_next_state == NULL || m_found_state == NULL)
+    {
+      free(m_next_state);
+      free(m_found_state);
+
+      throw new CMemoryException();
+    }
   }
 
   virtual ~CFileFind()
   {
+    free(m_next_state);
+    free(m_found_state);
+
     CloseContext();
   }
 
@@ -66,15 +81,15 @@ class CFileFind : public CObject
   {
     CloseContext();
 
-	m_handle = ::FindFirstFile(pstrName, &m_state);
+	m_handle = ::FindFirstFile(pstrName, m_next_state);
 	if (IsValidHandle(m_handle))
 	{
-      m_state_filled = TRUE;
       return(TRUE);
 	}
 	else
 	{
-      memset(&m_state, 0, sizeof(m_state)); // just in case
+      memset(m_next_state, 0, sizeof(*m_next_state)); // just in case
+      memset(m_found_state, 0, sizeof(*m_found_state)); // just in case
       return(FALSE);
 	}
   }
@@ -86,12 +101,15 @@ class CFileFind : public CObject
       return(FALSE);
 	}
 
-	BOOL result = ::FindNextFile(m_handle, &m_state);
+    m_state_filled = TRUE;
 
-    if (!result)
-    {
-      CloseContext();
-    }
+    WIN32_FIND_DATA *temp_data;
+    
+    temp_data     = m_found_state;
+    m_found_state = m_next_state;
+    m_next_state  = temp_data;
+
+	BOOL result = ::FindNextFile(m_handle, m_next_state);
 
 	return(result);
   }
@@ -110,7 +128,7 @@ class CFileFind : public CObject
   const
   {
     if (!m_state_filled) { return CString(); } // TODO: Check should we throw exception?
-	return(CString(m_state.cFileName));
+	return(CString(m_found_state->cFileName));
   }
 
   // Returns true if the found file is a directory
@@ -118,15 +136,15 @@ class CFileFind : public CObject
   const
   {
     if (!m_state_filled) { return FALSE; } // TODO: Check should we throw exception?
-	return(m_state.bNwIsDirectory);
+	return(m_found_state->bNwIsDirectory);
   }
 
   virtual BOOL IsDots()
   const
   {
     if (!m_state_filled) { return FALSE; } // TODO: Check should we throw exception?
-    if ((m_state.cFileName[0] == '.') && (m_state.cFileName[1] == 0)) { return TRUE; } // Avoid string constants in inlines
-    if ((m_state.cFileName[0] == '.') && (m_state.cFileName[1] == '.') && (m_state.cFileName[2] == 0)) { return TRUE; } // Avoid string constants in inlines
+    if ((m_found_state->cFileName[0] == '.') && (m_found_state->cFileName[1] == 0)) { return TRUE; } // Avoid string constants in inlines
+    if ((m_found_state->cFileName[0] == '.') && (m_found_state->cFileName[1] == '.') && (m_found_state->cFileName[2] == 0)) { return TRUE; } // Avoid string constants in inlines
     return(FALSE);
   }
 
@@ -135,9 +153,9 @@ class CFileFind : public CObject
   const
   {
     if (!m_state_filled) { return 0; } // TODO: Check should we throw exception?
-    ULONGLONG result = m_state.nFileSizeHigh; 
+    ULONGLONG result = m_found_state->nFileSizeHigh; 
 	result <<= (sizeof(ULONG)*8);
-	result |= m_state.nFileSizeLow;
+	result |= m_found_state->nFileSizeLow;
   }
 
   virtual CString GetFilePath() const
