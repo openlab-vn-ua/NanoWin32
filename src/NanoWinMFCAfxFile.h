@@ -182,9 +182,9 @@ class CFile : public CObject // TODO: LINUX: Implement me (via FILE)
   };
 
   public:
-  FILE              *m_hFile;
+  HANDLE                m_hFile;
 
-  static const FILE *hFileNull; // = NULL;
+  static const HANDLE   hFileNull; // = NULL;
 
   protected:
 
@@ -199,8 +199,7 @@ class CFile : public CObject // TODO: LINUX: Implement me (via FILE)
                      CFile (LPCTSTR lpszFileName,  UINT nOpenFlags); // throw()
   virtual           ~CFile ();
 
-//virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL);  // nothrow() // Good to have, but not required
-  virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags); // nothrow()
+  virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL);  // nothrow()
   virtual void       Close();
   virtual void       Abort(); // Close if open, // nothrow()
 
