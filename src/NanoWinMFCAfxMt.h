@@ -109,11 +109,22 @@ class CEvent
   HANDLE m_hObject;
 };
 
-class CMutex // TODO: Implement me
+class CMutex
 {
   public:
+
+  CMutex(BOOL bInitiallyOwn = FALSE,
+         LPCTSTR lpszName = NULL,
+         LPSECURITY_ATTRIBUTES lpsaAttribute = NULL);
+
+  virtual ~CMutex ();
+
   virtual BOOL Lock(DWORD dwTimeout = INFINITE);
   virtual BOOL Unlock();
+
+  private :
+
+  pthread_mutex_t mutex;
 };
 
 #endif // linux
