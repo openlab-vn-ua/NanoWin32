@@ -140,7 +140,10 @@ class CFileFind : public CObject
 	result |= m_state.nFileSizeLow;
   }
 
-  virtual CString GetFilePath() const; // TODO: Implement me
+  virtual CString GetFilePath() const
+  {
+	  return CString(); // TODO: implement me
+  }
 };
 
 // MFC Files
