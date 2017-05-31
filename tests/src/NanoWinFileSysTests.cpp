@@ -5,6 +5,7 @@
  #include <sys/types.h>
  #include <sys/stat.h>
  #include "NanoWinFileSys.h"
+ #include "NanoWinStrConvert.h"
 #else
  #error "unsupported platform"
 // #include <windows.h>
@@ -22,9 +23,8 @@ static void CreateFile(const int size, const char *fileName, const char symbol)
 		{
 			fputc(symbol, file);
 		}
+		fclose(file);
 	}
-
-	fclose(file);
 }
 
 static void RemoveTestDir()
@@ -41,6 +41,41 @@ static void CreateTestDir()
 
 	CreateFile(512, "testDir/testFile512.txt", 'a');
 	CreateFile(256, "testDir/testFile256.txt", 'a');
+}
+
+static void CreateTestDirForFileSysMoveFileA()
+{
+	mkdir("testDirForFileSysMoveFileA_0", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir("testDirForFileSysMoveFileA_1", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	CreateFile(256, "testDirForFileSysMoveFileA_0/testFile", 'a');
+}
+
+static void RemoveTestDirForFileSysMoveFileA()
+{
+	unlink("testDirForFileSysMoveFileA_0/testFile");
+	unlink("testDirForFileSysMoveFileA_1/testFileMoved");
+	unlink("testDirForFileSysMoveFileA_0/testFileRenamed");
+
+	rmdir("testDirForFileSysMoveFileA_0");
+	rmdir("testDirForFileSysMoveFileA_1");
+}
+
+static void CreateTestDirForFileSysMoveFileW()
+{
+	mkdir(NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_0").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	mkdir(NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_1").c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	CreateFile(256, NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_0/testFile").c_str(), 'a');
+}
+
+static void RemoveTestDirForFileSysMoveFileW()
+{
+	
+	unlink(NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_0/testFile").c_str());
+	unlink(NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_1/testFileMoved").c_str());
+	unlink(NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_0/testFileRenamed").c_str());
+
+	rmdir(NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_0").c_str());
+	rmdir(NanoWin::WStrToStrClone(L"testDirForFileSysMoveFileW_1").c_str());
 }
 
 NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinFileSysGetCurrDirTestGroup)
@@ -210,6 +245,168 @@ NW_TEST(NanoWinFileSysCopyFileATestGroup, FileCopyExistingFileRewritingTest)
   NW_CHECK_EQUAL(statFileSource.st_uid,  statFileCopy.st_uid);
   NW_CHECK_EQUAL(statFileSource.st_gid,  statFileCopy.st_gid);
   NW_CHECK_EQUAL(statFileSource.st_mode, statFileCopy.st_mode);
+}
+
+NW_END_TEST_GROUP()
+
+NW_BEGIN_TEST_GROUP(NanoWinFileSysMoveFileATestGroup)
+
+NW_BEGIN_SETUP_TEARDOWN
+
+NW_SETUP_METHOD()
+{
+	CreateTestDirForFileSysMoveFileA();
+}
+
+NW_TEARDOWN_METHOD()
+{
+	RemoveTestDirForFileSysMoveFileA();
+}
+
+NW_END_SETUP_TEARDOWN
+
+NW_TEST(NanoWinFileSysMoveFileATestGroup, FileMoveSimpleTest)
+{
+	char source[] = "testDirForFileSysMoveFileA_0/testFile";
+	char destination[] = "testDirForFileSysMoveFileA_1/testFileMoved";
+
+	struct stat statFileSource;
+	struct stat statFileMoved;
+
+	stat(source, &statFileSource);
+
+	BOOL result = MoveFileA(source, destination);
+
+	NW_CHECK(result);
+
+	stat(destination, &statFileMoved);
+
+	NW_CHECK_EQUAL_BYTES(statFileSource.st_size, statFileMoved.st_size);
+
+	NW_CHECK_EQUAL(statFileSource.st_uid, statFileMoved.st_uid);
+	NW_CHECK_EQUAL(statFileSource.st_gid, statFileMoved.st_gid);
+	NW_CHECK_EQUAL(statFileSource.st_mode, statFileMoved.st_mode);
+}
+
+NW_TEST(NanoWinFileSysMoveFileATestGroup, FileRenameTest)
+{
+	char source[]      = "testDirForFileSysMoveFileA_0/testFile";
+	char destination[] = "testDirForFileSysMoveFileA_0/testFileRenamed";
+	
+	struct stat statFileSource;
+	struct stat statFileMoved;
+
+	stat(source, &statFileSource);
+
+	BOOL result = MoveFileA(source, destination);
+	NW_CHECK(result);
+
+	stat(destination, &statFileMoved);
+
+	NW_CHECK_EQUAL_BYTES(statFileSource.st_size, statFileMoved.st_size);
+
+	NW_CHECK_EQUAL(statFileSource.st_uid, statFileMoved.st_uid);
+	NW_CHECK_EQUAL(statFileSource.st_gid, statFileMoved.st_gid);
+	NW_CHECK_EQUAL(statFileSource.st_mode, statFileMoved.st_mode);
+}
+
+NW_TEST(NanoWinFileSysMoveFileATestGroup, UnexistingFileMoveTest)
+{
+	char source[]      = "testDirForFileSysMoveFileA_0/unexistFile";
+	char destination[] = "testDirForFileSysMoveFileA_1/testUnexistFileRenamed";
+
+	BOOL result = MoveFileA(source, destination);
+	NW_CHECK(!result);
+}
+
+NW_TEST(NanoWinFileSysMoveFileATestGroup, FileMoveToUnexistingDirTest)
+{
+	char source[]      = "testDirForFileSysMoveFileA_0/testFile";
+	char destination[] = "testDirForFileSysMoveFileA_unexist/testFileMoved";
+
+	BOOL result = MoveFileA(source, destination);
+	NW_CHECK(!result);
+}
+
+NW_END_TEST_GROUP()
+
+NW_BEGIN_TEST_GROUP(NanoWinFileSysMoveFileWTestGroup)
+
+NW_BEGIN_SETUP_TEARDOWN
+
+NW_SETUP_METHOD()
+{
+	CreateTestDirForFileSysMoveFileW();
+}
+
+NW_TEARDOWN_METHOD()
+{
+	RemoveTestDirForFileSysMoveFileW();
+}
+
+NW_END_SETUP_TEARDOWN
+
+NW_TEST(NanoWinFileSysMoveFileWTestGroup, FileMoveSimpleTest)
+{
+	const wchar_t source[] = L"testDirForFileSysMoveFileW_0/testFile";
+	const wchar_t destination[] = L"testDirForFileSysMoveFileW_1/testFileMoved";
+
+	struct stat statFileSource;
+	struct stat statFileMoved;
+
+	stat(NanoWin::WStrToStrClone(source).c_str(), &statFileSource);
+
+	BOOL result = MoveFileW(source, destination);
+	
+	NW_CHECK(result);
+
+	stat(NanoWin::WStrToStrClone(destination).c_str(), &statFileMoved);
+
+	NW_CHECK_EQUAL_BYTES(statFileSource.st_size, statFileMoved.st_size);
+
+	NW_CHECK_EQUAL(statFileSource.st_uid, statFileMoved.st_uid);
+	NW_CHECK_EQUAL(statFileSource.st_gid, statFileMoved.st_gid);
+	NW_CHECK_EQUAL(statFileSource.st_mode, statFileMoved.st_mode);
+}
+
+NW_TEST(NanoWinFileSysMoveFileWTestGroup, FileRenameTest)
+{
+	const wchar_t source[]      = L"testDirForFileSysMoveFileW_0/testFile";
+	const wchar_t destination[] = L"testDirForFileSysMoveFileW_0/testFileRenamed";
+	
+	struct stat statFileSource;
+	struct stat statFileMoved;
+
+	stat(NanoWin::WStrToStrClone(source).c_str(), &statFileSource);
+
+	BOOL result = MoveFileW(source, destination);
+	NW_CHECK(result);
+
+	stat(NanoWin::WStrToStrClone(destination).c_str(), &statFileMoved);
+
+	NW_CHECK_EQUAL_BYTES(statFileSource.st_size, statFileMoved.st_size);
+
+	NW_CHECK_EQUAL(statFileSource.st_uid, statFileMoved.st_uid);
+	NW_CHECK_EQUAL(statFileSource.st_gid, statFileMoved.st_gid);
+	NW_CHECK_EQUAL(statFileSource.st_mode, statFileMoved.st_mode);
+}
+
+NW_TEST(NanoWinFileSysMoveFileWTestGroup, UnexistingFileMoveTest)
+{
+	wchar_t source[]      = L"testDirForFileSysMoveFileW_0/unexistFile";
+	wchar_t destination[] = L"testDirForFileSysMoveFileW_1/testUnexistFileRenamed";
+
+	BOOL result = MoveFileW(source, destination);
+	NW_CHECK(!result);
+}
+
+NW_TEST(NanoWinFileSysMoveFileWTestGroup, FileMoveToUnexistingDirTest)
+{
+	wchar_t source[]      = L"testDirForFileSysMoveFileW_0/testFile";
+	wchar_t destination[] = L"testDirForFileSysMoveFileW_unexist/testFileMoved";
+
+	BOOL result = MoveFileW(source, destination);
+	NW_CHECK(!result);
 }
 
 NW_END_TEST_GROUP()
