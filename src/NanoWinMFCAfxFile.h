@@ -109,7 +109,7 @@ class CFileFind : public CObject
   virtual CString GetFileName()
   const
   {
-    if (m_state_filled) { return CString(); } // TODO: Check should we throw exception?
+    if (!m_state_filled) { return CString(); } // TODO: Check should we throw exception?
 	return(CString(m_state.cFileName));
   }
 
@@ -117,14 +117,14 @@ class CFileFind : public CObject
   BOOL IsDirectory()
   const
   {
-    if (m_state_filled) { return FALSE; } // TODO: Check should we throw exception?
+    if (!m_state_filled) { return FALSE; } // TODO: Check should we throw exception?
 	return(m_state.bNwIsDirectory);
   }
 
   virtual BOOL IsDots()
   const
   {
-    if (m_state_filled) { return FALSE; } // TODO: Check should we throw exception?
+    if (!m_state_filled) { return FALSE; } // TODO: Check should we throw exception?
     if ((m_state.cFileName[0] == '.') && (m_state.cFileName[1] == 0)) { return TRUE; } // Avoid string constants in inlines
     if ((m_state.cFileName[0] == '.') && (m_state.cFileName[1] == '.') && (m_state.cFileName[2] == 0)) { return TRUE; } // Avoid string constants in inlines
     return(FALSE);
@@ -134,7 +134,7 @@ class CFileFind : public CObject
   ULONGLONG GetLength()
   const
   {
-    if (m_state_filled) { return 0; } // TODO: Check should we throw exception?
+    if (!m_state_filled) { return 0; } // TODO: Check should we throw exception?
     ULONGLONG result = m_state.nFileSizeHigh; 
 	result <<= (sizeof(ULONG)*8);
 	result |= m_state.nFileSizeLow;
