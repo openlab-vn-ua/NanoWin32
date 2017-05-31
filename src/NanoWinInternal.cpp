@@ -11,6 +11,10 @@
 #define NanoWinFileNameMatchMaskSingleWildChar ('?')
 #define NanoWinFileNameMatchMaskMultiWildChar  ('*')
 
+#define NanoWinMilliSecondsInSecond     (1000)
+#define NanoWinNanoSecondsInMilliSecond (1000000L)
+#define NanoWinNanoSecondsInSecond      (NanoWinMilliSecondsInSecond * NanoWinNanoSecondsInMilliSecond)
+
 template<typename C>
 static bool NanoWinFileNameMatchMaskPartA(const C *name, const C *mask, unsigned int *recDepth)
 {
@@ -80,6 +84,21 @@ extern bool NanoWinFileNameMatchMaskW(const wchar_t *name, const wchar_t *mask)
   unsigned int recDepth = 0;
 
   return NanoWinFileNameMatchMaskPartA(name, mask, &recDepth);
+}
+
+extern void NanoWinTimeSpecAddTimeoutInMillis(struct timespec *ts, DWORD millis)
+{
+  long seconds     = millis / NanoWinMilliSecondsInSecond;
+  long nanoSeconds = ((long)(millis % NanoWinMilliSecondsInSecond)) * NanoWinNanoSecondsInMilliSecond;
+
+  ts->tv_sec  += seconds;
+  ts->tv_nsec += nanoSeconds;
+
+  if (ts->tv_nsec >= NanoWinNanoSecondsInSecond)
+  {
+    ts->tv_sec  += ts->tv_nsec / NanoWinNanoSecondsInSecond;
+    ts->tv_nsec %= NanoWinNanoSecondsInSecond;
+  }
 }
 
 NW_EXTERN_C_END
