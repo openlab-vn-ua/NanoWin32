@@ -86,7 +86,7 @@ class CFileFind : public CObject
   {
     CloseContext();
 
-	m_handle = ::FindFirstFile(pstrName, m_next_state);
+	m_handle = ::FindFirstFile(pstrName != NULL ? pstrName : WILDCARD_ALL_FILES, m_next_state);
 
     if (IsValidHandle(m_handle))
     {
@@ -271,6 +271,8 @@ class CFileFind : public CObject
   #endif
 
   private :
+
+  static const TCHAR WILDCARD_ALL_FILES[];
 
   #ifdef UNICODE
   static const wchar_t DIR_SEPARATOR_CHAR = L'/';

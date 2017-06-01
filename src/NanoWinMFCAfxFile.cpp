@@ -18,6 +18,13 @@
  #define AfxThrowFileException() throw new CFileException()
 #endif
 
+
+#ifdef UNICODE
+const TCHAR CFileFind::WILDCARD_ALL_FILES[] = L"*.*";
+#else
+const TCHAR CFileFind::WILDCARD_ALL_FILES[] = "*.*";
+#endif
+
 const HANDLE CFile::hFileNull = INVALID_HANDLE_VALUE;
 
 CFile::CFile()
