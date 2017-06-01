@@ -86,11 +86,13 @@ class CFileFind : public CObject
   {
     CloseContext();
 
-	m_handle = ::FindFirstFile(pstrName != NULL ? pstrName : WILDCARD_ALL_FILES, m_next_state);
+    LPCTSTR fileMask = pstrName != NULL ? pstrName : WILDCARD_ALL_FILES;
+
+	m_handle = ::FindFirstFile(fileMask, m_next_state);
 
     if (IsValidHandle(m_handle))
     {
-      if (!BuildSearchRootDir(pstrName))
+      if (!BuildSearchRootDir(fileMask))
       {
         CloseContext();
       }
