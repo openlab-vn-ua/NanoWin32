@@ -391,4 +391,29 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareOperatorsTest)
 	NW_CHECK_FALSE("abcd" <= CString("abc"));
 }
 
+NW_TEST(NanoWinMFCAfxStrTestGroup, C2CMacroTest)
+{
+	const char *ctest;
+
+	ctest = CT2A("abc");
+	NW_CHECK_EQUAL_STRCMP("abc", ctest);
+
+	ctest = CT2CA("abc1");
+	NW_CHECK_EQUAL_STRCMP("abc1", ctest);
+
+	ctest = CW2A(L"abd");
+	NW_CHECK_EQUAL_STRCMP("abd", ctest);
+
+	ctest = CW2CA(L"abd1");
+	NW_CHECK_EQUAL_STRCMP("abd1", ctest);
+	
+	char *test;
+	
+	test = CT2A("abr");
+	NW_CHECK_EQUAL_STRCMP("abr", test);
+
+	test = CW2A(L"abrbalg");
+	NW_CHECK_EQUAL_STRCMP("abrbalg", test);
+}
+
 NW_END_TEST_GROUP()
