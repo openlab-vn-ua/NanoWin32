@@ -94,7 +94,23 @@ BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
     creationDisposition = (nOpenFlags & modeNoTruncate) ? OPEN_ALWAYS : CREATE_ALWAYS;
   }
 
-  m_hFile = CreateFile(lpszFileName,desiredAccess,0,NULL,creationDisposition,FILE_ATTRIBUTE_NORMAL,NULL);
+  DWORD shareMode = 0;
+  UINT  shareFlags = nOpenFlags & 0x70;
+
+  if      (shareFlags == shareDenyWrite)
+  {
+    shareMode = FILE_SHARE_READ;
+  }
+  else if (shareFlags == shareDenyRead)
+  {
+    shareMode = FILE_SHARE_WRITE;
+  }
+  else if (shareFlags == shareDenyNone)
+  {
+    shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+  }
+
+  m_hFile = CreateFile(lpszFileName,desiredAccess,shareMode,NULL,creationDisposition,FILE_ATTRIBUTE_NORMAL,NULL);
 
   if (m_hFile == INVALID_HANDLE_VALUE)
   {
