@@ -17,7 +17,11 @@ typedef void OVERLAPPED; // Not supported as var
 typedef OVERLAPPED *LPOVERLAPPED;
 
 // supported subset of file attributes
-#define FILE_ATTRIBUTE_NORMAL (0x80)
+#define FILE_ATTRIBUTE_NORMAL   (0x80)
+#define FILE_ATTRIBUTE_READONLY (0x01)
+
+#define FILE_SHARE_READ  (0x01)
+#define FILE_SHARE_WRITE (0x02)
 
 #define GENERIC_READ  (0x80000000)
 #define GENERIC_WRITE (0x40000000)

@@ -7,6 +7,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,66 +28,129 @@ extern HANDLE WINAPI CreateFileA(_In_     LPCSTR                lpFileName,
                                  _In_     DWORD                 dwFlagsAndAttributes,
                                  _In_opt_ HANDLE                hTemplateFile)
 {
-  if (dwShareMode != 0)                              { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
-  if (dwDesiredAccess == 0)                          { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
-  if (lpSecurityAttributes != NULL)                  { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
-  if (dwFlagsAndAttributes != FILE_ATTRIBUTE_NORMAL) { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
-  if (hTemplateFile != NULL)                         { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
+  if (lpSecurityAttributes != NULL) { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
+  if (hTemplateFile != NULL)        { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
 
-  const size_t openModeStrMaxLen = 2; // "w+" for example
+  int openFlags = 0;
 
-  char   openMode[openModeStrMaxLen + 1];
-  size_t openModePos = 0;
+  switch (dwCreationDisposition)
+  {
+    case (CREATE_NEW) :
+    {
+      openFlags |= O_CREAT | O_EXCL;
+    } break;
 
-  memset(openMode,0,sizeof(openMode));
+    case (CREATE_ALWAYS) :
+    {
+      openFlags |= O_CREAT | O_TRUNC;
+    } break;
+
+    case (OPEN_EXISTING) :
+    {
+      // no special flags required
+    } break;
+
+    case (OPEN_ALWAYS) :
+    {
+      openFlags |= O_CREAT;
+    } break;
+
+    case (TRUNCATE_EXISTING) :
+    {
+      if ((dwDesiredAccess & GENERIC_WRITE) == 0)
+      {
+        SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; 
+      }
+
+      openFlags |= O_TRUNC;
+    } break;
+
+    default :
+    {
+     SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; 
+    }
+  }
+
+  const char *openMode;
 
   if (dwDesiredAccess & GENERIC_WRITE)
   {
-    openMode[openModePos++] = 'w';
-
     if (dwDesiredAccess & GENERIC_READ)
     {
-      openMode[openModePos++] = '+';
+      openFlags |= O_RDWR;
+      openMode   = "r+";
     }
-  }
-  else if (dwDesiredAccess & GENERIC_READ)
-  {
-    openMode[openModePos++] = 'r';
-  }
-
-  bool fileExists = PathFileExistsA(lpFileName);
-
-  if (!fileExists && (dwCreationDisposition == OPEN_EXISTING || dwCreationDisposition == TRUNCATE_EXISTING))
-  {
-    SetLastError(ERROR_FILE_NOT_FOUND);
-
-    return INVALID_HANDLE_VALUE;
-  }
-  else if (fileExists && dwCreationDisposition == CREATE_NEW)
-  {
-    SetLastError(ERROR_FILE_EXISTS);
-
-    return INVALID_HANDLE_VALUE;
-  }
-
-  FILE *stream = fopen(lpFileName,openMode);
-
-  if (stream != NULL)
-  {
-    if (dwCreationDisposition == CREATE_ALWAYS ||
-        dwCreationDisposition == OPEN_ALWAYS)
+    else
     {
-      SetLastError(fileExists ? ERROR_ALREADY_EXISTS : 0);
+      openFlags |= O_WRONLY;
+      openMode   = "w";
     }
-
-    return stream;
   }
   else
   {
-    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+    openFlags |= O_RDONLY;
+    openMode   = "r";
+  }
+
+  int permissions;
+
+  if (dwFlagsAndAttributes & FILE_ATTRIBUTE_READONLY)
+  {
+    permissions = S_IRUSR | S_IRGRP | S_IROTH;
+  }
+  else // using FILE_ATTRIBUTE_NORMAL by default
+  {
+    permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+  }
+
+  int fileHandle = open(lpFileName,openFlags,permissions);
+
+  if (fileHandle == -1)
+  {
+    if (errno == EEXIST)
+    {
+      SetLastError(ERROR_FILE_EXISTS);
+    }
+    else if (errno == ENOENT)
+    {
+      SetLastError(ERROR_FILE_NOT_FOUND);
+    }
+    else
+    {
+      SetLastError(NanoWinErrorByErrnoAtFail(errno));
+    }
 
     return INVALID_HANDLE_VALUE;
   }
+
+  if (flock(fileHandle, (dwShareMode == 0 ? LOCK_EX : LOCK_SH) | LOCK_NB) != 0)
+  {
+    if (errno == EWOULDBLOCK)
+    {
+      SetLastError(ERROR_SHARING_VIOLATION);
+    }
+    else
+    {
+      SetLastError(NanoWinErrorByErrnoAtFail(errno));
+    }
+
+    close(fileHandle);
+
+    return INVALID_HANDLE_VALUE;
+  }
+
+  FILE *stream = fdopen(fileHandle,openMode);
+
+  if (stream == NULL)
+  {
+    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+
+    close(fileHandle);
+
+    return INVALID_HANDLE_VALUE;
+  }
+
+  return stream;
 }
 
 extern HANDLE WINAPI CreateFileW(_In_     LPCWSTR               lpFileName,
