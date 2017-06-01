@@ -12,6 +12,8 @@
 
 #if defined LINUX
 
+#include <libgen.h>
+
 #include "NanoWinFileFind.h"
 
 #include "NanoWinMFCAfx.h"
@@ -24,6 +26,7 @@ class CFileFind : public CObject
   WIN32_FIND_DATA  *m_next_state;
   HANDLE            m_handle;
   BOOL              m_state_filled;
+  CString           m_search_root;
 
   static BOOL IsValidHandle(HANDLE handle)
   {
@@ -48,6 +51,8 @@ class CFileFind : public CObject
 
    m_handle = NULL;
    m_state_filled = FALSE;
+
+   m_search_root.Empty();
   }
 
   public:
@@ -82,6 +87,15 @@ class CFileFind : public CObject
     CloseContext();
 
 	m_handle = ::FindFirstFile(pstrName, m_next_state);
+
+    if (IsValidHandle(m_handle))
+    {
+      if (!BuildSearchRootDir(pstrName))
+      {
+        CloseContext();
+      }
+    }
+
 	if (IsValidHandle(m_handle))
 	{
       return(TRUE);
@@ -160,8 +174,109 @@ class CFileFind : public CObject
 
   virtual CString GetFilePath() const
   {
-	  return CString(); // TODO: implement me
+    if (!m_state_filled) { return CString(); } // TODO: Check should we throw exception?
+
+    CString result(m_search_root);
+
+    result.Append(m_found_state->cFileName);
+
+    return result;
   }
+
+  private :
+
+  static bool CStringEndsWithChar(const CString &str, TCHAR ch)
+  {
+    size_t len = str.GetLength();
+
+    return len > 0 && str.GetAt(len - 1) == ch;
+  }
+
+  // returns string allocated by malloc
+  static char *BuildAbsoluteSearchPath(const char *pstrName)
+  {
+    char *pstrCopy = strdup(pstrName);
+
+    if (pstrCopy == NULL)
+    {
+      return NULL;
+    }
+
+    char *pathName = dirname(pstrCopy);
+    char *absName  = realpath(pathName,NULL);
+
+    free(pstrCopy);
+
+    return absName;
+  }
+
+  #ifdef UNICODE
+  bool BuildSearchRootDir (LPCWSTR pstrName)
+  {
+    bool  ok      = false;
+    char *absName = NULL;
+
+    try
+    {
+      std::string pstrNameMb = NanoWin::StrConverter::Convert(pstrName);
+
+      absName = BuildAbsoluteSearchPath(pstrNameMb.c_str());
+
+      if (absName != NULL)
+      {
+        std::wstring absNameW = NanoWin::StrConverter::Convert(absName);
+
+        m_search_root.SetString(absNameW.c_str());
+
+        if (!CStringEndsWithChar(m_search_root, DIR_SEPARATOR_CHAR))
+        {
+          m_search_root.AppendChar(DIR_SEPARATOR_CHAR);
+        }
+
+        ok = true;
+      }
+    }
+    catch (...)
+    {
+    }
+
+    free(absName);
+
+    return ok;
+  }
+  #else
+  bool BuildSearchRootDir (LPCSTR pstrName)
+  {
+    bool  ok      = false;
+    char *absName = NULL;
+
+    absName = BuildAbsoluteSearchPath(pstrName);
+
+    if (absName != NULL)
+    {
+      m_search_root.SetString(absName);
+
+      if (!CStringEndsWithChar(m_search_root, DIR_SEPARATOR_CHAR))
+      {
+        m_search_root.AppendChar(DIR_SEPARATOR_CHAR);
+      }
+
+      ok = true;
+    }
+
+    free(absName);
+
+    return ok;
+  }
+  #endif
+
+  private :
+
+  #ifdef UNICODE
+  static const wchar_t DIR_SEPARATOR_CHAR = L'/';
+  #else
+  static const char    DIR_SEPARATOR_CHAR = '/';
+  #endif
 };
 
 // MFC Files
