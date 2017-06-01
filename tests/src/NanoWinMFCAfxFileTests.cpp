@@ -286,7 +286,6 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetLengthTest)
 	}
 }
 
-#ifndef __GNUC__
 NW_TEST(NanoWinMFCAfxFileTestGroup, GetFilePathTest)
 {
 	CFileFind find;
@@ -310,8 +309,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetFilePathTest)
 	strcat(fullFileName, PATH_DIR_SEPARATOR_STR);
 	strcat(fullFileName, "testFile512.txt");
 
-	NW_CHECK(strcmp(fullFileName, resStr.GetString()) == 0);
+	NW_CHECK_EQUAL_STRCMP(fullFileName, resStr.GetString());
 }
-#endif
 
 NW_END_TEST_GROUP()
