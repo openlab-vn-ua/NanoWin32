@@ -124,7 +124,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileTest)
 	CString resStr = find.GetFileName();
 	NW_CHECK_EQUAL_STRCMP("testFile512.txt", resStr.GetString());
 }
-#ifndef __GNUC__
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileNameNullTest)
 {
 	CFileFind find;
@@ -156,7 +156,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileNameNullTest)
 	NW_CHECK_TRUE(oneDotFound);
 	NW_CHECK_TRUE(twoDotsFound);
 }
-#endif
+
 NW_TEST(NanoWinMFCAfxFileTestGroup, FindNextFileTest)
 {
 	CFileFind find;
