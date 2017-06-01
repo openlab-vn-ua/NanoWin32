@@ -230,7 +230,7 @@ class CRect : public RECT
   BOOL PtInRect(_In_ POINT point)
   const // throw();
   {
-    return(FALSE); // TODO: Implement Win32 API and then itmplement me
+    return ::PtInRect(this,point);
   }
 
   CPoint CenterPoint()
@@ -249,7 +249,7 @@ class CRect : public RECT
 
   void DeflateRect(_In_ int x, _In_ int y) // throw();
   {
-    // InflateRect(this, -x, -y); // TODO: Implement Win32 API and then itmplement me
+    ::InflateRect(this, -x, -y);
   }
 
   void DeflateRect(_In_ SIZE isize) // throw();
@@ -267,7 +267,7 @@ class CRect : public RECT
 
   void InflateRect(_In_ int x, _In_ int y) // throw();
   {
-    // InflateRect(this, x, y); // TODO: Implement Win32 API and then itmplement me
+    ::InflateRect(this, x, y);
   }
 
   void InflateRect(_In_ SIZE isize) // throw();
