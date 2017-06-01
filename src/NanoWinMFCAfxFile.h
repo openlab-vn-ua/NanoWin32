@@ -172,6 +172,8 @@ class CFileFind : public CObject
     ULONGLONG result = m_found_state->nFileSizeHigh; 
 	result <<= (sizeof(ULONG)*8);
 	result |= m_found_state->nFileSizeLow;
+
+    return result;
   }
 
   virtual CString GetFilePath() const
