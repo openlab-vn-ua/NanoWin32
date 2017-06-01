@@ -37,6 +37,8 @@
 
 #define AFXAPI // just a marker for functions
 
+#define AFX_EXT_CLASS // Nothing for a while
+
 class CObject
 {
   public:
