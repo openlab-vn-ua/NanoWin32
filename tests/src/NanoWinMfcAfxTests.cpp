@@ -94,7 +94,6 @@ NW_TEST(NanoWinMFCAfxCRectTestGroup, SizeTest)
 	NW_CHECK_EQUAL_INTS(2, size.cx);
 	NW_CHECK_EQUAL_INTS(3, size.cy);
 }
-#ifndef __GNUC__
 NW_TEST(NanoWinMFCAfxCRectTestGroup, PtInRectTest)
 {
 	CRect  rect(1, 2, 3, 5);
@@ -179,5 +178,5 @@ NW_TEST(NanoWinMFCAfxCRectTestGroup, InflateRectTest)
 	NW_CHECK_EQUAL_INTS(8, rect.right);
 	NW_CHECK_EQUAL_INTS(5, rect.bottom);
 }
-#endif
+
 NW_END_TEST_GROUP()
