@@ -92,4 +92,20 @@ extern BOOL IntersectRect (      RECT *lprcDst, const RECT *lprcSrc1, const RECT
   return(TRUE);
 }
 
+extern BOOL PtInRect(const RECT *lprc, POINT pt)
+{
+  return pt.x >= lprc->left && pt.x < lprc->right &&
+         pt.y >= lprc->top  && pt.y < lprc->bottom;
+}
+
+extern BOOL InflateRect(RECT *lprc, int dx, int dy)
+{
+  lprc->left   -= dx;
+  lprc->top    -= dy;
+  lprc->right  += dx;
+  lprc->bottom += dy;
+
+  return TRUE;
+}
+
 NW_EXTERN_C_END

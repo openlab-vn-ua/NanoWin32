@@ -51,6 +51,8 @@ extern BOOL CopyRect      (      RECT *lprcDst, const RECT *lprcSrc);
 extern BOOL SetRectEmpty  (      RECT *lprcDst);
 extern BOOL SetRect       (      RECT *lprcDst, int xLeft, int yTop, int xRight, int yBottom);
 extern BOOL IntersectRect (      RECT *lprcDst, const RECT *lprcSrc1, const RECT *lprcSrc2);
+extern BOOL PtInRect      (const RECT *lprc, POINT pt);
+extern BOOL InflateRect   (      RECT *lprc, int dx, int dy);
 
 NW_EXTERN_C_END
 
