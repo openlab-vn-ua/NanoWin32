@@ -90,3 +90,47 @@ NW_TEST(NanoWinInternalFileNameMatchMaskTestGroup, FileNameMatchMaskFileNameBase
 
 
 NW_END_TEST_GROUP()
+
+
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinInternalTimeSpecArithmeticTestGroup)
+
+NW_TEST(NanoWinInternalTimeSpecArithmeticTestGroup, TimeSpecAddTimeoutInMillisSimpleTest)
+{
+	struct timespec time;
+
+	time.tv_sec = 1;
+	time.tv_nsec = 100;
+
+	NanoWinTimeSpecAddTimeoutInMillis(&time, 100);
+
+	NW_CHECK_EQUAL_LONGS(100000100, time.tv_nsec);
+	NW_CHECK_EQUAL(1, time.tv_sec);
+}
+
+NW_TEST(NanoWinInternalTimeSpecArithmeticTestGroup, TimeSpecNanoSecondfOverflowTest)
+{
+	struct timespec time;
+
+	time.tv_sec = 1;
+	time.tv_nsec = 1000000;
+
+	NanoWinTimeSpecAddTimeoutInMillis(&time, 1000);
+
+	NW_CHECK_EQUAL_LONGS(1000000, time.tv_nsec);
+	NW_CHECK_EQUAL(2, time.tv_sec);
+}
+
+NW_TEST(NanoWinInternalTimeSpecArithmeticTestGroup, TimeSpecSecondsOverflowTest)
+{
+	struct timespec time;
+
+	time.tv_sec = 1;
+	time.tv_nsec = 1000000;
+
+	NanoWinTimeSpecAddTimeoutInMillis(&time, 10011);
+
+	NW_CHECK_EQUAL_LONGS(12000000, time.tv_nsec);
+	NW_CHECK_EQUAL(11, time.tv_sec);
+}
+
+NW_END_TEST_GROUP()
