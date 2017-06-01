@@ -27,6 +27,7 @@
 #define ERROR_INVALID_HANDLE           (0x6)     //     6 // The handle is invalid
 #define ERROR_NOT_ENOUGH_MEMORY        (0x8)     //     8 // Not enough storage is available to process this command
 #define ERROR_INVALID_DATA             (0xd)     //    13 // The data is invalid
+#define ERROR_SHARING_VIOLATION        (0x20)    //    32 // The process cannot access the file because it is being used by another process
 
 #define ERROR_NOT_SUPPORTED            (0x32)    //    50 // The request is not supported
 #define ERROR_FILE_EXISTS              (0x50)    //    80 // The file exists
