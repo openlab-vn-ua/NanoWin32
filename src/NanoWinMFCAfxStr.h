@@ -1167,15 +1167,15 @@ namespace NanoWin
 #define CA2T     CA2W
 #define CT2CA    CW2CA
 #define CA2CT    CA2CW
-#define CT2W     CXTPtrToXTPtrRef<wchar_t>
-#define CW2T     CXTPtrToXTPtrRef<TCHAR>
-#define CT2CW    CXTPtrToCXTPtrRef<wchar_t>
-#define CW2CT    CXTPtrToCXTPtrRef<TCHAR>
+#define CT2W     NanoWin::CXTPtrToXTPtrRef<wchar_t>
+#define CW2T     NanoWin::CXTPtrToXTPtrRef<TCHAR>
+#define CT2CW    NanoWin::CXTPtrToCXTPtrRef<wchar_t>
+#define CW2CT    NanoWin::CXTPtrToCXTPtrRef<TCHAR>
 #else
-#define CT2A     CXTPtrToXTPtrRef<char>
-#define CA2T     CXTPtrToXTPtrRef<TCHAR>
-#define CT2CA    CXTPtrToCXTPtrRef<char>
-#define CA2CT    CXTPtrToCXTPtrRef<TCHAR>
+#define CT2A     NanoWin::CXTPtrToXTPtrRef<char>
+#define CA2T     NanoWin::CXTPtrToXTPtrRef<TCHAR>
+#define CT2CA    NanoWin::CXTPtrToCXTPtrRef<char>
+#define CA2CT    NanoWin::CXTPtrToCXTPtrRef<TCHAR>
 #define CT2W     CA2W
 #define CW2T     CW2A
 #define CT2CW    CA2CW
