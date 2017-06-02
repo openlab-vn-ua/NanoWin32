@@ -486,6 +486,80 @@ extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName)
   }
 }
 
+extern BOOL  SetFileAttributesA(_In_ LPCSTR lpFileName, _In_ DWORD dwFileAttributes)
+{
+  struct stat st;
+
+  if (stat(lpFileName, &st) != 0)
+  {
+    SetLastError(NanoWinErrorByErrnoAtFail(errno));
+    return(FALSE);
+  }
+
+  if (!S_ISREG(st.st_mode))
+  {
+    SetLastError(ERROR_INVALID_PARAMETER);
+    return(FALSE);
+  }
+  else
+  {
+    if (dwFileAttributes == FILE_ATTRIBUTE_NORMAL ||
+        dwFileAttributes == 0 ||
+        dwFileAttributes == FILE_ATTRIBUTE_READONLY)
+    {
+      mode_t oldMode = st.st_mode;
+      mode_t newMode;
+
+      if (dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+      {
+        newMode  = oldMode & (~S_IWUSR);
+        newMode &= ~S_IWGRP;
+        newMode &= ~S_IWOTH;
+      }
+      else
+      {
+        newMode = oldMode | S_IWUSR; // enable "write" permissions for file owner only
+      }
+
+      if (newMode != oldMode)
+      {
+        if (chmod(lpFileName, newMode) == 0)
+        {
+          return TRUE;
+        }
+        else
+        {
+          SetLastError(NanoWinErrorByErrnoAtFail(errno));
+          return(FALSE);
+        }
+      }
+      else
+      {
+        return TRUE;
+      }
+    }
+    else
+    {
+      SetLastError(ERROR_INVALID_PARAMETER);
+      return(FALSE);
+    }
+  }
+}
+
+extern BOOL  SetFileAttributesW (_In_ LPCWSTR lpFileName, _In_ DWORD dwFileAttributes)
+{
+  try
+  {
+    std::string mbPathName = NanoWin::StrConverter::Convert(lpFileName);
+    return SetFileAttributesA(mbPathName.c_str(),dwFileAttributes);
+  }
+  catch (NanoWin::StrConverter::Error)
+  {
+    SetLastError(ERROR_NO_UNICODE_TRANSLATION);
+    return FALSE;
+  }
+}
+
 extern BOOL WINAPI  MoveFileA(_In_ LPCSTR  lpExistingFileName, _In_ LPCSTR  lpNewFileName)
 {
   if (rename(lpExistingFileName, lpNewFileName) == 0)

@@ -80,6 +80,9 @@ extern BOOL WINAPI  MoveFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpN
 // If the function fails, the return value is INVALID_FILE_ATTRIBUTES. To get extended error information, call GetLastError.
 extern DWORD GetFileAttributesA (_In_ LPCSTR  lpFileName);
 extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName);
+// NOTE: only set/clear FILE_ATTRIBUTE_READONLY for files are supported
+extern BOOL  SetFileAttributesA (_In_ LPCSTR lpFileName, _In_ DWORD dwFileAttributes);
+extern BOOL  SetFileAttributesW (_In_ LPCWSTR lpFileName, _In_ DWORD dwFileAttributes);
 
 // Unicode gates
 // ------------------------------------------
@@ -91,6 +94,7 @@ extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName);
 #define DeleteFile                 DeleteFileW
 #define CopyFile                   CopyFileW
 #define GetFileAttributes          GetFileAttributesW
+#define SetFileAttributes          SetFileAttributesW
 #define MoveFile                   MoveFileW
 #else
 #define GetCurrentDirectory        GetCurrentDirectoryA
@@ -99,6 +103,7 @@ extern DWORD GetFileAttributesW (_In_ LPCWSTR lpFileName);
 #define DeleteFile                 DeleteFileA
 #define CopyFile                   CopyFileA
 #define GetFileAttributes          GetFileAttributesA
+#define SetFileAttributes          SetFileAttributesA
 #define MoveFile                   MoveFileA
 #endif
 
