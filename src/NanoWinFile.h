@@ -9,16 +9,13 @@
 #define NanoWinFileIncluded
 
 #include "NanoWinTypes.h"
+#include "NanoWinFileSys.h"
 
 #if defined LINUX
 
 // Overlapped structure
 typedef void OVERLAPPED; // Not supported as var
 typedef OVERLAPPED *LPOVERLAPPED;
-
-// supported subset of file attributes
-#define FILE_ATTRIBUTE_NORMAL   (0x80)
-#define FILE_ATTRIBUTE_READONLY (0x01)
 
 #define FILE_SHARE_READ  (0x01)
 #define FILE_SHARE_WRITE (0x02)

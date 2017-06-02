@@ -70,7 +70,9 @@ extern BOOL WINAPI  MoveFileW (_In_ LPCWSTR lpExistingFileName, _In_ LPCWSTR lpN
 // The only attributes supported so far
 
 #define INVALID_FILE_ATTRIBUTES  (0xFFFF)
+#define FILE_ATTRIBUTE_READONLY  (0x01)
 #define FILE_ATTRIBUTE_DIRECTORY (0x10)
+#define FILE_ATTRIBUTE_NORMAL    (0x80)
 
 // Retrieves file system attributes for a specified file or directory
 // If the function succeeds, the return value contains the attributes of the specified file or directory.

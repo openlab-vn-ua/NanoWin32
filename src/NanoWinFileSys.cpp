@@ -464,6 +464,10 @@ extern DWORD GetFileAttributesA (_In_ LPCSTR  lpFileName)
   {
     result |= FILE_ATTRIBUTE_DIRECTORY;
   }
+  else if ((st.st_mode & S_IWUSR) == 0) // using "else if" because absense of "write" permission on directory means different thing
+  {
+    result |= FILE_ATTRIBUTE_READONLY;
+  }
 
   return(result);
 }
