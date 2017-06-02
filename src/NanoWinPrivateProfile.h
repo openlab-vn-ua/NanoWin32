@@ -27,6 +27,11 @@ extern DWORD NanoWinGetPrivateProfileSectionA
                                        char *lpReturnedString, DWORD nSize,
                                        const char *lpszFilename);
 
+extern DWORD NanoWinGetPrivateProfileSectionW
+                                      (const wchar_t *lpszSection,
+                                       wchar_t *lpReturnedString, DWORD nSize,
+                                       const wchar_t *lpszFilename);
+
 extern UINT NanoWinGetPrivateProfileIntA 
                                       (const char *lpszSection, const char *lpszEntry, int vdefault,
                                        const char *lpszFilename);
@@ -50,7 +55,7 @@ NW_EXTERN_C_END
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define NanoWinGetPrivateProfileString      NanoWinGetPrivateProfileStringW
-#define NanoWinGetPrivateProfileSection     NW_FORCE_COMPILE_ERROR // TODO: Not implemented (yet)
+#define NanoWinGetPrivateProfileSection     NanoWinGetPrivateProfileSectionW
 #define NanoWinGetPrivateProfileInt         NanoWinGetPrivateProfileIntW
 #define NanoWinWritePrivateProfileString    NanoWinWritePrivateProfileStringW
 #else
@@ -67,6 +72,7 @@ NW_EXTERN_C_END
 #define GetPrivateProfileStringW       NanoWinGetPrivateProfileStringW
 #define GetPrivateProfileString        NanoWinGetPrivateProfileString 
 #define GetPrivateProfileSectionA      NanoWinGetPrivateProfileSectionA
+#define GetPrivateProfileSectionW      NanoWinGetPrivateProfileSectionW
 #define GetPrivateProfileSection       NanoWinGetPrivateProfileSection
 #define GetPrivateProfileIntA          NanoWinGetPrivateProfileIntA
 #define GetPrivateProfileIntW          NanoWinGetPrivateProfileIntW

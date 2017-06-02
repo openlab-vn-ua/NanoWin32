@@ -20,7 +20,8 @@
 #define GetProfXKeyValueSeparatorChar ('=')
 #define GetProfXValueSingleQuoteChar  ('\'')
 #define GetProfXValueDoubleQuoteChar  ('\"')
-#define GetProfXDummySectionValueChar (' ')
+#define GetProfXDummySectionValueCharA (' ')
+#define GetProfXDummySectionValueCharW (L' ')
 
 #define GetProfXUnixLineEndingStrLen  (1)
 #define GetProfXDosLineEndingStrLen   (2)
@@ -412,9 +413,9 @@ extern DWORD NanoWinGetPrivateProfileSectionA
   {
     if (SeekToSectionStart(srcFile, lpszSection))
     {
-      if (nSize > 0)
+      if (nSize > 1)
       {
-        lpReturnedString[0] = GetProfXDummySectionValueChar;
+        lpReturnedString[0] = GetProfXDummySectionValueCharA;
         lpReturnedString[1] = '\0';
 
         result = 1;
@@ -435,6 +436,61 @@ extern DWORD NanoWinGetPrivateProfileSectionA
   if (result == 0)
   {
     lpReturnedString[0] = '\0';
+  }
+
+  return result;
+}
+
+extern DWORD NanoWinGetPrivateProfileSectionW
+                                       (const wchar_t *lpszSection, wchar_t *lpReturnedString,
+                                        DWORD nSize, const wchar_t *lpszFilename)
+{
+  DWORD result = 0;
+
+  try
+  {
+    WStrToStrClone section(lpszSection);
+    WStrToStrClone fileName(lpszFilename);
+
+    FILE *srcFile = fopen(fileName.c_str(), "rt");
+
+    if (srcFile != NULL)
+    {
+      if (SeekToSectionStart(srcFile, section.c_str()))
+      {
+        if (nSize > 1)
+        {
+          lpReturnedString[0] = GetProfXDummySectionValueCharW;
+          lpReturnedString[1] = L'\0';
+
+          result = 1;
+        }
+        else
+        {
+          NanoWinSetLastError(NW_DEFAULT_ERROR_AT_FAIL);
+        }
+      }
+
+      fclose(srcFile);
+    }
+    else
+    {
+      NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
+    }
+  }
+  catch (...)
+  {
+    // exceptions during string conversions are treated as errors (zero is returned)
+
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(EILSEQ));
+  }
+
+  if (result == 0)
+  {
+    if (nSize > 0)
+    {
+      lpReturnedString[0] = L'\0';
+    }
   }
 
   return result;
