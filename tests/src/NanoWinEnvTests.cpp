@@ -28,9 +28,9 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableASetVarTest)
 
 	NW_CHECK_TRUE(res);
 
-	res = GetEnvironmentVariableA("NW_TEST_ENV_1", buff, sizeof(buff));
+	count = GetEnvironmentVariableA("NW_TEST_ENV_1", buff, sizeof(buff));
 
-	NW_CHECK(res > 0);
+	NW_CHECK(count > 0);
 }
 
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableASmallBufTest)
@@ -79,9 +79,9 @@ NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWSetVarTest)
 
 	NW_CHECK_TRUE(res);
 
-	res = GetEnvironmentVariableW(L"NW_TEST_ENV_2", buff, sizeof(buff));
+	count = GetEnvironmentVariableW(L"NW_TEST_ENV_2", buff, sizeof(buff));
 
-	NW_CHECK(res > 0);
+	NW_CHECK(count > 0);
 }
 
 NW_TEST(NanoWinEnvTestGroup, GetEnvironmentVariableWSmallBufTest)

@@ -438,8 +438,6 @@ NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapLookup)
 {
 	CMap<int, int, CString, CString> map;
 
-	POSITION pos;
-	int      key;
 	CString  str;
 
 	map.SetAt(0, "0");
