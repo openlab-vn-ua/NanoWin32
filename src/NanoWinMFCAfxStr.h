@@ -547,6 +547,18 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
 	CHECKUP(result >= 0);
   }
 
+  protected:
+
+  void FormatF(PCXSTR lpszFormat, ...)
+  {
+    va_list args;
+    va_start (args, lpszFormat);
+    FormatV(lpszFormat, args);
+    va_end (args);
+  }
+
+  public:
+
   void Format(PCXSTR lpszFormat, ...)
   {
     va_list args;
@@ -554,6 +566,13 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     FormatV(lpszFormat, args);
     va_end (args);
   }
+
+  // Call gates to support up to 5 CString parameters
+  void Format(PCXSTR lpszFormat, PCXSTR arg1) { this->FormatF(lpszFormat, arg1); }
+  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2) { this->FormatF(lpszFormat, arg1, arg2); }
+  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2, PCXSTR arg3) { this->FormatF(lpszFormat, arg1, arg2, arg3); }
+  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2, PCXSTR arg3, PCXSTR arg4) { this->FormatF(lpszFormat, arg1, arg2, arg3, arg4); }
+  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2, PCXSTR arg3, PCXSTR arg4, PCXSTR arg5) { this->FormatF(lpszFormat, arg1, arg2, arg3, arg4, arg5);  }
 
   // Converts to lowercase
   CStringT& MakeLower()

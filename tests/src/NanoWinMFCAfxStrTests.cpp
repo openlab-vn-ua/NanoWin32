@@ -379,7 +379,6 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
 {
-	#ifndef LINUX
 	// This works under Win32 only...
 	CString str;
 	CString one;
@@ -402,6 +401,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
 	str.Format("just a [%s] [%s] [%s] test", one, two, three);
 	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] test", str);
 
+	#ifndef LINUX
 	str.Format("just a [%s] [%s] [%s] %d test", one, two, three, 4);
 	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] 4 test", str);
 	#endif
