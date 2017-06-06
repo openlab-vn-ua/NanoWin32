@@ -1159,8 +1159,8 @@ namespace NanoWin
 
 #define CW2A     NanoWin::WStrToStrCloneInPlace
 #define CA2W     NanoWin::StrToWStrCloneInPlace
-#define CW2CA    NanoWin::WStrToCStrCloneInPlace
-#define CA2CW    NanoWin::StrToWCStrCloneInPlace
+#define CW2CA    NanoWin::WStrToCStrCloneInPlace // Not part of ATL/MFC, NW extension
+#define CA2CW    NanoWin::StrToWCStrCloneInPlace // Not part of ATL/MFC, NW extension
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define CT2A     CW2A
