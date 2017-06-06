@@ -797,7 +797,32 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
 
   protected:
 
-  static bool IsWhitespace(XCHAR src) { if (src <= 0x20) { return(TRUE); } return(FALSE); }
+  static bool IsWhitespace(XCHAR src, PCXSTR delims = NULL)
+  {
+    if (delims == NULL)
+    {
+      if (src <= 0x20) { return(TRUE); }
+      return(FALSE);
+    }
+    else if (delims[0] == 0)
+    {
+      return(FALSE);
+    }
+    else if (delims[1] == 0)
+    {
+      if (delims[0] == src) { return(TRUE); }
+      return(FALSE);
+    }
+    else // delims contains mutiple delimiters
+    {
+      while(delims[0] != 0)
+      {
+        if (delims[0] == src) { return(TRUE); }
+        delims++;
+      }
+      return(FALSE);
+    }
+  }
 
   public:
 
@@ -808,16 +833,14 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     return(this->Replace(sch.GetString(), _T("")));
   }
 
-  void TrimLeft(_In_ XCHAR chTarget); // TODO: Implement me
-
-  void TrimLeft()
+  void TrimLeft(_In_ PCXSTR delims)
   {
     const XCHAR *src = this->strBuf.c_str();
     int   pos = 0;
 
     while(src[pos] != 0)
     {
-      if (this->IsWhitespace(src[pos]))
+      if (this->IsWhitespace(src[pos], delims))
       {
         pos++;
       }
@@ -834,9 +857,19 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     this->Delete(0, pos); // remove ws
   }
 
-  void TrimRight(_In_ XCHAR chTarget); // TODO: Implement me
+  void TrimLeft(_In_ XCHAR chTarget)
+  {
+    XCHAR delims[2];
+    delims[0] = chTarget; delims[1] = 0;
+    TrimLeft(delims);
+  }
 
-  void TrimRight()
+  void TrimLeft()
+  {
+    TrimLeft((PCXSTR)NULL);
+  }
+
+  void TrimRight(_In_ PCXSTR delims)
   {
     const XCHAR *src = this->strBuf.c_str();
     int   slen = this->strBuf.length();
@@ -847,7 +880,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
 
     while(pos < slen)
     {
-      if (this->IsWhitespace(src[slen-1-pos]))
+      if (this->IsWhitespace(src[slen-1-pos], delims))
       {
         pos++;
       }
@@ -862,6 +895,30 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     if (pos >= slen) { this->Empty(); return; } // whole string is ws
 
     this->Truncate(slen-pos); // remove ws
+  }
+
+  void TrimRight(_In_ XCHAR chTarget)
+  {
+    XCHAR delims[2];
+    delims[0] = chTarget; delims[1] = 0;
+    TrimRight(delims);
+  }
+
+  void TrimRight()
+  {
+    TrimRight((PCXSTR)NULL);
+  }
+
+  void Trim(_In_ PCXSTR delims)
+  {
+    this->TrimRight(delims);
+    this->TrimLeft(delims);
+  }
+
+  void Trim(_In_ XCHAR chTarget)
+  {
+    this->TrimRight(chTarget);
+    this->TrimLeft(chTarget);
   }
 
   void Trim()
