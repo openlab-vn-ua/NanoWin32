@@ -17,20 +17,18 @@
 
 typedef struct _WIN32_FIND_DATAA
 {
+  DWORD    dwFileAttributes;
   char     cFileName[WIN32_FIND_DATA_FNAME_MAX];
   DWORD    nFileSizeHigh;
   DWORD    nFileSizeLow;
-  // NanoWin
-  BOOL     bNwIsDirectory;
 } WIN32_FIND_DATAA; NW_MAKE_PLP_TYPES_BY(WIN32_FIND_DATAA);
 
 typedef struct _WIN32_FIND_DATAW
 {
+  DWORD    dwFileAttributes;
   wchar_t  cFileName[WIN32_FIND_DATA_FNAME_MAX];
   DWORD    nFileSizeHigh;
   DWORD    nFileSizeLow;
-  // NanoWin
-  BOOL     bNwIsDirectory;
 } WIN32_FIND_DATAW; NW_MAKE_PLP_TYPES_BY(WIN32_FIND_DATAW);
 
 NW_EXTERN_C_BEGIN

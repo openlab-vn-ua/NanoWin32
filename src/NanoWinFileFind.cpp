@@ -188,30 +188,47 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
   struct stat entryData;
   char        fullFileName[PATH_MAX];
 
-  DWORD fileSizeHigh = 0;
-  DWORD fileSizeLow  = 0;
-  BOOL  isDirectory  = FALSE;
+  DWORD fileSizeHigh   = 0;
+  DWORD fileSizeLow    = 0;
+  DWORD fileAttributes = 0;
 
   if (NanoWinJoinDirAndFileName(fullFileName, sizeof(fullFileName), dirName, entry->d_name))
   {
     if (stat(fullFileName, &entryData) == 0)
     {
-      if (S_ISREG(entryData.st_mode))
+      if (S_ISDIR(entryData.st_mode))
+      {
+        fileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
+      }
+      else if (S_ISREG(entryData.st_mode))
       {
         if (sizeof(entryData.st_size) > sizeof(DWORD))
         {
-          fileSizeHigh = entryData.st_size >> (sizeof(DWORD) * 8);
           fileSizeLow  = entryData.st_size & 0xFFFFFFFFLU;
+          // just to prevent warning here:
+          // fileSizeHigh = entryData.st_size >> (sizeof(DWORD) * 8);
+          entryData.st_size >>= (sizeof(DWORD)/2 * 8);
+          entryData.st_size >>= (sizeof(DWORD)/2 * 8);
+          fileSizeHigh = entryData.st_size & 0xFFFFFFFFLU;
         }
         else
         {
-          fileSizeHigh = 0;
           fileSizeLow  = entryData.st_size;
+          fileSizeHigh = 0;
+        }
+
+        if ((entryData.st_mode & S_IWUSR) == 0) // Valid on files only, because absense of "write" permission on directory means different thing
+        {
+          fileAttributes |= FILE_ATTRIBUTE_READONLY;
+        }
+        else
+        {
+          fileAttributes = FILE_ATTRIBUTE_NORMAL;
         }
       }
-      else if (S_ISDIR(entryData.st_mode))
+      else
       {
-        isDirectory = TRUE;
+        fileAttributes = 0; // Keep it zero for system files, devices, etc
       }
     }
   }
@@ -227,9 +244,9 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
     wcsncpy_s(wideCharData->cFileName, sizeof(wideCharData->cFileName) / sizeof(wideCharData->cFileName[0]),
       wideFileName.c_str(), sizeof(wideCharData->cFileName) / sizeof(wideCharData->cFileName[0]) - 1);
 
-    wideCharData->nFileSizeHigh = fileSizeHigh;
-    wideCharData->nFileSizeLow  = fileSizeLow;
-    wideCharData->bNwIsDirectory= isDirectory;
+    wideCharData->nFileSizeHigh    = fileSizeHigh;
+    wideCharData->nFileSizeLow     = fileSizeLow;
+    wideCharData->dwFileAttributes = fileAttributes;
   }
   else
   {
@@ -239,9 +256,9 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
 
     strncpy_s(multiByteData->cFileName, sizeof(multiByteData->cFileName), entry->d_name, sizeof(multiByteData->cFileName) - 1);
 
-    multiByteData->nFileSizeHigh = fileSizeHigh;
-    multiByteData->nFileSizeLow  = fileSizeLow;
-    multiByteData->bNwIsDirectory= isDirectory;
+    multiByteData->nFileSizeHigh    = fileSizeHigh;
+    multiByteData->nFileSizeLow     = fileSizeLow;
+    multiByteData->dwFileAttributes = fileAttributes;
   }
 }
 

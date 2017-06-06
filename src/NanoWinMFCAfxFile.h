@@ -152,7 +152,7 @@ class CFileFind : public CObject
   const
   {
     if (!m_state_filled) { return FALSE; } // TODO: Check should we throw exception?
-	return(m_found_state->bNwIsDirectory);
+    return((m_found_state->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
   }
 
   virtual BOOL IsDots()
