@@ -3,7 +3,8 @@
 #ifdef __linux
  #include "NanoWinMFCAfxStr.h"
 #else
- #include <windows.h>
+ //#include <windows.h>
+ #include <afx.h>
 #endif
 
 NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMFCAfxStrTestGroup)
@@ -324,6 +325,36 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 	NW_CHECK_EQUAL_STRCMP("", str);
 }
 
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
+{
+	#ifndef LINUX
+	// This works under Win32 only...
+	CString str;
+	CString one;
+	CString two;
+	CString three;
+
+	one   = "one";
+	two   = "two";
+	three = "three";
+
+	str.Format("just a [%s] test", one);
+	NW_CHECK_EQUAL_STRCMP("just a [one] test", str);
+
+	str.Format("just a [%s] test", two);
+	NW_CHECK_EQUAL_STRCMP("just a [two] test", str);
+
+	str.Format("just a [%s] [%s] test", one, two);
+	NW_CHECK_EQUAL_STRCMP("just a [one] [two] test", str);
+
+	str.Format("just a [%s] [%s] [%s] test", one, two, three);
+	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] test", str);
+
+	str.Format("just a [%s] [%s] [%s] %d test", one, two, three, 4);
+	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] 4 test", str);
+	#endif
+}
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringOperatorAssignTest)
 {
 	CString cString("zzz");
@@ -395,25 +426,46 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, C2CMacroTest)
 {
 	const char *ctest;
 
-	ctest = CT2A("abc");
+	CT2A c11(_T("abc"));
+	ctest = c11;
 	NW_CHECK_EQUAL_STRCMP("abc", ctest);
+	NW_CHECK_EQUAL_STRCMP("abc", CT2A(_T("abc")));
 
-	ctest = CT2CA("abc1");
+	CT2CA c12(_T("abc1"));
+	ctest = c12;
 	NW_CHECK_EQUAL_STRCMP("abc1", ctest);
+	NW_CHECK_EQUAL_STRCMP("abc1", CT2CA(_T("abc1")));
 
-	ctest = CW2A(L"abd");
+	CW2A c13(L"abd");
+	ctest = c13;
 	NW_CHECK_EQUAL_STRCMP("abd", ctest);
+	NW_CHECK_EQUAL_STRCMP("abd", CW2A(L"abd"));
 
-	ctest = CW2CA(L"abd1");
-	NW_CHECK_EQUAL_STRCMP("abd1", ctest);
-	
+	// NW_CHECK_EQUAL_STRCMP("abd1", CW2CA(L"abd1")); // CW2CA is available only at NanoWin
+
 	char *test;
 	
-	test = CT2A("abr");
+	CT2A c21(_T("abr"));
+	test = c21;
 	NW_CHECK_EQUAL_STRCMP("abr", test);
+	NW_CHECK_EQUAL_STRCMP("abr", CT2A(_T("abr")));
 
-	test = CW2A(L"abrbalg");
+	CW2A c23(L"abrbalg");
+	test = c23;
 	NW_CHECK_EQUAL_STRCMP("abrbalg", test);
+	NW_CHECK_EQUAL_STRCMP("abrbalg", CW2A(L"abrbalg"));
+
+	const TCHAR *ttest;
+
+	CA2CT c31("abc");
+	ttest = c31;
+	NW_CHECK_EQUAL(0,_tcscmp(_T("abc"), ttest));
+	NW_CHECK_EQUAL(0,_tcscmp(_T("abc"), CA2CT("abc")));
+
+	CW2CT c32(L"abc");
+	ttest = c32;
+	NW_CHECK_EQUAL(0,_tcscmp(_T("abc"), ttest));
+	NW_CHECK_EQUAL(0,_tcscmp(_T("abc"), CW2CT(L"abc")));
 }
 
 NW_END_TEST_GROUP()
