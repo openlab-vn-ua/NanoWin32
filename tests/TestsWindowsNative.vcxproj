@@ -23,7 +23,7 @@
     <ProjectGuid>{AF54A3AB-9F18-4ADD-8429-2F1CF1607618}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>TestsWindowsNative</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
     <ProjectSubType>NativeUnitTestProject</ProjectSubType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -152,6 +152,7 @@
     <ClCompile Include="src\NanoWinBmpTests.cpp" />
     <ClCompile Include="src\NanoWinEnvTests.cpp" />
     <ClCompile Include="src\NanoWinEventsTests.cpp" />
+    <ClCompile Include="src\NanoWinFileTests.cpp" />
     <ClCompile Include="src\NanoWinMFCAfxFileTests.cpp" />
     <ClCompile Include="src\NanoWinMfcAfxTests.cpp" />
     <ClCompile Include="src\NanoWinMsSafeStringTests.cpp" />
