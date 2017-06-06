@@ -50,6 +50,7 @@ extern HANDLE WINAPI CreateFileA(_In_     LPCSTR                lpFileName,
   if (hTemplateFile != NULL)        { SetLastError(ERROR_INVALID_PARAMETER); return INVALID_HANDLE_VALUE; } // not supported
 
   int openFlags = 0;
+  bool alreadyExists = false; // is set and checked for CREATE_ALWAYS and OPEN_ALWAYS only for setting last error (non-atomic)
 
   switch (dwCreationDisposition)
   {
@@ -61,6 +62,7 @@ extern HANDLE WINAPI CreateFileA(_In_     LPCSTR                lpFileName,
     case (CREATE_ALWAYS) :
     {
       openFlags |= O_CREAT | O_TRUNC;
+      alreadyExists = PathFileExistsA(lpFileName);
     } break;
 
     case (OPEN_EXISTING) :
@@ -71,6 +73,7 @@ extern HANDLE WINAPI CreateFileA(_In_     LPCSTR                lpFileName,
     case (OPEN_ALWAYS) :
     {
       openFlags |= O_CREAT;
+      alreadyExists = PathFileExistsA(lpFileName);
     } break;
 
     case (TRUNCATE_EXISTING) :
@@ -166,6 +169,12 @@ extern HANDLE WINAPI CreateFileA(_In_     LPCSTR                lpFileName,
     close(fileHandle);
 
     return INVALID_HANDLE_VALUE;
+  }
+
+  if (dwCreationDisposition == CREATE_ALWAYS ||
+      dwCreationDisposition == OPEN_ALWAYS)
+  {
+   SetLastError(alreadyExists ? ERROR_ALREADY_EXISTS : ERROR_SUCCESS);
   }
 
   return stream;
