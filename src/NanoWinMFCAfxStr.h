@@ -568,6 +568,8 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   }
 
   // Call gates to support up to 5 CString parameters
+  // This is not a complete solution, but this gived old code chance to work w/o modification
+  // Note: according to MSDN you have to cast CString to (LPCTSTR) when passing it to printf-like functions
   void Format(PCXSTR lpszFormat, PCXSTR arg1) { this->FormatF(lpszFormat, arg1); }
   void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2) { this->FormatF(lpszFormat, arg1, arg2); }
   void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2, PCXSTR arg3) { this->FormatF(lpszFormat, arg1, arg2, arg3); }
