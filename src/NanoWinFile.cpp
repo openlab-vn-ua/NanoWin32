@@ -353,7 +353,7 @@ extern DWORD WINAPI GetFileSize(_In_ HANDLE hFile, _Out_opt_ LPDWORD lpFileSizeH
       *lpFileSizeHigh = (DWORD)(fileInfo.st_size >> 32);
     }
 
-    return (DWORD)(fileInfo.st_size && 0xFFFFFFFFU);
+    return (DWORD)(fileInfo.st_size & 0xFFFFFFFFU);
   }
   else
   {
