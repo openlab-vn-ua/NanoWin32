@@ -109,5 +109,33 @@ extern BOOL  SetFileAttributesW (_In_ LPCWSTR lpFileName, _In_ DWORD dwFileAttri
 
 NW_EXTERN_C_END
 
+// Nano Win extra
+// ------------------------------------------
+
+#if 0 // Reserved
+#if defined(LINUX)
+#define NW_PATH_LIST_SEPARATOR_CHAR      ':'
+#define NW_PATH_LIST_SEPARATOR_STR       ":"
+#else // Win native
+#define NW_PATH_LIST_SEPARATOR_CHAR      ';'
+#define NW_PATH_LIST_SEPARATOR_STR       ";"
+#endif
+#endif
+
+#if defined(LINUX)
+#define NW_DIRECTORY_SEPARATOR_CHAR      '/'
+#define NW_DIRECTORY_SEPARATOR_STR       "/"
+#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '\\' // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_ALT_STR   "\\" // Not directly allowed by API, but can be supported via hook
+#else // Win native
+#define NW_DIRECTORY_SEPARATOR_CHAR      '\\'
+#define NW_DIRECTORY_SEPARATOR_STR       "\\"
+#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '/' // Allowed in API
+#define NW_DIRECTORY_SEPARATOR_ALT_STR   "/" // Allowed in API
+#endif
+
+#define NW_DIRECTORY_NAME_PARENT         ".."
+#define NW_DIRECTORY_NAME_CURRENT        "."
+
 #endif // linux
 #endif // ...Included
