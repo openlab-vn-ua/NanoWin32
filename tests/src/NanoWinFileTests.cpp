@@ -8,6 +8,7 @@
 #include "NanoWinFile.h"
 #include "NanoWinError.h"
 #include "NanoWinStrConvert.h"
+#include "NanoWinFileSys.h"
 #else
 	#include <windows.h>
 	#include <direct.h> 
@@ -856,6 +857,33 @@ NW_TEST(NanoWinFileCreateFileW, CreateFileWReadWriteTruncateExisting)
 	//---------------------------------//
 	unlink(NanoWin::WStrToStrClone((path + L"/" + file).c_str()).c_str());
 	rmdir(NanoWin::WStrToStrClone(path.c_str()).c_str());
+}
+
+NW_END_TEST_GROUP()
+
+NW_BEGIN_TEST_GROUP_SIMPLE(GetFileSizeTestGroup)
+
+NW_TEST(GetFileSizeTestGroup, GetFileSizeATest)
+{
+	if (PathFileExistsA("/tmp/file.txt"))
+	{
+		unsigned long long expectedSize = 5LLU * 1024 * 1024 * 1024;
+
+		HANDLE handle = CreateFileA("/tmp/file.txt", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		NW_CHECK(handle != INVALID_HANDLE_VALUE);
+
+		DWORD fileSizeHi = 0;
+		DWORD fileSizeLo = GetFileSize(handle,&fileSizeHi);
+
+		CloseFileHandle(handle);
+
+		DWORD expectedFileSizeHi = (DWORD)(expectedSize >> (sizeof(DWORD) * 8));
+		DWORD expectedFileSizeLo = (DWORD)(expectedSize & 0xFFFFFFFFLU);
+
+		NW_CHECK_EQUAL_ULONGS(expectedFileSizeLo, fileSizeLo);
+		NW_CHECK_EQUAL_ULONGS(expectedFileSizeHi, fileSizeHi);
+	}
 }
 
 NW_END_TEST_GROUP()
