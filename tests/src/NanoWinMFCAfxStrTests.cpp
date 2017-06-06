@@ -324,11 +324,19 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimRightTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimTest)
 {
-	CString cString("	  abcdefabc		  ");
+	CString cString;
 
+	cString = "  \t \n abcdefabc  \t \n ";
 	cString.Trim();
-
 	NW_CHECK_EQUAL_STRCMP("abcdefabc", cString);
+
+	cString = "zz z  \t abcdefabc  \t z zzzz";
+	cString.Trim('z');
+	NW_CHECK_EQUAL_STRCMP(" z  \t abcdefabc  \t z ", cString);
+
+	cString = "qqqwzz z  \t abcdefabc  \t z zwwrrzzz";
+	cString.Trim("zqwrac");
+	NW_CHECK_EQUAL_STRCMP(" z  \t abcdefabc  \t z ", cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareTest)
