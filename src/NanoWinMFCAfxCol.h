@@ -169,14 +169,13 @@ class CArray : public CObject
   void InsertAt(INT_PTR nIndex, ARG_TYPE newElement, INT_PTR nCount = 1)
   {
     REQUIRE(nCount >= 0);
-
-    storage.insert(nIndex < storage.size() ? storage.cbegin() + nIndex : storage.cend(),nCount,newElement);
+    storage.insert(nIndex < (INT_PTR)storage.size() ? storage.cbegin() + nIndex : storage.cend(),nCount,newElement);
   }
 
   void SetAt(INT_PTR nIndex, ARG_TYPE newElement)
   {
     REQUIRE(nIndex >= 0);
-    REQUIRE(nIndex < storage.size());
+    REQUIRE(nIndex < (INT_PTR)storage.size());
 
     storage[nIndex] = newElement;
   }
