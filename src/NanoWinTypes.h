@@ -302,12 +302,19 @@ typedef union _LARGE_INTEGER
 
 NW_MAKE_PLP_TYPES_BY(LARGE_INTEGER);
 
-// MIDL data types (?)
+typedef double DOUBLE; // WTypesbase.h (not explicitely documented as Win32 type)
+
+// MIDL data types
 // -----------------------------------------------------------------------
-// Check source for these types (does they come from MSVC, not Win32?)
+// Other MIDL base types / predefined types (rpcndr.h)
 
 typedef unsigned char byte;
 typedef unsigned char boolean;
+
+// To expotic, hope nobody used it directly
+// typedef byte          cs_byte; 
+// #define hyper         long long // __int64
+// #define MIDL_uhyper   unsigned long long // unsigned __int64
 
 // errno_t
 // -----------------------------------------------------------------------
