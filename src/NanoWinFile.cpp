@@ -18,6 +18,24 @@
 #include "NanoWinFileSys.h"
 #include "NanoWinStrConvert.h"
 
+#ifdef __GNUC__
+ #define open_nw    open64
+ #define fseeko_nw  fseeko64
+ #define ftello_nw  ftello64
+ #define fstat_nw   fstat64
+
+ #define off_nw_t   off64_t
+ #define stat_nw_t  stat64
+#else
+ #define open_nw    open
+ #define fseeko_nw  fseeko
+ #define ftello_nw  ftello
+ #define fstat_nw   fstat
+
+ #define off_nw_t   off_t
+ #define stat_nw_t  stat
+#endif
+
 NW_EXTERN_C_BEGIN
 
 extern HANDLE WINAPI CreateFileA(_In_     LPCSTR                lpFileName,
@@ -103,7 +121,7 @@ extern HANDLE WINAPI CreateFileA(_In_     LPCSTR                lpFileName,
     permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
   }
 
-  int fileHandle = open(lpFileName,openFlags,permissions);
+  int fileHandle = open_nw(lpFileName,openFlags,permissions);
 
   if (fileHandle == -1)
   {
@@ -233,8 +251,8 @@ extern DWORD WINAPI SetFilePointer(_In_        HANDLE hFile,
                                    _Inout_opt_ PLONG  lpDistanceToMoveHigh,
                                    _In_        DWORD  dwMoveMethod)
 {
-  off_t offset = lpDistanceToMoveHigh == NULL ? lDistanceToMove : (off_t)(((ULONGLONG)(*lpDistanceToMoveHigh) << 32) | (ULONGLONG)(lDistanceToMove));
-  int   whence = 0;
+  off_nw_t offset = lpDistanceToMoveHigh == NULL ? lDistanceToMove : (off_nw_t)(((ULONGLONG)(*lpDistanceToMoveHigh) << 32) | (ULONGLONG)(lDistanceToMove));
+  int     whence = 0;
 
   if      (dwMoveMethod == FILE_BEGIN)
   {
@@ -255,16 +273,16 @@ extern DWORD WINAPI SetFilePointer(_In_        HANDLE hFile,
     return INVALID_SET_FILE_POINTER;
   }
 
-  if (fseeko((FILE*)hFile, offset, whence) != 0)
+  if (fseeko_nw((FILE*)hFile, offset, whence) != 0)
   {
     SetLastError(NanoWinErrorByErrnoAtFail(errno));
 
     return INVALID_SET_FILE_POINTER;
   }
   
-  off_t pos = ftello((FILE*)hFile);
+  off_nw_t pos = ftello_nw((FILE*)hFile);
 
-  if (pos == (off_t)-1)
+  if (pos == (off_nw_t)-1)
   {
     SetLastError(NanoWinErrorByErrnoAtFail(errno));
 
@@ -317,13 +335,13 @@ extern BOOL WINAPI FlushFileBuffers(_In_ HANDLE hFile)
 
 extern DWORD WINAPI GetFileSize(_In_ HANDLE hFile, _Out_opt_ LPDWORD lpFileSizeHigh)
 {
-  struct stat fileInfo;
+  struct stat_nw_t fileInfo;
 
-  if (fstat(fileno((FILE*)hFile), &fileInfo) == 0)
+  if (fstat_nw(fileno((FILE*)hFile), &fileInfo) == 0)
   {
     if (lpFileSizeHigh != NULL)
     {
-      *lpFileSizeHigh = fileInfo.st_size >> 32;
+      *lpFileSizeHigh = (DWORD)(fileInfo.st_size >> 32);
     }
 
     return (DWORD)(fileInfo.st_size && 0xFFFFFFFFU);
