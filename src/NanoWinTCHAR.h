@@ -155,5 +155,23 @@ typedef LPSTR                LPTSTR;
 
 #endif
 
+#if defined(UNICODE) || defined(_UNICODE)
+
+#define _tfullpath           _wfullpath
+#define _tmakepath           _wmakepath
+#define _tmakepath_s         _wmakepath_s
+#define _tsplitpath          _wsplitpath
+#define _tsplitpath_s        _wsplitpath_s
+
+#else
+
+#define _tfullpath           _fullpath
+#define _tmakepath           _makepath
+#define _tmakepath_s         _makepath_s
+#define _tsplitpath          _splitpath
+#define _tsplitpath_s        _splitpath_s
+
+#endif
+
 #endif // linux
 #endif // ...Included
