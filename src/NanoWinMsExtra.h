@@ -149,6 +149,79 @@ extern wchar_t *wgetcwd(wchar_t *buffer,  int maxlen);
 
 NW_EXTERN_C_END
 
+// Path support (looks like MS specific)
+// ---------------------------------------------
+// (only undescore-prefixed versions of these functions exists)
+
+NW_EXTERN_C_BEGIN
+
+// Expands relative path to absolute path. Returns NULL in case of error.
+// destabspathsz is a maximum size of output buffer in chars/wchars in destabspath[destabspathsz]
+// if destabspath is NULL, will malloc space for string and return full path (destabspathsz is ignored in that case), use free to free memeory
+// if destabspath is <= 0, will call err hasndler. If execution is allowed to continue, this function sets errno to EINVAL and returns NULL.
+extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, rsize_t destabspathsz);
+
+// Expands relative path to absolute path. Returns NULL in case of error.
+// destabspathsz is a maximum size of output buffer in chars/wchars in destabspath[destabspathsz]
+// if destabspath is NULL, will malloc space for string and return full path (destabspathsz is ignored in that case), use free to free memeory
+// if destabspath is <= 0, will call err hasndler. If execution is allowed to continue, this function sets errno to EINVAL and returns NULL.
+extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, rsize_t destabspathsz);
+
+// Combine path from components. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// NULL values are allowed for all src* parameters.
+// If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
+extern void     _makepath    (char    *destpath, const char    *srcdrive, const char    *srcdir, const char    *srcfname, const char    *srcext);
+
+// Combine path from components. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// NULL values are allowed for all src* parameters.
+// If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
+extern void     _wmakepath   (wchar_t *destpath, const wchar_t *srcdrive, const wchar_t *srcdir, const wchar_t *srcfname, const wchar_t *srcext);
+
+// Combine path from components to destpath[destsz]. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// NULL values are allowed for all src* parameters.
+// Zero if successful; an error code on failure.
+// If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
+extern errno_t  _makepath_s  (char    *destpath, rsize_t destsz, const char    *srcdrive, const char    *srcdir, const char    *srcfname, const char    *srcext);
+
+// Combine path from components to destpath[destsz]. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// NULL values are allowed for all src* parameters.
+// Zero if successful; an error code on failure.
+// If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
+extern errno_t  _wmakepath_s (wchar_t *destpath, rsize_t destsz, const wchar_t *srcdrive, const wchar_t *srcdir, const wchar_t *srcfname, const wchar_t *srcext);
+
+// Split path to components. LINUX: destderive will always be empty string
+// dest{item}sz shows number of elements in target buffer dest{item}[dest{item}sz]
+extern errno_t  _splitpath_s (const char    *srcpath, char    *destdrive, rsize_t destdrivesz, char    *destdir, rsize_t destdirsz, char    *destfname, rsize_t destfnamesz, char    *destext, rsize_t destextsz);
+
+// Split path to components. LINUX: destderive will always be empty string
+// dest{item}sz shows number of elements in target buffer dest{item}[dest{item}sz]
+extern errno_t  _wsplitpath_s(const wchar_t *srcpath, wchar_t *destdrive, rsize_t destdrivesz, wchar_t *destdir, rsize_t destdirsz, wchar_t *destfname, rsize_t destfnamesz, wchar_t *destext, rsize_t destextsz);
+
+NW_EXTERN_C_END
+
+NW_T_STR_DN_S4Param(errno_t, _makepath_s , const char*   , const char*   , const char*   , const char*);
+NW_T_STR_DN_S4Param(errno_t, _wmakepath_s, const wchar_t*, const wchar_t*, const wchar_t*, const wchar_t*);
+
+template <rsize_t destdrivesz, rsize_t destdirsz, rsize_t destfnamesz, rsize_t destextsz>  
+errno_t _splitpath_s
+(
+   const char     *srcpath,
+   char          (&destdrive)[destdrivesz],
+   char          (&destdir  )[destdirsz],
+   char          (&destfname)[destfnamesz],
+   char          (&destext  )[destextsz]
+) { return(_splitpath_s(srcpath, destdrive, destdrivesz, destdir, destdirsz, destfname, destfnamesz, destext, destextsz)); }
+
+template <rsize_t destdrivesz, rsize_t destdirsz, rsize_t destfnamesz, rsize_t destextsz>  
+errno_t _wsplitpath_s
+(
+   const wchar_t  *srcpath,
+   wchar_t       (&destdrive)[destdrivesz],
+   wchar_t       (&destdir  )[destdirsz],
+   wchar_t       (&destfname)[destfnamesz],
+   wchar_t       (&destext  )[destextsz]
+) { return(_wsplitpath_s(srcpath, destdrive, destdrivesz, destdir, destdirsz, destfname, destfnamesz, destext, destextsz)); }
+
 // C++ gates and tricks
 // ---------------------------------------------
 
