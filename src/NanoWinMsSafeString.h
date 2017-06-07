@@ -107,6 +107,21 @@ O_t strfunc_s(TD (&dest)[sizeD], arg1_t arg1, arg2_t arg2)           \
   return(strfunc_s(dest, sizeD, arg1, arg2));                        \
 };
 
+#define NW_T_STR_DN_S3Param(O_t,strfunc_s,arg1_t,arg2_t,arg3_t)           \
+template<typename TD, size_t sizeD>                                       \
+O_t strfunc_s(TD (&dest)[sizeD], arg1_t arg1, arg2_t arg2, arg3_t arg3)   \
+{                                                                         \
+  return(strfunc_s(dest, sizeD, arg1, arg2, arg3));                       \
+};
+
+#define NW_T_STR_DN_S4Param(O_t,strfunc_s,arg1_t,arg2_t,arg3_t,arg4_t)                   \
+template<typename TD, size_t sizeD>                                                      \
+O_t strfunc_s(TD (&dest)[sizeD], arg1_t arg1, arg2_t arg2, arg3_t arg3, arg4_t arg4)     \
+{                                                                                        \
+  return(strfunc_s(dest, sizeD, arg1, arg2, arg3, arg4));                                \
+};
+
+
 // Templates for funcs that return errno_t
 
 #define NW_STR_DN0Param(strfunc_s)                                   NW_T_STR_DN_S0Param(errno_t,strfunc_s)
