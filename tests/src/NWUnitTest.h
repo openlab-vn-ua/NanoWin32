@@ -5,6 +5,9 @@
  #define NW_UNIT_TEST_USE_CPPUTEST (1)
 
  #include <CppUTest/TestHarness.h>
+
+ #include <string.h>
+ #include <wchar.h>
 #else
  #define NW_UNIT_TEST_USE_VSTEST (1)
 
@@ -110,8 +113,11 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #define NW_CHECK_EQUAL(expected,actual) \
  CHECK_EQUAL(expected,actual)
 
+inline int nw_test_strcmp(const char *s1, const char *s2)       { return(strcmp(s1, s2)); }
+inline int nw_test_strcmp(const wchar_t *s1, const wchar_t *s2) { return(wcscmp(s1, s2)); }
+
 #define NW_CHECK_EQUAL_STRCMP(expected,actual) \
- STRCMP_EQUAL(expected,actual)
+ CHECK_EQUAL(0,nw_test_strcmp(expected,actual))
 
 #define NW_CHECK_EQUAL_MEMCMP(expected,actual,size) \
  MEMCMP_EQUAL(expected,actual,size)
