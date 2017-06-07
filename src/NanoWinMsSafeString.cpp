@@ -669,6 +669,7 @@ extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va
 
   #undef return_after_err_FILLDST
   #undef return_after_err_WMARKER
+  #undef RSIZE_MAX_CNT
   // </body>
   #undef VSNPRINTF
   #undef ITEM
@@ -702,6 +703,7 @@ extern int     vswprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *form
 
   #undef return_after_err_FILLDST
   #undef return_after_err_WMARKER
+  #undef RSIZE_MAX_CNT
   // </body>
   #undef VSNPRINTF
   #undef ITEM
