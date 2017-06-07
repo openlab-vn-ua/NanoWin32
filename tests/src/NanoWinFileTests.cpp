@@ -12,6 +12,7 @@
 #else
 	#include <windows.h>
 	#include <direct.h> 
+	#include <Shlwapi.h>
 	#include "NanoWinStrConvert.h"
 
     #define CloseFileHandle CloseHandle
