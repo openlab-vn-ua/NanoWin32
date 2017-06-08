@@ -1,4 +1,5 @@
 #include "NWUnitTest.h"
+#include "NanoWinStrConvert.h"
 
 #ifdef __linux
  #include "NanoWinMFCAfxFile.h"
@@ -7,17 +8,20 @@
  #include <unistd.h>
 #else
  //#include <windows.h>
+ #include <direct.h> 
  #include <afx.h>
+ #define unlink _unlink
+ #define rmdir _rmdir
 #endif
 
 #define MAX_LENGTH     (1024)
 
 #ifdef __linux
 // #define PATH_DIR_SEPARATOR_CHAR  ('/')
-static char PATH_DIR_SEPARATOR_STR[] = "/";
+	static char PATH_DIR_SEPARATOR_STR[] = "/";
 #else
 // #define PATH_DIR_SEPARATOR_CHAR  ('\\')
-static char PATH_DIR_SEPARATOR_STR[] = "\\";
+	static char PATH_DIR_SEPARATOR_STR[] = "\\";
 #endif
 
 static void CreateFile(const int size, const char *fileName, const char symbol)
@@ -32,9 +36,8 @@ static void CreateFile(const int size, const char *fileName, const char symbol)
 		{
 			fputc(symbol, file);
 		}
+		fclose(file);
 	}
-
-	fclose(file);
 }
 
 static void RemoveTestDir()
@@ -345,3 +348,190 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetFilePathTest)
 }
 
 NW_END_TEST_GROUP()
+
+static std::string root = "MFCAfxFileTestCFileClass";
+#define ARR_SIZE(a) (sizeof(a)/sizeof(a[0]))
+static std::string sub_dir[] =
+{
+	"MFCAfxCFileClassTestReadWrite",
+	"MFCAfxCFileClassTestSeek",
+	"MFCAfxCFileClassTestGetLength",
+};
+static std::string file = "file";
+static std::string sep = "/";
+
+class TestDir 
+{
+public:
+	TestDir(std::string root, std::string sub_dir, std::string file)
+	{
+		sub_dir_A = root + sep + sub_dir;
+		file_A = root + sep + sub_dir + sep + file;
+		sub_dir_W = NanoWin::StrConverter::Convert(sub_dir_A);
+		file_W = NanoWin::StrConverter::Convert(file_A);
+
+		CreateDirectoryA(sub_dir_A.c_str(), NULL);
+	}
+	~TestDir()
+	{
+		unlink(file_A.c_str());
+		rmdir( sub_dir_A.c_str());
+	}
+
+	const char *getFileA()
+	{
+		return file_A.c_str();
+	}
+	const wchar_t *getFileW()
+	{
+		return file_W.c_str();
+	}
+	const char *getSubDirA()
+	{
+		return sub_dir_A.c_str();
+	}
+	const wchar_t*getSubDirW()
+	{
+		return sub_dir_W.c_str();
+	}
+
+protected:
+	std::string sub_dir_A  = "null";
+	std::string file_A     = "null";
+	std::wstring sub_dir_W = L"null";
+	std::wstring file_W    = L"null";
+};
+
+static void CreateDirsForCFileClassTest()
+{
+	CreateDirectoryA(root.c_str(), NULL);
+}
+
+static void RemoveDirsForCFileClassTest()
+{
+	rmdir(root.c_str());
+}
+
+NW_BEGIN_TEST_GROUP(NanoWinMFCAfxFileTestCFileClass)
+
+NW_SETUP_METHOD()
+{
+	CreateDirsForCFileClassTest();
+}
+
+NW_TEARDOWN_METHOD()
+{
+	RemoveDirsForCFileClassTest();
+}
+
+NW_END_SETUP_TEARDOWN
+
+NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestReadWrite)
+{
+	TestDir homed(root, sub_dir[0], file);
+	CFile file;
+	FILE *fd;
+	const char written_buff[] = "test_string";
+	char       readed_buff[64];
+
+	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeCreate);
+	file.Write(written_buff, sizeof(written_buff));
+	file.Close();
+
+	fd = fopen(homed.getFileA(), "r");
+	fscanf(fd, "%s", readed_buff);
+	fclose(fd);
+
+	NW_CHECK_EQUAL_STRCMP(written_buff, readed_buff);
+
+
+	fd = fopen(homed.getFileA(), "w+");
+	fprintf(fd, "%s", written_buff);
+	fclose(fd);
+
+	file.Open(homed.getFileA(), CFile::modeRead | CFile::modeNoTruncate);
+	file.Read(readed_buff, sizeof(readed_buff));
+	file.Close();
+
+	NW_CHECK_EQUAL_STRCMP(written_buff, readed_buff);
+}
+
+NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestSeek)
+{
+	TestDir homed(root, sub_dir[1], file);
+	CFile file;
+	FILE *fd;
+	const char written_buff_0[] = "AAAA";
+	const char written_buff_1[] = "bbbb";
+	const char readed_buff_end[] = "AAAAbbbb";
+	const char readed_buff_mid[] = "AAbbbb";
+	char readed_buff[64];
+	
+	fd = fopen(homed.getFileA(), "w+");
+	fprintf(fd, "%s", written_buff_0);
+	fclose(fd);
+
+	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeNoTruncate);
+	file.Seek(0, CFile::end);
+	file.Write(written_buff_1, sizeof(written_buff_1));
+	file.Close();
+
+	fd = fopen(homed.getFileA(), "r");
+	fscanf(fd, "%s", readed_buff);
+	fclose(fd);
+
+	NW_CHECK_EQUAL_STRCMP(readed_buff_end, readed_buff);
+
+
+	fd = fopen(homed.getFileA(), "w+");
+	fprintf(fd, "%s", written_buff_0);
+	fclose(fd);
+
+	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeNoTruncate);
+	file.Seek(2, CFile::begin);
+	file.Write(written_buff_1, sizeof(written_buff_1));
+	file.Close();
+
+	fd = fopen(homed.getFileA(), "r");
+	fscanf(fd, "%s", readed_buff);
+	fclose(fd);
+
+	NW_CHECK_EQUAL_STRCMP(readed_buff_mid, readed_buff);
+}
+
+NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestGetLength)
+{
+	TestDir homed(root, sub_dir[2], file);
+	CFile file;
+	FILE *fd;
+	const char written_buff[] = "abcdef";
+	ULONGLONG written_buff_len = sizeof(written_buff) / sizeof(written_buff[0]) - 1;
+
+	fd = fopen(homed.getFileA(), "w+");
+	fprintf(fd, "%s", written_buff);
+	fclose(fd);
+	
+	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeNoTruncate);
+	ULONGLONG cfile_len = file.GetLength();
+	file.Close();
+
+	NW_CHECK(written_buff_len == cfile_len);
+}
+
+NW_END_TEST_GROUP()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

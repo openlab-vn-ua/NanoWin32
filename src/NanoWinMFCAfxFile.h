@@ -320,6 +320,13 @@ class CFile : public CObject // TODO: LINUX: Implement me (via FILE)
 //	osSequentialScan = (int)0x80000,
   };
 
+  enum From
+  {
+	  begin   = (int)0x00,
+	  current = (int)0x01,
+	  end     = (int)0x02,
+  };
+
   public:
   HANDLE                m_hFile;
 
