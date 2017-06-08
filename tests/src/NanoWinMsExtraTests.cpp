@@ -1036,6 +1036,7 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_splitpath_s_Test)
     #define STRLEN       strlen
     #define _SPLITPATH_S _splitpath_s
 	// <body> // invaliant for Path_splitpath_s_Test and Path_wsplitpath_s_Test
+    #define PAIR(arr)    arr, _countof(arr)
 
 	SETUP_S_TEST();
 
@@ -1049,7 +1050,6 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_splitpath_s_Test)
 	NW_RESET_ERRNO();
 	NW_RESET_ERR_HANDLER_COUNT();
 
-	//#ifndef SKIP_LINUX // not work under linux yet
 	rc = _SPLITPATH_S(TS("name"), outdrive, outdir, outfname, outext);
     NW_CHECK_RC_OK(rc);
     NW_CHECK_ERRNO_OK();
@@ -1068,12 +1068,39 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_splitpath_s_Test)
     NW_CHECK_EQUAL_STRCMP(TS("name"), outfname);
     NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
 
+	rc = _SPLITPATH_S(TS("C:name.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
 	rc = _SPLITPATH_S(TS("name.aux2.ext"), outdrive, outdir, outfname, outext);
     NW_CHECK_RC_OK(rc);
     NW_CHECK_ERRNO_OK();
 	NW_CHECK_ERR_HANDLER_NOT_FIRED();
     NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
     NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:name.aux2.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/name.aux2.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/"), outdir);
     NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
     NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
 
@@ -1167,8 +1194,319 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_splitpath_s_Test)
     NW_CHECK_EQUAL_STRCMP(TS("../"), outdir);
     NW_CHECK_EQUAL_STRCMP(TS(""), outfname);
     NW_CHECK_EQUAL_STRCMP(TS(""), outext);
-	//#endif
 
+	// buffer errors
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), NULL,0, PAIR(outdir), PAIR(outfname), PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), NULL,0, PAIR(outfname), PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), NULL,0, PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), NULL,0);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), NULL,1);
+    NW_CHECK_RC_ERR(rc);
+    NW_CHECK_ERRNO_ERR();
+	NW_CHECK_ERR_HANDLER_FIRED();
+    NW_CHECK_STR_EMPTY(outdrive);
+    NW_CHECK_STR_EMPTY(outdir);
+    NW_CHECK_STR_EMPTY(outfname);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), outext,0);
+    NW_CHECK_RC_ERR(rc);
+    NW_CHECK_ERRNO_ERR();
+	NW_CHECK_ERR_HANDLER_FIRED();
+    NW_CHECK_STR_EMPTY(outdrive);
+    NW_CHECK_STR_EMPTY(outdir);
+    NW_CHECK_STR_EMPTY(outfname);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), outext,1); // no space for ext
+    NW_CHECK_RC_ERR(rc);
+    NW_CHECK_ERRNO_ERR();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED(); // Under MS works this way // strange and non-consitent ???
+    NW_CHECK_STR_EMPTY(outdrive);
+    NW_CHECK_STR_EMPTY(outdir);
+    NW_CHECK_STR_EMPTY(outfname);
+    NW_CHECK_STR_EMPTY(outext);
+
+    #undef  PAIR
+	// </body>
+    #undef  STRLEN
+    #undef  _SPLITPATH_S
+    #undef  TS
+    #undef  ITEM
+}
+
+
+NW_TEST(NanoWinMSExtraTestGroup, Path_wsplitpath_s_Test)
+{
+    #define ITEM         wchar_t
+    #define TS(X)        L"" X
+    #define STRLEN       wcslen
+    #define _SPLITPATH_S _wsplitpath_s
+	// <body> // invaliant for Path_splitpath_s_Test and Path_wsplitpath_s_Test
+    #define PAIR(arr)    arr, _countof(arr)
+
+	SETUP_S_TEST();
+
+	ITEM      outdrive[_MAX_DRIVE];
+	ITEM      outdir  [_MAX_DIR];
+	ITEM      outfname[_MAX_FNAME];
+	ITEM      outext  [_MAX_EXT];
+
+	errno_t rc;
+
+	NW_RESET_ERRNO();
+	NW_RESET_ERR_HANDLER_COUNT();
+
+	rc = _SPLITPATH_S(TS("name"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	rc = _SPLITPATH_S(TS("name.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:name.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("name.aux2.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:name.aux2.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/name.aux2.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.ext"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("path2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	rc = _SPLITPATH_S(TS("/path1/path2"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("path2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	rc = _SPLITPATH_S(TS("path1/path2"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("path1/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("path2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	rc = _SPLITPATH_S(TS("./"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("./"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	rc = _SPLITPATH_S(TS("C:./"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("./"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	rc = _SPLITPATH_S(TS("."), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS("."), outext);
+
+	// bit ugly, but work this way
+	rc = _SPLITPATH_S(TS(".."), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("."), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS("."), outext);
+
+	rc = _SPLITPATH_S(TS("../"), outdrive, outdir, outfname, outext);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS(""), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("../"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(""), outext);
+
+	// buffer errors
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), NULL,0, PAIR(outdir), PAIR(outfname), PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), NULL,0, PAIR(outfname), PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), NULL,0, PAIR(outext));
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS(".ext"), outext);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), NULL,0);
+    NW_CHECK_RC_OK(rc);
+    NW_CHECK_ERRNO_OK();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
+    NW_CHECK_EQUAL_STRCMP(TS("C:"), outdrive);
+    NW_CHECK_EQUAL_STRCMP(TS("/path1/path2/"), outdir);
+    NW_CHECK_EQUAL_STRCMP(TS("name.aux2"), outfname);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), NULL,1);
+    NW_CHECK_RC_ERR(rc);
+    NW_CHECK_ERRNO_ERR();
+	NW_CHECK_ERR_HANDLER_FIRED();
+    NW_CHECK_STR_EMPTY(outdrive);
+    NW_CHECK_STR_EMPTY(outdir);
+    NW_CHECK_STR_EMPTY(outfname);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), outext,0);
+    NW_CHECK_RC_ERR(rc);
+    NW_CHECK_ERRNO_ERR();
+	NW_CHECK_ERR_HANDLER_FIRED();
+    NW_CHECK_STR_EMPTY(outdrive);
+    NW_CHECK_STR_EMPTY(outdir);
+    NW_CHECK_STR_EMPTY(outfname);
+
+	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), outext,1); // no space for ext
+    NW_CHECK_RC_ERR(rc);
+    NW_CHECK_ERRNO_ERR();
+	NW_CHECK_ERR_HANDLER_NOT_FIRED(); // Under MS works this way // strange and non-consitent ???
+    NW_CHECK_STR_EMPTY(outdrive);
+    NW_CHECK_STR_EMPTY(outdir);
+    NW_CHECK_STR_EMPTY(outfname);
+    NW_CHECK_STR_EMPTY(outext);
+
+    #undef  PAIR
 	// </body>
     #undef  STRLEN
     #undef  _SPLITPATH_S

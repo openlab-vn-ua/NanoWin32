@@ -709,6 +709,152 @@ extern errno_t  _splitpath_s (const char    *srcpath, char    *destdrive, rsize_
 
 extern errno_t  _wsplitpath_s(const wchar_t *srcpath, wchar_t *destdrive, rsize_t destdrivesz, wchar_t *destdir, rsize_t destdirsz, wchar_t *destfname, rsize_t destfnamesz, wchar_t *destext, rsize_t destextsz)
 {
+  #define FN "_wsplitpath_s"
+  #define ITEM wchar_t
+  #define STRLEN wcslen
+  #define STRNCPY_S wcsncpy_s
+  // <body> // invaliant for _splitpath_s and _wsplitpath_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define zero_dest(dest,destsz)  { if (dest != NULL) { if ((destsz > 0) && (destsz <= RSIZE_MAX_CNT)) { dest[0] = 0; } } }
+  #define zero_all_dests()        { zero_dest(destdrive,destdrivesz); zero_dest(destdir,destdirsz); zero_dest(destfname,destfnamesz); zero_dest(destext,destextsz); }
+  #define return_after_err_FILLDST(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); zero_all_dests(); pathfunc_handle_errcode(errcode); return(errcode); }
+
+  #define check_dest(dest,destsz) \
+  if ((dest != NULL) && (destsz <= 0))            { return_after_err_FILLDST(FN SP #destsz " is zero"   , NULL, EINVAL); } \
+  if ((dest != NULL) && (destsz > RSIZE_MAX_CNT)) { return_after_err_FILLDST(FN SP #destsz " too large" , NULL, EINVAL); } \
+  if ((dest == NULL) && (destsz != 0))            { return_after_err_FILLDST(FN SP #destsz " non zero"  , NULL, EINVAL); }
+
+  if (srcpath == NULL)         { return_after_err_FILLDST(FN SP "src is null"                 , NULL, EINVAL); }
+
+  check_dest(destdrive,destdrivesz);
+  check_dest(destdir,destdirsz);
+  check_dest(destfname,destfnamesz);
+  check_dest(destext,destextsz);
+
+  rsize_t slen = STRLEN(srcpath);
+
+  zero_all_dests();
+
+  if (slen <= 0)                 { return(EOK); } // Nothing to do
+
+  // Extract fname
+
+  rsize_t i;
+
+  rsize_t dpos = RSIZE_MAX; // drive[:]path sep pos
+  rsize_t ppos = RSIZE_MAX; // path[/]name sep pos
+  rsize_t epos = RSIZE_MAX; // name[.]ext sep pos
+
+  i = 0;
+  while(i < slen)
+  {
+    // scan string in reverce
+    rsize_t pos = slen-i-1;
+    ITEM item = srcpath[pos];
+    if ((dpos == RSIZE_MAX) && (ppos == RSIZE_MAX) && (epos == RSIZE_MAX) && (item == NW_FILE_EXT_SEPARATOR_CHAR))
+    {
+      epos = pos;
+    }
+    else if ((dpos == RSIZE_MAX) && (ppos == RSIZE_MAX) && is_path_sep(item))
+    {
+      ppos = pos;
+    }
+    else if ((dpos == RSIZE_MAX) && is_drv_sep(item))
+    {
+      dpos = pos;
+    }
+    else
+    {
+      i++;
+    }
+  }
+
+  // now, store results
+  errno_t rc;
+
+  if ((dpos != RSIZE_MAX) && (destdrive != NULL))
+  {
+    rc = STRNCPY_S(destdrive, destdrivesz, srcpath, dpos+1);
+    if (rc != EOK) { zero_all_dests(); pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  if ((epos != RSIZE_MAX) && (destext != NULL))
+  {
+    rc = STRNCPY_S(destext, destextsz, srcpath+epos, slen-epos);
+    if (rc != EOK) { zero_all_dests(); pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  // Now, handle path and name
+
+  if (ppos != RSIZE_MAX)
+  {
+    // path/name sep found
+    if (destdir != NULL)
+    {
+      const ITEM *srcdir = srcpath;
+      rsize_t     plen = slen;
+      if (dpos != RSIZE_MAX) { srcdir += (dpos+1); plen -= (dpos+1); }
+      plen -= (slen-ppos-1);
+      rc = STRNCPY_S(destdir, destdirsz, srcdir, plen);
+      if (rc != EOK) { zero_all_dests(); pathfunc_handle_errcode(rc); return(rc); }
+    }
+
+    if (destfname != NULL)
+    {
+      const ITEM *srcname = srcpath;
+      rsize_t     nlen = slen;
+      srcname += (ppos+1); nlen -= (ppos+1);
+      if (epos != RSIZE_MAX) { nlen -= (slen-epos); }
+      if (nlen > 0)
+      {
+        rc = STRNCPY_S(destfname, destfnamesz, srcname, nlen);
+        if (rc != EOK) { zero_all_dests(); pathfunc_handle_errcode(rc); return(rc); }
+      }
+      else
+      {
+        zero_dest(destfname, destfnamesz);
+      }
+    }
+  }
+  else
+  {
+    // no path separator: only name is here
+    if (destdir != NULL)
+    {
+      zero_dest(destdir,destdirsz);
+    }
+
+    if (destfname != NULL)
+    {
+      const ITEM *srcname = srcpath;
+      rsize_t     nlen = slen;
+      if (dpos != RSIZE_MAX) { srcname += (dpos+1); nlen -= (dpos+1); }
+      if (epos != RSIZE_MAX) { nlen -= (slen-epos); }
+      if (nlen > 0)
+      {
+        rc = STRNCPY_S(destfname, destfnamesz, srcname, nlen);
+        if (rc != EOK) { zero_all_dests(); pathfunc_handle_errcode(rc); return(rc); }
+      }
+      else
+      {
+        zero_dest(destfname, destfnamesz);
+      }
+    }
+  }
+
+  return(EOK);
+
+  #undef check_dest
+
+  #undef return_after_err_FILLDST
+  #undef zero_all_dests
+  #undef zero_dest
+  #undef RSIZE_MAX_CNT
+  // </body>
+  #undef STRNCPY_S
+  #undef STRLEN
+  #undef ITEM
+  #undef FN
 }
 
 NW_EXTERN_C_END
