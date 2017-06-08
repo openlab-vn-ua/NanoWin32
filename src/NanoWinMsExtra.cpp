@@ -100,7 +100,6 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 
 extern wchar_t *wgetcwd(wchar_t *dest,  int destsz)
 {
-  // TODO: Draft implemenation (verify me)
   if (dest == NULL)
   {
     // dynamic buffer allocation (at least destsz chars), as GCC says
