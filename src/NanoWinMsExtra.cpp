@@ -409,10 +409,14 @@ extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, r
 
 extern void     _makepath    (char    *destpath, const char    *srcdrive, const char    *srcdir, const char    *srcfname, const char    *srcext)
 {
+  rsize_t  THE_LIMIT = _MAX_PATH;
+  _makepath_s(destpath, THE_LIMIT, srcdrive, srcdir, srcfname, srcext);
 }
 
 extern void     _wmakepath   (wchar_t *destpath, const wchar_t *srcdrive, const wchar_t *srcdir, const wchar_t *srcfname, const wchar_t *srcext)
 {
+  rsize_t  THE_LIMIT = _MAX_PATH;
+  _wmakepath_s(destpath, THE_LIMIT, srcdrive, srcdir, srcfname, srcext);
 }
 
 extern errno_t  _makepath_s  (char    *destpath, rsize_t destsz, const char    *srcdrive, const char    *srcdir, const char    *srcfname, const char    *srcext)
