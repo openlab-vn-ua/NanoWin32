@@ -167,25 +167,25 @@ extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, r
 // if destabspath is <= 0, will call err hasndler. If execution is allowed to continue, this function sets errno to EINVAL and returns NULL.
 extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, rsize_t destabspathsz);
 
-// Combine path from components. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// Combine path from components. LINUX: srcdrvice will just prepend path (pass NULL, "", or result of _splitpath to do portable code)
 // NULL values are allowed for all src* parameters.
 // If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
 extern void     _makepath    (char    *destpath, const char    *srcdrive, const char    *srcdir, const char    *srcfname, const char    *srcext);
 
-// Combine path from components. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// Combine path from components. LINUX: srcdrvice will just prepend path (pass NULL, "", or result of _splitpath to do portable code)
 // NULL values are allowed for all src* parameters.
 // If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
 extern void     _wmakepath   (wchar_t *destpath, const wchar_t *srcdrive, const wchar_t *srcdir, const wchar_t *srcfname, const wchar_t *srcext);
 
-// Combine path from components to destpath[destsz]. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// Combine path from components to destpath[destsz]. LINUX: srcdrvice will just prepend path (pass NULL, "", or result of _splitpath to do portable code)
 // NULL values are allowed for all src* parameters.
-// Zero if successful; an error code on failure.
+// Zero if successful; an error code on failure. (in that case contents of output buffer is undefined [MS works this way also])
 // If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
 extern errno_t  _makepath_s  (char    *destpath, rsize_t destsz, const char    *srcdrive, const char    *srcdir, const char    *srcfname, const char    *srcext);
 
-// Combine path from components to destpath[destsz]. LINUX: srcdrvice is ignored (pass NULL, "", or result of _splitpath to make protable code)
+// Combine path from components to destpath[destsz]. LINUX: srcdrvice will just prepend path (pass NULL, "", or result of _splitpath to do portable code)
 // NULL values are allowed for all src* parameters.
-// Zero if successful; an error code on failure.
+// Zero if successful; an error code on failure. (in that case contents of output buffer is undefined [MS works this way also])
 // If destpath is NULL, the invalid parameter handler is invoked, and errno is set to EINVAL.
 extern errno_t  _wmakepath_s (wchar_t *destpath, rsize_t destsz, const wchar_t *srcdrive, const wchar_t *srcdir, const wchar_t *srcfname, const wchar_t *srcext);
 

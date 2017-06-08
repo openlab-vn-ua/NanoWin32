@@ -137,8 +137,8 @@ extern wchar_t *wgetcwd(wchar_t *dest,  int destsz)
     result = getcwd(tmp, sizeof(tmp));
     if (result == NULL) { return(NULL); }
     size_t countx = 0;
-    if (mbstowcs_s(&countx,dest,destsz,result,destsz) != 0) { dest[0] = '\0'; errno=ERANGE; return(NULL); }
-	if (countx > destsz) { dest[0] = '\0'; errno=ERANGE; return(NULL); }
+    if (mbstowcs_s(&countx,dest,destsz,result,destsz) != 0) { dest[0] = 0; errno=ERANGE; return(NULL); }
+    if (countx > destsz) { dest[0] = 0; errno=ERANGE; return(NULL); }
     return(dest);
   }
 }
@@ -417,10 +417,134 @@ extern void     _wmakepath   (wchar_t *destpath, const wchar_t *srcdrive, const 
 
 extern errno_t  _makepath_s  (char    *destpath, rsize_t destsz, const char    *srcdrive, const char    *srcdir, const char    *srcfname, const char    *srcext)
 {
+  #define FN "_makepath_s"
+  #define ITEM char
+  #define STRLEN strlen
+  #define STRCAT_S strcat_s
+  // <body> // invaliant for _makepath_s and _wmakepath_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); pathfunc_handle_errcode(errcode); return(errcode); }
+
+  if (destpath == NULL)        { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
+
+  destpath[0] = 0;
+
+  errno_t rc = EOK;
+
+  if ((srcdrive != NULL) && (srcdrive[0] != 0))
+  {
+    rc = STRCAT_S(destpath, destsz, srcdrive);
+	if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  if ((srcdir   != NULL) && (srcdir[0] != 0))
+  {
+    ITEM DSEPS[2]; DSEPS[0] = NW_DIRECTORY_SEPARATOR_CHAR; DSEPS[1] = 0;
+    rsize_t len = STRLEN(srcdir);
+    rc = STRCAT_S(destpath, destsz, srcdir);
+    if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+    if ((len > 0) && !is_path_sep(srcdir[len-1]))
+    {
+      rc = STRCAT_S(destpath, destsz, DSEPS);
+      if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+    }
+  }
+
+  if ((srcfname != NULL) && (srcfname[0] != 0))
+  {
+    rc = STRCAT_S(destpath, destsz, srcfname);
+    if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  if ((srcext   != NULL) && (srcext[0] != 0))
+  {
+    ITEM ESEPS[2]; ESEPS[0] = NW_FILE_EXT_SEPARATOR_CHAR; ESEPS[1] = 0;
+	if (srcext[0] != NW_FILE_EXT_SEPARATOR_CHAR)
+	{
+      rc = STRCAT_S(destpath, destsz, ESEPS);
+      if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+	}
+    rc = STRCAT_S(destpath, destsz, srcext);
+    if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  return(EOK);
+
+  #undef RSIZE_MAX_CNT
+  #undef return_after_err_WMARKER
+  // </body>
+  #undef STRCAT_S
+  #undef STRLEN
+  #undef ITEM
+  #undef FN
 }
 
 extern errno_t  _wmakepath_s (wchar_t *destpath, rsize_t destsz, const wchar_t *srcdrive, const wchar_t *srcdir, const wchar_t *srcfname, const wchar_t *srcext)
 {
+  #define FN "_wmakepath_s"
+  #define ITEM wchar_t
+  #define STRLEN wcslen
+  #define STRCAT_S wcscat_s
+  // <body> // invaliant for _makepath_s and _wmakepath_s
+  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
+  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); pathfunc_handle_errcode(errcode); return(errcode); }
+
+  if (destpath == NULL)        { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
+  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
+  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
+
+  destpath[0] = 0;
+
+  errno_t rc = EOK;
+
+  if ((srcdrive != NULL) && (srcdrive[0] != 0))
+  {
+    rc = STRCAT_S(destpath, destsz, srcdrive);
+	if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  if ((srcdir   != NULL) && (srcdir[0] != 0))
+  {
+    ITEM DSEPS[2]; DSEPS[0] = NW_DIRECTORY_SEPARATOR_CHAR; DSEPS[1] = 0;
+    rsize_t len = STRLEN(srcdir);
+    rc = STRCAT_S(destpath, destsz, srcdir);
+    if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+    if ((len > 0) && !is_path_sep(srcdir[len-1]))
+    {
+      rc = STRCAT_S(destpath, destsz, DSEPS);
+      if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+    }
+  }
+
+  if ((srcfname != NULL) && (srcfname[0] != 0))
+  {
+    rc = STRCAT_S(destpath, destsz, srcfname);
+    if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  if ((srcext   != NULL) && (srcext[0] != 0))
+  {
+    ITEM ESEPS[2]; ESEPS[0] = NW_FILE_EXT_SEPARATOR_CHAR; ESEPS[1] = 0;
+	if (srcext[0] != NW_FILE_EXT_SEPARATOR_CHAR)
+	{
+      rc = STRCAT_S(destpath, destsz, ESEPS);
+      if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+	}
+    rc = STRCAT_S(destpath, destsz, srcext);
+    if (rc != EOK) { pathfunc_handle_errcode(rc); return(rc); }
+  }
+
+  return(EOK);
+
+  #undef RSIZE_MAX_CNT
+  #undef return_after_err_WMARKER
+  // </body>
+  #undef STRCAT_S
+  #undef STRLEN
+  #undef ITEM
+  #undef FN
 }
 
 extern errno_t  _splitpath_s (const char    *srcpath, char    *destdrive, rsize_t destdrivesz, char    *destdir, rsize_t destdirsz, char    *destfname, rsize_t destfnamesz, char    *destext, rsize_t destextsz)

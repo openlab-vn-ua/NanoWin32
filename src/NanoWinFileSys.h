@@ -137,5 +137,7 @@ NW_EXTERN_C_END
 #define NW_DIRECTORY_NAME_PARENT         ".."
 #define NW_DIRECTORY_NAME_CURRENT        "."
 
+#define NW_FILE_EXT_SEPARATOR_CHAR       '.' // separator between fname (AKA stem) and ext (AKA extension)
+
 #endif // linux
 #endif // ...Included

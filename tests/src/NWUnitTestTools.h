@@ -23,7 +23,18 @@
 // Extra test funcs
 // ---------------------------------------------
 
-#define NW_FILL_VAR_WITH_5A(arr)  memset(arr,0x5A,sizeof(arr)) // fill with 'Z'
+inline bool nw_memisset(const void *memory, unsigned char val, size_t size)
+{
+	// return true if memeory block is filled by val
+	// inspired by cool solution by mihaif at:
+	// https://stackoverflow.com/questions/6938219/how-to-check-whether-all-bytes-in-a-memory-block-are-zero 
+	if (size <= 0) { return(false); }
+	unsigned const char *mm = (unsigned const char*)memory;
+	return (*mm == val) && memcmp(mm, mm + 1, size - 1) == 0;
+}
+
+#define NW_RESET_VAR_FILL_5A(arr) memset(arr,0x5A,sizeof(arr)) // fill with 'Z'
+#define NW_CHECK_VAR_FILL_5A(arr) NW_CHECK_TRUE(nw_memisset(arr,0x5A,sizeof(arr))) // still filled by with 'Z'
 
 // Extra test checks
 // ---------------------------------------------
@@ -43,6 +54,8 @@
 #if defined(_MSC_VER)
 
 namespace NanoWin {
+
+// TODO: Some static objects in .h file, Move me to .cpp file later [not critical, since this module included in tests only]
 
 static unsigned int invalid_parameter_handler_call_count = 0;
 static void invalid_parameter_handler_as_report_and_continue
