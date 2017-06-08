@@ -14,12 +14,24 @@ CObject::~CObject()
 {
 }
 
+#define EXCEPTION_DEF_HELP_CONTEXT (0)
+
 BOOL CException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  // TODO: Implement me
-  lpszError[0] = 0;
-  return FALSE;
+  if (_tcscpy_s(lpszError, nMaxError, _T("general error")) == 0)
+  {
+    if (pnHelpContext != NULL)
+    {
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
+    }
+
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
 }
 
 BOOL CMemoryException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
@@ -29,7 +41,7 @@ const
   {
     if (pnHelpContext != NULL)
     {
-      *pnHelpContext = 0;
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
     }
 
     return TRUE;
@@ -47,7 +59,7 @@ const
   {
     if (pnHelpContext != NULL)
     {
-      *pnHelpContext = 0;
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
     }
 
     return TRUE;
@@ -65,7 +77,7 @@ const
   {
     if (pnHelpContext != NULL)
     {
-      *pnHelpContext = 0;
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
     }
 
     return TRUE;
@@ -83,7 +95,7 @@ const
   {
     if (pnHelpContext != NULL)
     {
-      *pnHelpContext = 0;
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
     }
 
     return TRUE;
