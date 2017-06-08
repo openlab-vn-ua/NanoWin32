@@ -117,7 +117,7 @@ inline int nw_test_strcmp(const char *s1, const char *s2)       { return(strcmp(
 inline int nw_test_strcmp(const wchar_t *s1, const wchar_t *s2) { return(wcscmp(s1, s2)); }
 
 #define NW_CHECK_EQUAL_STRCMP(expected,actual) \
- CHECK_EQUAL(0,nw_test_strcmp(expected,actual))
+ CHECK(nw_test_strcmp(expected,actual)==0)
 
 #define NW_CHECK_EQUAL_MEMCMP(expected,actual,size) \
  MEMCMP_EQUAL(expected,actual,size)
