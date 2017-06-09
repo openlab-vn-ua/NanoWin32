@@ -96,6 +96,7 @@
     <ClCompile Include="..\src\NanoWinMFCAfxWin.cpp" />
     <ClCompile Include="..\src\NanoWinModule.cpp" />
     <ClCompile Include="..\src\NanoWinMsExtra.cpp" />
+    <ClCompile Include="..\src\NanoWinMsSafeScanf.cpp" />
     <ClCompile Include="..\src\NanoWinMsSafeString.cpp" />
     <ClCompile Include="..\src\NanoWinOther.cpp" />
     <ClCompile Include="..\src\NanoWinPrivateProfile.cpp" />
@@ -118,6 +119,7 @@
     <ClCompile Include="src\NanoWinMFCAfxStrTests.cpp" />
     <ClCompile Include="src\NanoWinMFCAfxTests.cpp" />
     <ClCompile Include="src\NanoWinMsExtraTests.cpp" />
+    <ClCompile Include="src\NanoWinMsSafeScanfTests.cpp" />
     <ClCompile Include="src\NanoWinMsSafeStringTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTests.cpp" />
     <ClCompile Include="src\NanoWinPrivateProfileTestTools.cpp" />
