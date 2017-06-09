@@ -3,11 +3,18 @@
 #include <stdio.h>
 
 #ifdef __linux
+#include <unistd.h>
 #include <string.h>
+
+#include "NanoWinMsSafeScanf.h"
 
 #else
 #include <windows.h>
 #endif
+
+#define NanoWinMsSafeScanfGenericStrMaxLen (255)
+
+typedef char NanoWinMsSafeScanfGenericStr[NanoWinMsSafeScanfGenericStrMaxLen + 1];
 
 namespace
 {
@@ -55,10 +62,10 @@ namespace
 }
 
 
-NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinSafeScanfTestGroup)
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMsSafeSScanfSTestGroup)
 
 #define NW_DEFINE_SIMPLE_TYPED_SSCANF_TEST(type,expected_value,specifier,testname)  \
-NW_TEST(NanoWinSafeScanfTestGroup, testname)                                        \
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, testname)                                        \
 {                                                                                   \
 	const char  input[] = #expected_value;                                            \
 	type                  actual_value;                                               \
@@ -78,11 +85,25 @@ NW_DEFINE_SIMPLE_TYPED_SSCANF_TEST(float, 1.23, "%g", SScanfSimpleFloatGTest)
 
 NW_DEFINE_SIMPLE_TYPED_SSCANF_TEST(long int,           345, "%ld",  SScanfSimpleLongTest)
 NW_DEFINE_SIMPLE_TYPED_SSCANF_TEST(unsigned long,      345, "%lu",  SScanfSimpleLongUIntTest)
+
+// CppUtest can't compare unsigned long long, so this test is disabled for gcc
+#ifndef __GNUC__
 NW_DEFINE_SIMPLE_TYPED_SSCANF_TEST(unsigned long long, 345, "%llu", SScanfSimpleLongLongUIntTest)
+#endif
 
 NW_DEFINE_SIMPLE_TYPED_SSCANF_TEST(short int, 456, "%hi", SScanfSimpleShortTest)
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfSimpleLongLongIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfFileEmptyTest)
+{
+  const char    input[] = "";
+  int           intNum;
+
+  int count = sscanf_s(input, "%d", &intNum);
+
+  NW_CHECK_EQUAL_INTS(-1, count);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSimpleLongLongIntTest)
 {
   const char  input[] = "345";
   long long   longNum;
@@ -93,7 +114,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfSimpleLongLongIntTest)
   NW_CHECK_EQUAL_LONGS(345, longNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfSimpleShortUIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSimpleShortUIntTest)
 {
   const char  input[] = "34";
   unsigned short   intNum;
@@ -104,7 +125,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfSimpleShortUIntTest)
   NW_CHECK_EQUAL_LONGS(34, intNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfInvalidValueIntTest)
 {
 	const char  input[] = "abc";
 	int   intNum;
@@ -114,7 +135,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueIntTest)
 	NW_CHECK_EQUAL_INTS(0, count);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfIntWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfIntWithCounterTest)
 {
 	const char  input[] = "-123";
 	int   intNum;
@@ -125,7 +146,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfIntWithCounterTest)
 	NW_CHECK_EQUAL_INTS(-12, intNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfIntTest)
 {
 	const char  input[] = "0230  -0045 123abc";
 	int   intNum1;
@@ -148,7 +169,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfIntTest)
 	NW_CHECK_EQUAL_INTS(0, intNum2);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueOctIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfInvalidValueOctIntTest)
 {
 	const char  input[] = "abc";
 	int   octNum;
@@ -158,7 +179,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueOctIntTest)
 	NW_CHECK_EQUAL_INTS(0, count);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfOctIntWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfOctIntWithCounterTest)
 {
 	const char  input[] = "-123";
 	int   octNum;
@@ -169,7 +190,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfOctIntWithCounterTest)
 	NW_CHECK_EQUAL_INTS(-012, octNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfOctIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfOctIntTest)
 {
 	const char  input[] = "0230  -00459 123abc";
 	int   octNum1;
@@ -189,7 +210,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfOctIntTest)
 	NW_CHECK_EQUAL_INTS(0230, octNum1);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueHexIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfInvalidValueHexIntTest)
 {
 	const char   input[] = "www";
 	unsigned int hexNum;
@@ -199,7 +220,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueHexIntTest)
 	NW_CHECK_EQUAL_INTS(0x0, count);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfHexIntWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfHexIntWithCounterTest)
 {
 	const char   input[] = "12AB";
 	unsigned int hexNum;
@@ -210,7 +231,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfHexIntWithCounterTest)
 	NW_CHECK_EQUAL_INTS(0x12A, hexNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfHexIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfHexIntTest)
 {
 	const char   input[] = "0230  -0045 123ABX";
 	unsigned int hexNum1;
@@ -230,7 +251,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfHexIntTest)
 	NW_CHECK_EQUAL_INTS(0x230, hexNum1);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueShortTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfInvalidValueShortTest)
 {
 	const char  input[] = "abc";
 	short       shortNum;
@@ -240,7 +261,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueShortTest)
 	NW_CHECK_EQUAL_INTS(0, count);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfShortWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfShortWithCounterTest)
 {
 	const char  input[] = "-123";
 	short       shortNum;
@@ -251,7 +272,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfShortWithCounterTest)
 	NW_CHECK_EQUAL_INTS(-12, shortNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfShortTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfShortTest)
 {
 	const char  input[] = "0230  -0045 123abc";
 	short       shortNum1;
@@ -274,7 +295,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfShortTest)
 	NW_CHECK_EQUAL_INTS(0, shortNum2);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueLongTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfInvalidValueLongTest)
 {
 	const char  input[] = "abc";
 	long int    longNum;
@@ -284,7 +305,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueLongTest)
 	NW_CHECK_EQUAL_INTS(0, count);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfLongWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfLongWithCounterTest)
 {
 	const char  input[] = "123";
 	long int    longNum;
@@ -295,7 +316,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfLongWithCounterTest)
 	NW_CHECK_EQUAL_LONGS(12, longNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfLongTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfLongTest)
 {
 	const char  input[] = "012 -00045  12.3abc";
 	long int    longNum1;
@@ -311,7 +332,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfLongTest)
 	NW_CHECK_EQUAL_LONGS(12, longNum3);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueFloatTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfInvalidValueFloatTest)
 {
 	const char  input[] = "abc";
 	float floatNum;
@@ -321,7 +342,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfInvalidValueFloatTest)
 	NW_CHECK_EQUAL_INTS(0, count);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfFloatWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfFloatWithCounterTest)
 {
 	const char  input[] = "1.23";
 	float floatNum;
@@ -332,7 +353,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfFloatWithCounterTest)
 	NW_CHECK_EQUAL(1.2f, floatNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfFloatTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfFloatTest)
 {
 	const char  input[] = "1.230045 abc12.3abc";
 	float floatNum1;
@@ -347,7 +368,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfFloatTest)
 	NW_CHECK_EQUAL(45.0f, floatNum2);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfIntAndFloatTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfIntAndFloatTest)
 {
 	const char  input[] = "123.45";
 	int   intNum1;
@@ -361,7 +382,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfIntAndFloatTest)
 	NW_CHECK_EQUAL_INTS(3.45f, floatNum1);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrSimpleTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrSimpleTest)
 {
 	const char  input[] = "123abc";
 	char str[8];
@@ -372,7 +393,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrSimpleTest)
 	NW_CHECK_EQUAL_STRCMP("123abc", str);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrWithCounterTest)
 {
 	const char  input[] = "123abc	 def 456";
 	char str[8];
@@ -388,7 +409,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrWithCounterTest)
 	NW_CHECK_EQUAL_STRCMP("123abc", str);
 }
 /*
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrSmallBuffTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrSmallBuffTest)
 {
 	const char  input[] = "123abc";
 	char str[3];
@@ -399,7 +420,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrSmallBuffTest)
 	NW_CHECK_EQUAL_STRCMP("", str);
 }
 */
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrTest)
 {
 	const char  input[] = "123  abc		4def5";
 	
@@ -424,7 +445,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfStrTest)
 	NW_CHECK_EQUAL_STRCMP("abc", str3);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharSimpleTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharSimpleTest)
 {
 	const char  input[] = "abc";
 	char symb;
@@ -432,10 +453,10 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharSimpleTest)
 	int count = sscanf_s(input, "%c", &symb, 1);
 
 	NW_CHECK_EQUAL_INTS(1, count);
-	NW_CHECK_EQUAL_STRCMP('a', symb);
+	NW_CHECK_EQUAL_INTS('a', symb);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharWithCounterTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharWithCounterTest)
 {
 	const char  input[] = "abc";
 	char symb[4];
@@ -449,7 +470,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharWithCounterTest)
 	NW_CHECK_EQUAL('c', symb[2]);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharTest)
 {
 	const char  input[] = "abc de";
 	char symb;
@@ -465,7 +486,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharTest)
 	NW_CHECK_EQUAL(' ', str[2]);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharAndIntTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharAndIntTest)
 {
 	const char  input[] = "a12";
 	char symb;
@@ -479,7 +500,7 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfCharAndIntTest)
 	NW_CHECK_EQUAL_INTS(12, intNum);
 }
 
-NW_TEST(NanoWinSafeScanfTestGroup, SScanfCommonTest)
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCommonTest)
 {
 	const char  input[] = "abc123 4def5.6.7 nnn56.78";
 	
@@ -507,6 +528,224 @@ NW_TEST(NanoWinSafeScanfTestGroup, SScanfCommonTest)
 	NW_CHECK_EQUAL_INTS  (123, intNum1);
 	NW_CHECK_EQUAL_STRCMP("4def", str2);
 	NW_CHECK_EQUAL       (5.6f, floatNum1);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSTrivialTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue;
+  float                        floatValue;
+
+  parsedFieldCount = sscanf_s("abc", "abc");
+
+  // it looks like implementation-specific behavior
+#ifdef __GNUC__
+  NW_CHECK_EQUAL(0, parsedFieldCount);
+#else
+  NW_CHECK_EQUAL(-1, parsedFieldCount);
+#endif
+
+  parsedFieldCount = sscanf_s("3", "%d", &intValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(3, intValue);
+
+  parsedFieldCount = sscanf_s("3.14", "%f", &floatValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(3.14f, floatValue);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSTrivialIntTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue;
+  unsigned int                 unsignedIntValue;
+
+  parsedFieldCount = sscanf_s("3", "%d", &intValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(3, intValue);
+
+  parsedFieldCount = sscanf_s("8", "%i", &intValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(8, intValue);
+
+  parsedFieldCount = sscanf_s("010", "%i", &intValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(8, intValue);
+
+  parsedFieldCount = sscanf_s("0x10", "%i", &intValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(16, intValue);
+
+  parsedFieldCount = sscanf_s("10", "%x", &unsignedIntValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(16u, unsignedIntValue);
+
+  parsedFieldCount = sscanf_s("12", "%X", &unsignedIntValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(18u, unsignedIntValue);
+
+  parsedFieldCount = sscanf_s("10", "%o", &unsignedIntValue);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(8u, unsignedIntValue);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSTrivialCharTest)
+{
+  int                          parsedFieldCount;
+  char                         charBuffer[250];
+
+  parsedFieldCount = sscanf_s("Z", "%c", charBuffer, 1);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL_INTS('Z', charBuffer[0]);
+
+  parsedFieldCount = sscanf_s("ABC", "%3c", charBuffer, sizeof(charBuffer));
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL_INTS('A', charBuffer[0]);
+  NW_CHECK_EQUAL_INTS('B', charBuffer[1]);
+  NW_CHECK_EQUAL_INTS('C', charBuffer[2]);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSTrivialMultiFieldTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue1;
+  int                          intValue2;
+  float                        floatValue;
+
+  parsedFieldCount = sscanf_s("5 -3", "%d %d", &intValue1, &intValue2);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3, intValue2);
+
+  parsedFieldCount = sscanf_s("-10 3.14", "%d %f", &intValue1, &floatValue);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(-10, intValue1);
+  NW_CHECK_EQUAL(3.14f, floatValue);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSStringSimpleTest)
+{
+  int                          parsedFieldCount;
+  NanoWinMsSafeScanfGenericStr strValue;
+
+  parsedFieldCount = sscanf_s("hello", "%s", strValue, sizeof(strValue));
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL_STRCMP("hello", strValue);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSStringAndOthersTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue;
+  NanoWinMsSafeScanfGenericStr strValue;
+
+  parsedFieldCount = sscanf_s("hello 11", "%s %d", strValue, sizeof(strValue), &intValue);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL_STRCMP("hello", strValue);
+  NW_CHECK_EQUAL(11, intValue);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSStringAndFormatWhitespacesTest)
+{
+  int                          parsedFieldCount;
+  NanoWinMsSafeScanfGenericStr str1Value;
+  NanoWinMsSafeScanfGenericStr str2Value;
+
+  parsedFieldCount = sscanf_s("   hello    sscanf_s  ", "%s \t %s",
+    str1Value, sizeof(str1Value),
+    str2Value, sizeof(str2Value));
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL_STRCMP("hello", str1Value);
+  NW_CHECK_EQUAL_STRCMP("sscanf_s", str2Value);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSAssignmentSuppressionTest)
+{
+  int                          parsedFieldCount;
+  int                          int1Value;
+  int                          int2Value;
+
+  parsedFieldCount = sscanf_s("10 20 30", "%d %*d %d", &int1Value, &int2Value);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(10, int1Value);
+  NW_CHECK_EQUAL(30, int2Value);
+
+  parsedFieldCount = sscanf_s("answer: 42", "%*s %d", &int1Value);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+  NW_CHECK_EQUAL(42, int1Value);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfAbsentValueTest)
+{
+  int                          parsedFieldCount;
+  int                          int1Value;
+  int                          int2Value;
+
+  parsedFieldCount = sscanf_s("1", "%d%d", &int1Value, &int2Value);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+
+  NW_CHECK_EQUAL(1, int1Value);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSWidthSpecifierTest)
+{
+  int                          parsedFieldCount;
+  int                          int1Value;
+  int                          int2Value;
+  float                        floatValue;
+
+  parsedFieldCount = sscanf_s("1020", "%2d", &int1Value);
+
+  NW_CHECK_EQUAL(1, parsedFieldCount);
+
+  NW_CHECK_EQUAL(10, int1Value);
+
+  parsedFieldCount = sscanf_s("1321", "%2d%1d", &int1Value, &int2Value);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+
+  NW_CHECK_EQUAL(13, int1Value);
+  NW_CHECK_EQUAL(2, int2Value);
+
+  parsedFieldCount = sscanf_s("14 21.1", "%16d %f", &int1Value, &floatValue);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+
+  NW_CHECK_EQUAL(14, int1Value);
+  NW_CHECK_EQUAL(21.1f, floatValue);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSBadFormatTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue;
+
+  parsedFieldCount = sscanf_s("abc", "%d", &intValue);
+
+  NW_CHECK_EQUAL(0, parsedFieldCount);
+
+  parsedFieldCount = sscanf_s("abc", "%2d", &intValue);
+
+  NW_CHECK_EQUAL(0, parsedFieldCount);
 }
 
 NW_END_TEST_GROUP()
