@@ -12,8 +12,11 @@
 
 #include <NanoWinTypes.h>
 
-NW_EXTERN_C  int sscanf_s(const char *buffer, const char *format, ...);
-NW_EXTERN_C  int fscanf_s(FILE       *stream, const char *format, ...);
+NW_EXTERN_C  int sscanf_s (const char    *buffer, const char    *format, ...);
+NW_EXTERN_C  int fscanf_s (FILE          *stream, const char    *format, ...);
+
+NW_EXTERN_C  int swscanf_s(const wchar_t *buffer, const wchar_t *format, ...);
+NW_EXTERN_C  int fwscanf_s(FILE          *stream, const wchar_t *format, ...);
 
 #endif // GCC
 
