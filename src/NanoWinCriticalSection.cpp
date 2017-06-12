@@ -25,6 +25,14 @@ void InitializeCriticalSection(LPCRITICAL_SECTION lpCriticalSection)
   check_error(pthread_mutex_init(&lpCriticalSection->mutex, &lpCriticalSection->mutexattr));
 }
 
+//TODO: implement spin count support (need to store spin count in CRITICAL_SECTION structure
+//      and spin inside EnterCriticalSection (only on multi-core processors))
+void InitializeCriticalSectionAndSpinCount(LPCRITICAL_SECTION lpCriticalSection,
+                                           DWORD              /*dwSpinCount*/)
+{
+  InitializeCriticalSection(lpCriticalSection);
+}
+
 void EnterCriticalSection(LPCRITICAL_SECTION lpCriticalSection)
 {
   check_error(pthread_mutex_lock(&lpCriticalSection->mutex));
