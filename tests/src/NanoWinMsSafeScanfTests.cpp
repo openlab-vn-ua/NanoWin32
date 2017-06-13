@@ -56,8 +56,58 @@ namespace
   private:
 
     FILE *stream;
-
+   
     static constexpr const char *fileName = "fscanf_s_test.txt";
+  };
+
+  class ScanfTestFileW
+  {
+  public:
+
+    ScanfTestFileW(const wchar_t *testStr)
+    {
+      #ifndef __GNUC__
+      stream = _wfopen(fileNameW, L"w+t");
+      #else
+      stream = fopen(fileName, "w+t");
+      #endif
+
+      if (stream != NULL)
+      {
+        fputws(testStr, stream);
+        fseek(stream, 0, SEEK_SET);
+      }
+    }
+
+    ~ScanfTestFileW()
+    {
+      if (stream != NULL)
+      {
+        fclose(stream);
+      }
+      #ifndef __GNUC__
+      _wunlink(fileNameW);
+      #else
+      unlink(fileName);
+      #endif
+    }
+
+    FILE *getStream()
+    {
+      return stream;
+    }
+
+    bool isOk()
+    {
+      return stream != NULL;
+    }
+
+  private:
+
+    FILE *stream;
+
+    static constexpr const wchar_t *fileNameW = L"fscanf_s_test.txt";
+    static constexpr const char    *fileName  = "fscanf_s_test.txt";
   };
 }
 
@@ -835,7 +885,83 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrTest2)
   NW_CHECK_EQUAL_STRCMP("123", str1);
 }
 
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfFileEmptyTest)
+{
+  ScanfTestFileW input(L"");
+  int            intNum;
+
+  int count = fwscanf_s(input.getStream(), L"%d", &intNum);
+
+  NW_CHECK_EQUAL_INTS(-1, count);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfIntTest1)
+{
+  ScanfTestFileW input(L"123");
+  int            intNum1;
+  int            intNum2;
+
+  int count = fwscanf_s(input.getStream(), L"%d%d", &intNum1, &intNum2);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_INTS(123, intNum1);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfIntTest2)
+{
+  ScanfTestFileW input(L"123      ");
+  int            intNum1;
+  int            intNum2;
+
+  int count = fwscanf_s(input.getStream(), L"%d%d", &intNum1, &intNum2);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_INTS(123, intNum1);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfIntTest3)
+{
+  ScanfTestFileW input(L"123");
+  int            intNum1;
+  int            intNum2;
+
+  int count = fwscanf_s(input.getStream(), L"%2d%3d", &intNum1, &intNum2);
+
+  NW_CHECK_EQUAL_INTS(2, count);
+  NW_CHECK_EQUAL_INTS(12, intNum1);
+  NW_CHECK_EQUAL_INTS(3, intNum2);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrTest1)
+{
+  ScanfTestFileW input(L"123");
+  wchar_t        str1[18];
+  wchar_t        str2[18];
+
+  int count = fwscanf_s(input.getStream(), L"%s%s", 
+                        str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)), 
+                        str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_MEMCMP(L"123", str1, 3 * sizeof(wchar_t));
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrTest2)
+{
+  ScanfTestFileW input(L"123      ");
+  wchar_t        str1[18];
+  wchar_t        str2[18];
+
+  int count = fwscanf_s(input.getStream(), L"%4s%s", 
+                       str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                       str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_MEMCMP(L"123", str1, 3 * sizeof(wchar_t));
+}
+
 NW_END_TEST_GROUP()
+
 
 NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMsSafeSWScanfSTestGroup)
 
@@ -911,7 +1037,7 @@ NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfHexIntTest)
 
   NW_CHECK_EQUAL_INTS(0x230, hexNum1);
 }
-#ifndef __GNUC__
+
 NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfShortTest)
 {
   const wchar_t  input[] = L"0230  -0045 123abc";
@@ -950,7 +1076,7 @@ NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfLongTest)
   NW_CHECK_EQUAL_LONGS(-45, longNum2);
   NW_CHECK_EQUAL_LONGS(12, longNum3);
 }
-#endif
+
 NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfFloatTest)
 {
   const wchar_t  input[] = L"1.230045 abc12.3abc";
