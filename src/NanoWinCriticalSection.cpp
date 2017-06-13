@@ -27,10 +27,12 @@ void InitializeCriticalSection(LPCRITICAL_SECTION lpCriticalSection)
 
 //TODO: implement spin count support (need to store spin count in CRITICAL_SECTION structure
 //      and spin inside EnterCriticalSection (only on multi-core processors))
-void InitializeCriticalSectionAndSpinCount(LPCRITICAL_SECTION lpCriticalSection,
+BOOL InitializeCriticalSectionAndSpinCount(LPCRITICAL_SECTION lpCriticalSection,
                                            DWORD              /*dwSpinCount*/)
 {
   InitializeCriticalSection(lpCriticalSection);
+
+  return TRUE;
 }
 
 void EnterCriticalSection(LPCRITICAL_SECTION lpCriticalSection)

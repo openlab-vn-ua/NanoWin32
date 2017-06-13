@@ -25,7 +25,7 @@ typedef CRITICAL_SECTION *LPCRITICAL_SECTION;
 NW_EXTERN_C_BEGIN
 
 extern void InitializeCriticalSection             (LPCRITICAL_SECTION lpCriticalSection);
-extern void InitializeCriticalSectionAndSpinCount (LPCRITICAL_SECTION lpCriticalSection,
+extern BOOL InitializeCriticalSectionAndSpinCount (LPCRITICAL_SECTION lpCriticalSection,
                                                    DWORD              dwSpinCount);
 extern void EnterCriticalSection                  (LPCRITICAL_SECTION lpCriticalSection);
 extern void LeaveCriticalSection                  (LPCRITICAL_SECTION lpCriticalSection);
