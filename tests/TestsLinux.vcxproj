@@ -146,6 +146,7 @@
     <ClInclude Include="..\src\NanoWinMFCAfxWin.h" />
     <ClInclude Include="..\src\NanoWinModule.h" />
     <ClInclude Include="..\src\NanoWinMsExtra.h" />
+    <ClInclude Include="..\src\NanoWinMsSafeScanf.h" />
     <ClInclude Include="..\src\NanoWinMsSafeString.h" />
     <ClInclude Include="..\src\NanoWinOther.h" />
     <ClInclude Include="..\src\NanoWinPrivateProfile.h" />

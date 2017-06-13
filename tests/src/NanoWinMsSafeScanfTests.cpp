@@ -539,11 +539,11 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSTrivialTest)
   parsedFieldCount = sscanf_s("abc", "abc");
 
   // it looks like implementation-specific behavior
-#ifdef __GNUC__
+//#ifdef __GNUC__
   NW_CHECK_EQUAL(0, parsedFieldCount);
-#else
+/*#else
   NW_CHECK_EQUAL(-1, parsedFieldCount);
-#endif
+#endif*/
 
   parsedFieldCount = sscanf_s("3", "%d", &intValue);
 
@@ -833,6 +833,292 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrTest2)
 
   NW_CHECK_EQUAL_INTS(1, count);
   NW_CHECK_EQUAL_STRCMP("123", str1);
+}
+
+NW_END_TEST_GROUP()
+
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMsSafeSWScanfSTestGroup)
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfFileEmptyTest)
+{
+  const wchar_t    input[] = L"";
+  int              intNum;
+
+  int count = swscanf_s(input, L"%d", &intNum);
+
+  NW_CHECK_EQUAL_INTS(-1, count);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfIntTest)
+{
+  const wchar_t input[] = L"0230  -0045 123abc";
+  int   intNum1;
+  int   intNum2;
+  int   intNum3;
+
+  int count = swscanf_s(input, L"%10d%d%d", &intNum1, &intNum2, &intNum3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_INTS(-45, intNum2);
+  NW_CHECK_EQUAL_INTS(123, intNum3);
+
+  count = swscanf_s(input, L"%d%2d", &intNum1, &intNum2);
+
+  NW_CHECK_EQUAL_INTS(2, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_INTS(0, intNum2);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfOctIntTest)
+{
+  const wchar_t  input[] = L"0230  -00459 123abc";
+  int   octNum1;
+  int   octNum2;
+  int   octNum3;
+
+  int count = swscanf_s(input, L"%10od%od%od", &octNum1, &octNum2, &octNum3);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_INTS(0230, octNum1);
+
+  count = swscanf_s(input, L"%od%5od", &octNum1, &octNum2);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_INTS(0230, octNum1);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfHexIntTest)
+{
+  const wchar_t   input[] = L"0230  -0045 123ABX";
+  unsigned int hexNum1;
+  unsigned int hexNum2;
+  unsigned int hexNum3;
+
+  int count = swscanf_s(input, L"%10xd%xd%xd", &hexNum1, &hexNum2, &hexNum3);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_INTS(0x230, hexNum1);
+
+  count = swscanf_s(input, L"%xd%2xd", &hexNum1, &hexNum2);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_INTS(0x230, hexNum1);
+}
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfShortTest)
+{
+  const wchar_t  input[] = L"0230  -0045 123abc";
+  short       shortNum1;
+  short       shortNum2;
+  short       shortNum3;
+
+  int count = swscanf_s(input, L"%10hd%hd%hd", &shortNum1, &shortNum2, &shortNum3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_INTS(230, shortNum1);
+  NW_CHECK_EQUAL_INTS(-45, shortNum2);
+  NW_CHECK_EQUAL_INTS(123, shortNum3);
+
+  count = swscanf_s(input, L"%hd%2hd", &shortNum1, &shortNum2);
+
+  NW_CHECK_EQUAL_INTS(2, count);
+
+  NW_CHECK_EQUAL_INTS(230, shortNum1);
+  NW_CHECK_EQUAL_INTS(0, shortNum2);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfLongTest)
+{
+  const wchar_t  input[] = L"012 -00045  12.3abc";
+  long int    longNum1;
+  long int    longNum2;
+  long int    longNum3;
+
+  int count = swscanf_s(input, L"%5ld%ld%ld", &longNum1, &longNum2, &longNum3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_LONGS(12, longNum1);
+  NW_CHECK_EQUAL_LONGS(-45, longNum2);
+  NW_CHECK_EQUAL_LONGS(12, longNum3);
+}
+#endif
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfFloatTest)
+{
+  const wchar_t  input[] = L"1.230045 abc12.3abc";
+  float floatNum1;
+  float floatNum2;
+  float floatNum3;
+
+  int count = swscanf_s(input, L"%4f%6f%f", &floatNum1, &floatNum2, &floatNum3);
+
+  NW_CHECK_EQUAL_INTS(2, count);
+
+  NW_CHECK_EQUAL(1.23f, floatNum1);
+  NW_CHECK_EQUAL(45.0f, floatNum2);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfIntAndFloatTest)
+{
+  const wchar_t  input[] = L"123.45";
+  int   intNum1;
+  float floatNum1;
+
+  int count = swscanf_s(input, L"%2d%6f", &intNum1, &floatNum1);
+
+  NW_CHECK_EQUAL_INTS(2, count);
+
+  NW_CHECK_EQUAL_INTS(12, intNum1);
+  NW_CHECK_EQUAL_INTS(3.45f, floatNum1);
+}
+
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfStrSimpleTest)
+{
+  const wchar_t  input[] = L"123abc";
+  wchar_t str[18];
+
+  int count = swscanf_s(input, L"%s", str, (unsigned)(sizeof(str) /sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_MEMCMP(L"123abc", str, sizeof(input));
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfStrWithCounterTest)
+{
+  const wchar_t  input[] = L"123abc	 def 456";
+  wchar_t str[8];
+
+  int count = swscanf_s(input, L"%3s", str, (unsigned)(sizeof(str) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_MEMCMP(L"123", str, 3 * sizeof(wchar_t));
+
+  count = swscanf_s(input, L"%10s", str, (unsigned)(sizeof(str) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_MEMCMP(L"123abc", str, 6 * sizeof(wchar_t));
+}
+
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfStrTest)
+{
+  const wchar_t  input[] = L"123  abc		4def5";
+
+  wchar_t str1[8];
+  wchar_t str2[8];
+  wchar_t str3[8];
+
+  int count = swscanf_s(input, L"%s%s%s", 
+                        str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)), 
+                        str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)), 
+                        str3, (unsigned)(sizeof(str3) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_MEMCMP(L"123",   str1, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_MEMCMP(L"abc",   str2, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_MEMCMP(L"4def5", str3, 5 * sizeof(wchar_t));
+
+  count = swscanf_s(input, L"%2s%s%s",
+                    str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                    str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)),
+                    str3, (unsigned)(sizeof(str3) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_MEMCMP(L"12", str1,  2 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_MEMCMP(L"3", str2,   1 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_MEMCMP(L"abc", str3, 3 * sizeof(wchar_t));
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfCharSimpleTest)
+{
+  const wchar_t  input[] = L"abc";
+  wchar_t symb;
+
+  int count = swscanf_s(input, L"%c", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_INTS(L'a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfCharWithCounterTest)
+{
+  const wchar_t  input[] = L"abc";
+  wchar_t symb[4];
+
+  int count = swscanf_s(input, L"%3c", symb, (unsigned)(sizeof(symb) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL(L'a', symb[0]);
+  NW_CHECK_EQUAL(L'b', symb[1]);
+  NW_CHECK_EQUAL(L'c', symb[2]);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfCharTest)
+{
+  const wchar_t  input[] = L"abc de";
+  wchar_t symb;
+  wchar_t str[5];
+
+  int count = swscanf_s(input, L"%c%3c", 
+                        &symb, (unsigned)(sizeof(symb) / sizeof(wchar_t)),
+                        str, (unsigned)(sizeof(str) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(2, count);
+
+  NW_CHECK_EQUAL(L'a', symb);
+  NW_CHECK_EQUAL(L'b', str[0]);
+  NW_CHECK_EQUAL(L'c', str[1]);
+  NW_CHECK_EQUAL(L' ', str[2]);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfCommonTest)
+{
+  const wchar_t  input[] = L"abc123 4def5.6.7 nnn56.78";
+
+  wchar_t  str1[10];
+  wchar_t  str2[10];
+  wchar_t  str3[10];
+
+  int   intNum1;
+  float floatNum1;
+
+  int count = swscanf_s(input, L"%s%d%s%s",
+                        str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                        &intNum1, 
+                        str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)),
+                        str3, (unsigned)(sizeof(str3) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL_INTS(4, count);
+
+  NW_CHECK_EQUAL_MEMCMP(L"abc123", str1, 6 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_INTS(4, intNum1);
+  NW_CHECK_EQUAL_MEMCMP(L"def5.6.7", str2, 8 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_MEMCMP(L"nnn56.78", str3, 8 * sizeof(wchar_t));
+
+  count = swscanf_s(input, L"%3s%d%4s%f", 
+                    str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                    &intNum1, 
+                    str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)),
+                    &floatNum1);
+
+  NW_CHECK_EQUAL_INTS(4, count);
+
+  NW_CHECK_EQUAL_MEMCMP(L"abc", str1, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_INTS(123, intNum1);
+  NW_CHECK_EQUAL_MEMCMP(L"4def", str2, 4 * sizeof(wchar_t));
+  NW_CHECK_EQUAL(5.6f, floatNum1);
 }
 
 NW_END_TEST_GROUP()
