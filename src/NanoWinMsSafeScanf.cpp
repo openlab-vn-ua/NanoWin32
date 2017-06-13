@@ -12,6 +12,9 @@
 
 #include "NanoWinMsSafeScanf.h"
 
+#define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
+#define return_after_err_handler(etext,earg,errcode) return(errcode)
+
 namespace
 {
   class InputFailure {};
@@ -298,7 +301,7 @@ namespace
     virtual void unreadChar (char_result_type ch) = 0;
     virtual void skipSpaces () = 0;
 
-    virtual int  scanAny (const char_type *typeFormat, int fieldWidth, void *value) = 0;
+    virtual int  scanAny (const char_type *typeFormat, unsigned int fieldWidth, void *value) = 0;
 
     protected :
     // %[*][width]lld
@@ -345,7 +348,7 @@ namespace
     {
       if (pos > 0)
       {
-        if (str[--pos] != ch)
+        if (str[--pos] != (char_type)ch)
         {
           throw InputFailure();
         }
@@ -364,7 +367,7 @@ namespace
       }
     }
  
-    virtual int scanAny(const char_type *typeFormat, int fieldWidth, void *value)
+    virtual int scanAny(const char_type *typeFormat, unsigned int fieldWidth, void *value)
     {
       char_type format[this->MAX_FIELD_SPECIFIER_LEN * 2 + 1];
 
@@ -382,7 +385,7 @@ namespace
 
       pos += len;
 
-      if (fieldCount == CharTraits::eof)
+      if ((char_result_type)fieldCount == CharTraits::eof)
       {
         throw InputFailure();
       }
@@ -462,7 +465,7 @@ namespace
       }
     }
 
-    virtual int scanAny(const char_type *typeFormat, int fieldWidth, void *value)
+    virtual int scanAny(const char_type *typeFormat, unsigned int fieldWidth, void *value)
     {
       char_type format[this->MAX_FIELD_SPECIFIER_LEN + 1];
 
@@ -477,7 +480,7 @@ namespace
 
       int fieldCount = CharTraits::fscanf(stream, format, value);
 
-      if (fieldCount == CharTraits::eof)
+      if ((char_result_type)fieldCount == CharTraits::eof)
       {
         throw InputFailure();
       }
@@ -520,20 +523,20 @@ namespace
       stream->skipSpaces();
     }
 
-    int scanAny(const char_type *typeFormat, int fieldWidth, void *value)
+    int scanAny(const char_type *typeFormat, unsigned int fieldWidth, void *value)
     {
       return stream->scanAny(typeFormat, fieldWidth, value) == 1;
     }
 
-    bool scanInt(int *value, int fieldWidth = 0)
+    bool scanUInt(unsigned int *value, unsigned int fieldWidth = 0)
     {
-      return stream->scanAny(CharTraits::Str_d, fieldWidth, value) == 1;
+      return stream->scanAny(CharTraits::Str_u, fieldWidth, value) == 1;
     }
 
-    bool skipString(int fieldWidth)
+    bool skipString(unsigned int fieldWidth)
     {
-      int  pos        = 0;
-      bool spaceFound = false;
+      unsigned int pos        = 0;
+      bool         spaceFound = false;
 
       skipSpaces();
 
@@ -556,14 +559,14 @@ namespace
       return true;
     }
 
-    bool scanString(char_type *value, int bufferSize, int fieldWidth = 0)
+    bool scanString(char_type *value, unsigned int bufferSize, unsigned int fieldWidth = 0)
     {
       if (bufferSize == 0) throw OutOfRangeFailure();
 
       skipSpaces();
 
-      int  pos        = 0;
-      bool spaceFound = false;
+      unsigned int pos        = 0;
+      bool         spaceFound = false;
 
       while (!eof() && !spaceFound && pos < bufferSize && (fieldWidth == 0 || pos < fieldWidth))
       {
@@ -603,11 +606,11 @@ namespace
       }
     }
 
-    bool skipChars(int fieldWidth)
+    bool skipChars(unsigned int fieldWidth)
     {
-      int pos = 0;
+      unsigned int pos = 0;
 
-      for (int pos = 0; pos < fieldWidth && !eof(); pos++)
+      for (pos = 0; pos < fieldWidth && !eof(); pos++)
       {
         readChar();
       }
@@ -615,11 +618,11 @@ namespace
       return pos == fieldWidth;
     }
 
-    bool scanChars(char_type *value, int bufferSize, int fieldWidth)
+    bool scanChars(char_type *value, unsigned int bufferSize, unsigned int fieldWidth)
     {
       if (bufferSize == 0) throw OutOfRangeFailure();
 
-      int pos = 0;
+      unsigned int pos = 0;
 
       while (!eof() && pos < bufferSize && pos < fieldWidth)
       {
@@ -653,7 +656,11 @@ case (formatChar) : \
   } \
   else \
   { \
-    ok = bufferScanner.scanAny(formatStr,maxWidth,va_arg(args,type*)); \
+    type *valueBuf = va_arg(args,type*); \
+ \
+    if (valueBuf == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); } \
+ \
+    ok = bufferScanner.scanAny(formatStr,maxWidth,valueBuf); \
 \
     if (ok) \
     { \
@@ -665,6 +672,9 @@ case (formatChar) : \
 template<typename CharTraits>
 static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTraits::char_type *format, va_list args)
 {
+  #define FN "scanf_s"
+  #define SP " "
+
   Scanner<CharTraits>           bufferScanner(stream);
   InputStreamString<CharTraits> formatStream(format);
   Scanner<CharTraits>           formatScanner(&formatStream);
@@ -690,13 +700,13 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
           formatChar = formatScanner.readChar();
         }
 
-        int maxWidth = 0;
+        unsigned int maxWidth = 0;
 
         if (isdigit(formatChar))
         {
           formatScanner.unreadChar(formatChar);
 
-          ok = formatScanner.scanInt(&maxWidth);
+          ok = formatScanner.scanUInt(&maxWidth);
 
           if (ok)
           {
@@ -827,7 +837,9 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
                 else
                 {
                   typename CharTraits::char_type *destStr = va_arg(args,typename CharTraits::char_type*);
-                  int                             maxSize = va_arg(args,int);
+                  unsigned int                    maxSize = va_arg(args,unsigned int);
+
+                  if (destStr == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); }
 
                   ok = bufferScanner.scanString(destStr,maxSize,maxWidth);
 
@@ -852,7 +864,9 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
                 else
                 {
                   typename CharTraits::char_type *destBuff   = va_arg(args,typename CharTraits::char_type*);
-                  int                             bufferSize = va_arg(args,int);
+                  unsigned int                    bufferSize = va_arg(args,unsigned int);
+
+                  if (destBuff == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); }
 
                   ok = bufferScanner.scanChars(destBuff,bufferSize,maxWidth);
 
@@ -894,13 +908,24 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
   catch (OutOfRangeFailure&)
   {
     inputFailed = true;
+
+    return_after_err_handler(FN SP "buffer is too small",NULL,EOF);
   }
 
   return inputFailed ? -1 : parsedFieldCount;
+
+  #undef SP
+  #undef FN
 }
  
 NW_EXTERN_C  int sscanf_s(const char *buffer, const char *format, ...)
 {
+  #define FN "sscanf_s"
+  #define SP " "
+
+  if (buffer == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
   InputStreamString<CharTraitsChar> stream(buffer);
   va_list                           args;
 
@@ -911,10 +936,19 @@ NW_EXTERN_C  int sscanf_s(const char *buffer, const char *format, ...)
   va_end(args);
 
   return result;
+
+  #undef SP
+  #undef FN
 }
 
 NW_EXTERN_C  int fscanf_s(FILE *stream, const char *format, ...)
 {
+  #define FN "fscanf_s"
+  #define SP " "
+
+  if (stream == NULL) { return_after_err_handler(FN SP "stream is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
   InputStreamFile<CharTraitsChar> fileStream(stream);
   va_list                         args;
 
@@ -925,10 +959,19 @@ NW_EXTERN_C  int fscanf_s(FILE *stream, const char *format, ...)
   va_end(args);
 
   return result;
+
+  #undef SP
+  #undef FN
 }
 
 NW_EXTERN_C  int swscanf_s(const wchar_t *buffer, const wchar_t *format, ...)
 {
+  #define FN "swscanf_s"
+  #define SP " "
+
+  if (buffer == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
   InputStreamString<CharTraitsWideChar> stream(buffer);
   va_list                               args;
 
@@ -939,10 +982,19 @@ NW_EXTERN_C  int swscanf_s(const wchar_t *buffer, const wchar_t *format, ...)
   va_end(args);
 
   return result;
+
+  #undef SP
+  #undef FN
 }
 
 NW_EXTERN_C  int fwscanf_s(FILE          *stream, const wchar_t *format, ...)
 {
+  #define FN "fwscanf_s"
+  #define SP " "
+
+  if (stream == NULL) { return_after_err_handler(FN SP "stream is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
   InputStreamFile<CharTraitsWideChar> fileStream(stream);
   va_list                             args;
 
@@ -953,4 +1005,7 @@ NW_EXTERN_C  int fwscanf_s(FILE          *stream, const wchar_t *format, ...)
   va_end(args);
 
   return result;
+
+  #undef SP
+  #undef FN
 }
