@@ -279,10 +279,10 @@ namespace
     static constexpr const wchar_t *Str_lg = L"lg";
     static constexpr const wchar_t *Str_lG = L"lG";
 
-    static constexpr const wchar_t *ScanAnyWithWidthFormatStr     = L"%%%d%s%%n";
-    static constexpr const wchar_t *ScanAnyFormatStr              = L"%%%s%%n";
-    static constexpr const wchar_t *ScanAnyWithWidthFileFormatStr = L"%%%d%s";
-    static constexpr const wchar_t *ScanAnyFileFormatStr          = L"%%%s";
+    static constexpr const wchar_t *ScanAnyWithWidthFormatStr     = L"%%%d%ls%%n";
+    static constexpr const wchar_t *ScanAnyFormatStr              = L"%%%ls%%n";
+    static constexpr const wchar_t *ScanAnyWithWidthFileFormatStr = L"%%%d%ls";
+    static constexpr const wchar_t *ScanAnyFileFormatStr          = L"%%%ls";
   };
  
   template<typename CharTraits>
@@ -677,7 +677,7 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
   {
     while (ok && !formatScanner.eof())
     {
-      int formatChar = formatScanner.readChar();
+      typename CharTraits::char_result_type formatChar = formatScanner.readChar();
 
       if      (formatChar == CharTraits::StartFieldChar)
       {
