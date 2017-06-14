@@ -12,7 +12,7 @@
 
 #include <stdarg.h>
 
-#include <NanoWinTypes.h>
+#include "NanoWinTypes.h"
 
 /* NOTE: Functions below do not support field type specifiers: 'C', 'S', 'p', '[]' */
 /* and size prefixes: 'j, 'z', 't', 'l64'                                          */
