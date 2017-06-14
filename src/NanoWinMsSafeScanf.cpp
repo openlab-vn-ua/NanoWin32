@@ -925,7 +925,25 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
   #undef SP
   #undef FN
 }
- 
+
+NW_EXTERN_C  int vsscanf_s(const char    *buffer, const char    *format, va_list argptr)
+{
+  #define FN "vsscanf_s"
+  #define SP " "
+
+  if (buffer == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
+  InputStreamString<CharTraitsChar> stream(buffer);
+
+  int result = stream_scanf_s<CharTraitsChar>(&stream,format,argptr);
+
+  return result;
+
+  #undef SP
+  #undef FN
+}
+
 NW_EXTERN_C  int sscanf_s(const char *buffer, const char *format, ...)
 {
   #define FN "sscanf_s"
@@ -942,6 +960,24 @@ NW_EXTERN_C  int sscanf_s(const char *buffer, const char *format, ...)
   int result = stream_scanf_s<CharTraitsChar>(&stream,format,args);
 
   va_end(args);
+
+  return result;
+
+  #undef SP
+  #undef FN
+}
+
+NW_EXTERN_C  int vfscanf_s(FILE          *stream, const char    *format, va_list argptr)
+{
+  #define FN "vfscanf_s"
+  #define SP " "
+
+  if (stream == NULL) { return_after_err_handler(FN SP "stream is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
+  InputStreamFile<CharTraitsChar> fileStream(stream);
+
+  int result = stream_scanf_s<CharTraitsChar>(&fileStream,format,argptr);
 
   return result;
 
@@ -972,6 +1008,24 @@ NW_EXTERN_C  int fscanf_s(FILE *stream, const char *format, ...)
   #undef FN
 }
 
+NW_EXTERN_C  int vswscanf_s(const wchar_t *buffer, const wchar_t *format, va_list argptr)
+{
+  #define FN "vswscanf_s"
+  #define SP " "
+
+  if (buffer == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
+  InputStreamString<CharTraitsWideChar> stream(buffer);
+
+  int result = stream_scanf_s<CharTraitsWideChar>(&stream,format,argptr);
+
+  return result;
+
+  #undef SP
+  #undef FN
+}
+
 NW_EXTERN_C  int swscanf_s(const wchar_t *buffer, const wchar_t *format, ...)
 {
   #define FN "swscanf_s"
@@ -988,6 +1042,24 @@ NW_EXTERN_C  int swscanf_s(const wchar_t *buffer, const wchar_t *format, ...)
   int result = stream_scanf_s<CharTraitsWideChar>(&stream,format,args);
 
   va_end(args);
+
+  return result;
+
+  #undef SP
+  #undef FN
+}
+
+NW_EXTERN_C  int vfwscanf_s(FILE          *stream, const wchar_t *format, va_list argptr)
+{
+  #define FN "vfwscanf_s"
+  #define SP " "
+
+  if (stream == NULL) { return_after_err_handler(FN SP "stream is NULL",NULL,EOF); }
+  if (format == NULL) { return_after_err_handler(FN SP "format is NULL",NULL,EOF); }
+
+  InputStreamFile<CharTraitsWideChar> fileStream(stream);
+
+  int result = stream_scanf_s<CharTraitsWideChar>(&fileStream,format,argptr);
 
   return result;
 
