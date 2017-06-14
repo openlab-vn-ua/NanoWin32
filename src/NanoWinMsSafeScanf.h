@@ -14,6 +14,9 @@
 
 #include <NanoWinTypes.h>
 
+/* NOTE: Functions below do not support field type specifiers: 'C', 'S', 'p', '[]' */
+/* and size prefixes: 'j, 'z', 't', 'l64'                                          */
+
 NW_EXTERN_C  int sscanf_s  (const char    *buffer, const char    *format, ...);
 NW_EXTERN_C  int vsscanf_s (const char    *buffer, const char    *format, va_list argptr);
 NW_EXTERN_C  int fscanf_s  (FILE          *stream, const char    *format, ...);
