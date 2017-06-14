@@ -589,11 +589,14 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSTrivialTest)
   parsedFieldCount = sscanf_s("abc", "abc");
 
   // it looks like implementation-specific behavior
-//#ifdef __GNUC__
+  // under MS Windows function returns either 0 or -1 on different installations
+  /*
+  #ifdef __GNUC__
   NW_CHECK_EQUAL(0, parsedFieldCount);
-/*#else
+  #else
   NW_CHECK_EQUAL(-1, parsedFieldCount);
-#endif*/
+  #endif
+  */
 
   parsedFieldCount = sscanf_s("3", "%d", &intValue);
 
