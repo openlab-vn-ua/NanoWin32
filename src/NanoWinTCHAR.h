@@ -112,50 +112,54 @@ typedef LPSTR                LPTSTR;
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
-
-#define _ftprintf            fwprintf
-#define _ftprintf_s          fwprintf_s
 #define _tfopen              _wfopen
 #define _tfopen_s            _wfopen_s
 #define _tfsopen             _wfsopen
 #define _fputts              fputws
 #define _fgetts              fgetws
-#define _ftscanf             fwscanf
-
 #else
-
-#define _ftprintf            fprintf
-#define _ftprintf_s          fprintf_s
 #define _tfopen              fopen
 #define _tfopen_s            fopen_s
 #define _tfsopen             _fsopen
 #define _fputts              fputs
 #define _fgetts              fgets
-#define _ftscanf             fscanf
-
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
+#define _ftprintf            fwprintf
+#define _ftprintf_s          fwprintf_s
+#define _ftscanf             fwscanf
+#define _ftscanf_s           fwscanf_s
+#else
+#define _ftprintf            fprintf
+#define _ftprintf_s          fprintf_s
+#define _ftscanf             fscanf
+#define _ftscanf_s           fscanf_s
+#endif
 
+#if defined(UNICODE) || defined(_UNICODE)
 #define _tprintf             wprintf
 #define _tprintf_s           wprintf_s
 #define _stprintf            swprintf
 #define _stprintf_s          swprintf_s
-#define _tgetcwd             _wgetcwd
-#define _stscanf             swscanf
-
 #else
-
 #define _tprintf             printf
 #define _tprintf_s           printf_s
 #define _stprintf            sprintf
 #define _stprintf_s          sprintf_s
-#define _tgetcwd             getcwd
-#define _stscanf             sscanf
-
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
+#define _stscanf             swscanf
+#define _stscanf_s           swscanf_s
+#else
+#define _stscanf             sscanf
+#define _stscanf_s           sscanf_s
+#endif
+
+#if defined(UNICODE) || defined(_UNICODE)
+
+#define _tgetcwd             _wgetcwd
 
 #define _tfullpath           _wfullpath
 #define _tmakepath           _wmakepath
@@ -164,6 +168,8 @@ typedef LPSTR                LPTSTR;
 #define _tsplitpath_s        _wsplitpath_s
 
 #else
+
+#define _tgetcwd             getcwd
 
 #define _tfullpath           _fullpath
 #define _tmakepath           _makepath
