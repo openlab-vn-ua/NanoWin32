@@ -80,12 +80,28 @@ NW_EXTERN_C DWORD  NanoWinCreateDirectoryPathA
           {
             sepPos += StrFindChars(&pszPath[startPos],NanoWinShellExDirSepChar,NanoWinShellExDirSepAltChar);
 
-            memcpy(&subPath[startPos],&pszPath[startPos],sepPos - startPos + 1);
-
-            if (subPath[sepPos] != '\0')
+            if (sepPos <= PATH_MAX_LEN) // it's ok if sepPos == PATH_MAX_LEN if pszPath[sepPos] == 0
             {
-              subPath[sepPos]   = NanoWinShellExDirSepChar;
-              subPath[++sepPos] = '\0';
+              memcpy(&subPath[startPos],&pszPath[startPos],sepPos - startPos + 1);
+
+              if (subPath[sepPos] != '\0')
+              {
+                if (sepPos < PATH_MAX_LEN)
+                {
+                  subPath[sepPos]   = NanoWinShellExDirSepChar;
+                  subPath[++sepPos] = '\0';
+                }
+                else
+                {
+                  ok = false;
+                  SetLastError(ERROR_FILENAME_EXCED_RANGE);
+                }
+              }
+            }
+            else
+            {
+              ok = false;
+              SetLastError(ERROR_FILENAME_EXCED_RANGE);
             }
           }
         }
