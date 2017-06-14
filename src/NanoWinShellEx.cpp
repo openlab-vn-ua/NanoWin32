@@ -21,7 +21,7 @@ extern int SHCreateDirectoryExA
            )
 {
   if (hwnd != NULL) { return(NanoWinSetLastError(NW_DEFAULT_ERROR_AT_FAIL)); }
-  return(SHCreateDirectoryExA(hwnd, pszPath, psa));
+  return(NanoWinCreateDirectoryPathA(pszPath, psa));
 }
 
 extern int SHCreateDirectoryExW
@@ -32,7 +32,7 @@ extern int SHCreateDirectoryExW
            )
 {
   if (hwnd != NULL) { return(NanoWinSetLastError(NW_DEFAULT_ERROR_AT_FAIL)); }
-  return(SHCreateDirectoryExW(hwnd, pszPath, psa));
+  return(NanoWinCreateDirectoryPathW(pszPath, psa));
 }
 
 NW_EXTERN_C_END
