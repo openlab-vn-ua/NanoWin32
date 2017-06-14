@@ -507,7 +507,7 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfPercentCharInFormatTest)
   NW_CHECK_EQUAL(5.6f, floatValue);
   NW_CHECK_EQUAL_STRCMP("abc", str);
 }
-#ifndef __GNUC__
+
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrSymbolsCountTest)
 {
   const char  input[] = "123  abc		4def5";
@@ -613,7 +613,7 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfIntLongSymbolCountTest)
   NW_CHECK_EQUAL_INTS(123, intNum3);
   NW_CHECK_EQUAL_LONGS(15, count3);
 }
-#endif
+
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrTest)
 {
 	const char  input[] = "123  abc		4def5";
@@ -1032,7 +1032,6 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrTest2)
   NW_CHECK_EQUAL_STRCMP("123", str1);
 }
 
-
 NW_TEST(NanoWinSafeFScanfTestGroup, FScanfPercentCharInFormatTest)
 {
   ScanfTestFile input("%37%%nn");
@@ -1246,6 +1245,85 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrTest2)
 
   NW_CHECK_EQUAL_INTS(1, count);
   NW_CHECK_EQUAL_MEMCMP(L"123", str1, 3 * sizeof(wchar_t));
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrSymbolsCountTest)
+{
+  ScanfTestFileW input(L"123  abc		4def5");
+
+  wchar_t str1[18];
+  wchar_t str2[18];
+  wchar_t str3[18];
+
+  int count1;
+  int count2;
+  int count3;
+
+  int count = fwscanf_s(input.getStream(), L"%s%n%s%n%s%n",
+                        str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)), &count1,
+                        str2, (unsigned)(sizeof(str1) / sizeof(wchar_t)), &count2,
+                        str3, (unsigned)(sizeof(str1) / sizeof(wchar_t)), &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_MEMCMP(L"123", str1, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_INTS(3, count1);
+
+  NW_CHECK_EQUAL_MEMCMP(L"abc", str2, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_INTS(8, count2);
+
+  NW_CHECK_EQUAL_MEMCMP(L"4def5", str3, 5 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_INTS(15, count3);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfIntSymbolCountTest)
+{
+  ScanfTestFileW  input(L"0230  -0045 123abc");
+  int   intNum1;
+  int   intNum2;
+  int   intNum3;
+
+  int count1;
+  int count2;
+  int count3;
+
+  int count = fwscanf_s(input.getStream(), L"%10d%n%d%n%d%n", &intNum1, &count1, &intNum2, &count2, &intNum3, &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_INTS(4, count1);
+
+  NW_CHECK_EQUAL_INTS(-45, intNum2);
+  NW_CHECK_EQUAL_INTS(11, count2);
+
+  NW_CHECK_EQUAL_INTS(123, intNum3);
+  NW_CHECK_EQUAL_INTS(15, count3);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfIntLongSymbolCountTest)
+{
+  ScanfTestFileW  input(L"0230  -0045 123abc");
+  int   intNum1;
+  int   intNum2;
+  int   intNum3;
+
+  long int count1;
+  long int count2;
+  long long int count3;
+
+  int count = fwscanf_s(input.getStream(), L"%10d%ln%d%ln%d%lln", &intNum1, &count1, &intNum2, &count2, &intNum3, &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_LONGS(4, count1);
+
+  NW_CHECK_EQUAL_INTS(-45, intNum2);
+  NW_CHECK_EQUAL_LONGS(11, count2);
+
+  NW_CHECK_EQUAL_INTS(123, intNum3);
+  NW_CHECK_EQUAL_LONGS(15, count3);
 }
 
 NW_END_TEST_GROUP()
