@@ -99,6 +99,10 @@
     <ClCompile Include="..\src\NanoWinMsSafeScanf.cpp" />
     <ClCompile Include="..\src\NanoWinMsSafeString.cpp" />
     <ClCompile Include="..\src\NanoWinOther.cpp" />
+    <ClCompile Include="..\src\NanoWinPathHook.cpp" />
+    <ClCompile Include="..\src\NanoWinPathHookGate.cpp" />
+    <ClCompile Include="..\src\NanoWinPathHookStub.cpp" />
+    <ClCompile Include="..\src\NanoWinPlus.cpp" />
     <ClCompile Include="..\src\NanoWinPrivateProfile.cpp" />
     <ClCompile Include="..\src\NanoWinQueryPerf.cpp" />
     <ClCompile Include="..\src\NanoWinRECT.cpp" />
@@ -149,6 +153,10 @@
     <ClInclude Include="..\src\NanoWinMsSafeScanf.h" />
     <ClInclude Include="..\src\NanoWinMsSafeString.h" />
     <ClInclude Include="..\src\NanoWinOther.h" />
+    <ClInclude Include="..\src\NanoWinPathHook.h" />
+    <ClInclude Include="..\src\NanoWinPathHookGate.h" />
+    <ClInclude Include="..\src\NanoWinPathHookStub.h" />
+    <ClInclude Include="..\src\NanoWinPlus.h" />
     <ClInclude Include="..\src\NanoWinPrivateProfile.h" />
     <ClInclude Include="..\src\NanoWinQueryPerf.h" />
     <ClInclude Include="..\src\NanoWinRECT.h" />
