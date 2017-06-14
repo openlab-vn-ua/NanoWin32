@@ -96,6 +96,7 @@ namespace
     static constexpr char Char_l = 'l';
     static constexpr char Char_s = 's';
     static constexpr char Char_c = 'c';
+    static constexpr char Char_n = 'n';
 
     static constexpr char StartFieldChar = '%';
     static constexpr char SuppressAssignmentChar = '*';
@@ -231,6 +232,7 @@ namespace
     static constexpr wchar_t Char_l = L'l';
     static constexpr wchar_t Char_s = L's';
     static constexpr wchar_t Char_c = L'c';
+    static constexpr wchar_t Char_n = L'n';
 
     static constexpr wchar_t StartFieldChar = L'%';
     static constexpr wchar_t SuppressAssignmentChar = L'*';
@@ -300,6 +302,7 @@ namespace
     virtual char_result_type readChar () = 0;
     virtual void unreadChar (char_result_type ch) = 0;
     virtual void skipSpaces () = 0;
+    virtual off64_t getReadCharCount () = 0;
 
     virtual int  scanAny (const char_type *typeFormat, unsigned int fieldWidth, void *value) = 0;
 
@@ -393,6 +396,11 @@ namespace
       return fieldCount;
     }
 
+    virtual off64_t getReadCharCount()
+    {
+      return pos;
+    }
+
     private :
 
     const char_type *str;
@@ -410,6 +418,14 @@ namespace
     InputStreamFile(FILE *file)
     {
       stream = file;
+
+      startOffset = ftello64(file);
+
+      // in case of error set offset to default value
+      if (startOffset == -1)
+      {
+        startOffset = 0;
+      }
     }
 
     virtual bool eof()
@@ -488,9 +504,17 @@ namespace
      return fieldCount;
     }
 
+    virtual off64_t getReadCharCount()
+    {
+      off64_t currOffset = ftello64(stream);
+
+      return currOffset > startOffset ? currOffset - startOffset : 0;
+    }
+
     private :
 
-    FILE *stream;
+    off64_t startOffset;
+    FILE   *stream;
   };
 
   template<typename CharTraits>
@@ -639,6 +663,11 @@ namespace
       return true;
     }
 
+    off64_t getReadCharCount()
+    {
+      return stream->getReadCharCount();
+    }
+
     private :
 
     InputStream<CharTraits> *stream;
@@ -666,6 +695,19 @@ case (formatChar) : \
     { \
       parsedFieldCount++; \
     } \
+  } \
+} break
+
+#define FORMAT_N_CASE(type) \
+case (CharTraits::Char_n) : \
+{ \
+  if (!suppressAssignment) \
+  { \
+    type *valueBuf = va_arg(args,type*); \
+\
+    if (valueBuf == NULL) { return_after_err_handler(FN SP "buffer is NULL",NULL,EOF); } \
+\
+    *valueBuf = (type)bufferScanner.getReadCharCount(); \
   } \
 } break
 
@@ -739,6 +781,7 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
                 FORMAT_CASE(CharTraits::Char_o,CharTraits::Str_hho,unsigned char);
                 FORMAT_CASE(CharTraits::Char_x,CharTraits::Str_hhx,unsigned char);
                 FORMAT_CASE(CharTraits::Char_X,CharTraits::Str_hhX,unsigned char);
+                FORMAT_N_CASE(char);
 
                 default :
                 {
@@ -756,6 +799,7 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
                 FORMAT_CASE(CharTraits::Char_o,CharTraits::Str_ho,unsigned short);
                 FORMAT_CASE(CharTraits::Char_x,CharTraits::Str_hx,unsigned short);
                 FORMAT_CASE(CharTraits::Char_X,CharTraits::Str_hX,unsigned short);
+                FORMAT_N_CASE(short);
 
                 default :
                 {
@@ -780,6 +824,7 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
                 FORMAT_CASE(CharTraits::Char_o,CharTraits::Str_llo,unsigned long long);
                 FORMAT_CASE(CharTraits::Char_x,CharTraits::Str_llx,unsigned long long);
                 FORMAT_CASE(CharTraits::Char_X,CharTraits::Str_llX,unsigned long long);
+                FORMAT_N_CASE(long long);
 
                 default :
                 {
@@ -803,6 +848,7 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
                 FORMAT_CASE(CharTraits::Char_E,CharTraits::Str_lE,double);
                 FORMAT_CASE(CharTraits::Char_g,CharTraits::Str_lg,double);
                 FORMAT_CASE(CharTraits::Char_G,CharTraits::Str_lG,double);
+                FORMAT_N_CASE(long);
 
                 default :
                 {
@@ -827,6 +873,7 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
               FORMAT_CASE(CharTraits::Char_E,CharTraits::Str_E,float);
               FORMAT_CASE(CharTraits::Char_g,CharTraits::Str_g,float);
               FORMAT_CASE(CharTraits::Char_G,CharTraits::Str_G,float);
+              FORMAT_N_CASE(int);
 
               case (CharTraits::StartFieldChar) :
               {
