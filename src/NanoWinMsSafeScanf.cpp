@@ -828,6 +828,14 @@ static int stream_scanf_s(InputStream<CharTraits> *stream, const typename CharTr
               FORMAT_CASE(CharTraits::Char_g,CharTraits::Str_g,float);
               FORMAT_CASE(CharTraits::Char_G,CharTraits::Str_G,float);
 
+              case (CharTraits::StartFieldChar) :
+              {
+                if (bufferScanner.eof() || bufferScanner.readChar() != CharTraits::StartFieldChar)
+                {
+                  ok = false;
+                }
+              } break;
+
               case (CharTraits::Char_s) :
               {
                 if (suppressAssignment)
