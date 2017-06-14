@@ -1402,9 +1402,9 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrCatSTest)
 
 	errno_t rc;
 	int32_t  ind;
-	int32_t  len1;
-	int32_t  len2;
-	int32_t  len3;
+	size_t   len1;
+	size_t   len2;
+	size_t   len3;
 
 	//--------------------------------------------------//
 
@@ -1626,10 +1626,10 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsCatSTest)
 	wchar_t   str2[LEN];
 
 	errno_t rc;
-	int32_t  ind;
-	int32_t  len1;
-	int32_t  len2;
-	int32_t  len3;
+	int32_t ind;
+	size_t  len1;
+	size_t  len2;
+	size_t  len3;
 
 	//--------------------------------------------------//
 

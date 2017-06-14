@@ -147,7 +147,7 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_fullpath_Test)
 	STRCPY_S(fexp1, cwd);
 	STRCAT_S(fexp1, EMPTS DSEPS);
 	STRCAT_S(fexp1, EMPTS "expected1");
-	ITEM    *rexp1= EMPTS "expected1";
+	const ITEM *rexp1= EMPTS "expected1";
 
 	ITEM     fexp2[_MAX_PATH];
 	STRCPY_S(fexp2, cwd);
@@ -155,7 +155,7 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_fullpath_Test)
 	STRCAT_S(fexp2, EMPTS "expected1");
 	STRCAT_S(fexp2, EMPTS DSEPS);
 	STRCAT_S(fexp2, EMPTS "expected2");
-	ITEM    *rexp2= EMPTS "expected1" DSEPS "expected2";
+	const ITEM *rexp2= EMPTS "expected1" DSEPS "expected2";
 
 	// dynamic buffer
 
@@ -368,7 +368,7 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_wfullpath_Test)
 	STRCPY_S(fexp1, cwd);
 	STRCAT_S(fexp1, EMPTS DSEPS);
 	STRCAT_S(fexp1, EMPTS "expected1");
-	ITEM    *rexp1= EMPTS "expected1";
+	const ITEM *rexp1= EMPTS "expected1";
 
 	ITEM     fexp2[_MAX_PATH];
 	STRCPY_S(fexp2, cwd);
@@ -376,7 +376,7 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_wfullpath_Test)
 	STRCAT_S(fexp2, EMPTS "expected1");
 	STRCAT_S(fexp2, EMPTS DSEPS);
 	STRCAT_S(fexp2, EMPTS "expected2");
-	ITEM    *rexp2= EMPTS "expected1" DSEPS "expected2";
+	const ITEM *rexp2= EMPTS "expected1" DSEPS "expected2";
 
 	// dynamic buffer
 
@@ -483,8 +483,8 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_makepath_s_Test)
 
 	SETUP_S_TEST();
 
-	ITEM      out[_MAX_PATH];
-	ITEM     *exp;
+	ITEM         out[_MAX_PATH];
+	const ITEM  *exp;
 
 	errno_t rc;
 
@@ -761,8 +761,8 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_wmakepath_s_Test)
 
 	SETUP_S_TEST();
 
-	ITEM      out[_MAX_PATH];
-	ITEM     *exp;
+	ITEM        out[_MAX_PATH];
+	const ITEM *exp;
 
 	errno_t rc;
 

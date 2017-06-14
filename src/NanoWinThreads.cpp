@@ -226,7 +226,7 @@ BOOL TerminateThread(HANDLE hThread, DWORD dwExitCode)
 
 VOID ExitThread(_In_ DWORD dwExitCode)
 {
-  pthread_exit((void*)dwExitCode);
+  pthread_exit((void*)(intptr_t)dwExitCode);
 }
 
 BOOL CloseThreadHandle(HANDLE hThread)

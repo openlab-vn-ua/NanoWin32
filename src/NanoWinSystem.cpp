@@ -90,7 +90,7 @@ static int fillProcStatValues(PPROCESS_MEMORY_COUNTERS_EX ppsmemCounters)
   while (fgets(line, sizeof(line), file) != NULL)
   {
     int value;
-    const char *pfx; int plen;
+    const char *pfx; size_t plen;
 
 	pfx = "VmSize:";
 	plen = strlen(pfx);

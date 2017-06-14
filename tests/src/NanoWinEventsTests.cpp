@@ -193,7 +193,7 @@ static DWORD WINAPI ThreadsTestSleepingThread (void *args)
   intptr_t sleepTimeInMicroSeconds = (intptr_t)args;
 
 #ifdef LINUX
-  usleep(sleepTimeInMicroSeconds);
+  usleep((useconds_t)sleepTimeInMicroSeconds);
 #else
   Sleep(sleepTimeInMicroSeconds / 1000);
 #endif

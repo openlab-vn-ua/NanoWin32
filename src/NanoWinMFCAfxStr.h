@@ -31,8 +31,8 @@ class NanoWinStringUtils
 {
   public:
   // _tcslen
-  static int  base_tcslen    (const wchar_t *psz) { return(wcslen(psz)); }
-  static int  base_tcslen    (const char    *psz) { return(strlen(psz)); }
+  static size_t base_tcslen  (const wchar_t *psz) { return(wcslen(psz)); }
+  static size_t base_tcslen  (const char    *psz) { return(strlen(psz)); }
 
   // _tcsncpy_s
   static void base_tcsncpy_s (wchar_t* pchDest, int nDestMax, const wchar_t* pchSrc, int nChars) { wcsncpy_s(pchDest, nDestMax, pchSrc, nChars); }
