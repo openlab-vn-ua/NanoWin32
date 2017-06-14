@@ -470,6 +470,18 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrSmallBuffTest)
 	NW_CHECK_EQUAL_STRCMP("", str);
 }
 */
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfPercentCharInFormatTest)
+{
+  const char input[] = "%37";
+  int        value;
+
+	int count = sscanf_s(input, "%%%d", &value);
+
+	NW_CHECK_EQUAL_INTS(1, count);
+	NW_CHECK_EQUAL_INTS(37, value);
+}
+
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrTest)
 {
 	const char  input[] = "123  abc		4def5";
