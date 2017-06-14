@@ -48,6 +48,11 @@ namespace
       return stream;
     }
 
+    void seekStart()
+    {
+      fseek(stream, 0, SEEK_SET);
+    }
+
     bool isOk()
     {
       return stream != NULL;
@@ -95,6 +100,11 @@ namespace
     FILE *getStream()
     {
       return stream;
+    }
+
+    void seekStart()
+    {
+      fseek(stream, 0, SEEK_SET);
     }
 
     bool isOk()
@@ -473,15 +483,137 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrSmallBuffTest)
 
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfPercentCharInFormatTest)
 {
-  const char input[] = "%37";
-  int        value;
+  const char input[] = "%37%%nn";
+  int        intValue;
+  char       str[8];
+  float      floatValue;
 
-	int count = sscanf_s(input, "%%%d", &value);
+	int count = sscanf_s(input, "%%%d", &intValue);
 
 	NW_CHECK_EQUAL_INTS(1, count);
-	NW_CHECK_EQUAL_INTS(37, value);
+	NW_CHECK_EQUAL_INTS(37, intValue);
+
+  count = sscanf_s(input, "%%%d%%%s", &intValue, str, sizeof(str));
+
+  NW_CHECK_EQUAL_INTS(2, count);
+  NW_CHECK_EQUAL_INTS(37, intValue);
+  NW_CHECK_EQUAL_STRCMP("%nn", str);
+
+  const char input2[] = "%5.6%   abc";
+
+  count = sscanf_s(input2, "%%%f%%%s", &floatValue, str, sizeof(str));
+
+  NW_CHECK_EQUAL_INTS(2, count);
+  NW_CHECK_EQUAL(5.6f, floatValue);
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+}
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrSymbolsCountTest)
+{
+  const char  input[] = "123  abc		4def5";
+
+  char str1[8];
+  char str2[8];
+  char str3[8];
+
+  int count1;
+  int count2;
+  int count3;
+
+  int count = sscanf_s(input, "%s%n%s%n%s%n",
+                       str1, sizeof(str1), &count1, 
+                       str2, sizeof(str2), &count2,
+                       str3, sizeof(str3), &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_STRCMP("123", str1);
+  NW_CHECK_EQUAL_INTS(3, count1);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str2);
+  NW_CHECK_EQUAL_INTS(8, count2);
+
+  NW_CHECK_EQUAL_STRCMP("4def5", str3);
+  NW_CHECK_EQUAL_INTS(15, count3);
+  
+  count = sscanf_s(input, "%2s%n%s%n%s%n", 
+                   str1, sizeof(str1), &count1,
+                   str2, sizeof(str2), &count2,
+                   str3, sizeof(str3), &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_STRCMP("12", str1);
+  NW_CHECK_EQUAL_INTS(2, count1);
+
+  NW_CHECK_EQUAL_STRCMP("3", str2);
+  NW_CHECK_EQUAL_INTS(3, count2);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str3);
+  NW_CHECK_EQUAL_INTS(8, count3);
 }
 
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfIntSymbolCountTest)
+{
+  const char  input[] = "0230  -0045 123abc";
+  int   intNum1;
+  int   intNum2;
+  int   intNum3;
+
+  int count1;
+  int count2;
+  int count3;
+
+  int count = sscanf_s(input, "%10d%n%d%n%d%n", &intNum1, &count1, &intNum2, &count2, &intNum3, &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+  
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_INTS(4,   count1);
+
+  NW_CHECK_EQUAL_INTS(-45, intNum2);
+  NW_CHECK_EQUAL_INTS(11, count2);
+
+  NW_CHECK_EQUAL_INTS(123, intNum3);
+  NW_CHECK_EQUAL_INTS(15, count3);
+  
+  count = sscanf_s(input, "%d%n%2d%n", &intNum1, &count1, &intNum2, &count2);
+
+  NW_CHECK_EQUAL_INTS(2, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_INTS(4, count1);
+
+  NW_CHECK_EQUAL_INTS(0, intNum2);
+  NW_CHECK_EQUAL_INTS(8, count2);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfIntLongSymbolCountTest)
+{
+  const char  input[] = "0230  -0045 123abc";
+  int   intNum1;
+  int   intNum2;
+  int   intNum3;
+
+  long int count1;
+  long int count2;
+  long long int count3;
+
+  int count = sscanf_s(input, "%10d%ln%d%ln%d%lln", &intNum1, &count1, &intNum2, &count2, &intNum3, &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_LONGS(4, count1);
+
+  NW_CHECK_EQUAL_INTS(-45, intNum2);
+  NW_CHECK_EQUAL_LONGS(11, count2);
+
+  NW_CHECK_EQUAL_INTS(123, intNum3);
+  NW_CHECK_EQUAL_LONGS(15, count3);
+}
+#endif
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrTest)
 {
 	const char  input[] = "123  abc		4def5";
@@ -900,6 +1032,148 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrTest2)
   NW_CHECK_EQUAL_STRCMP("123", str1);
 }
 
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FScanfPercentCharInFormatTest)
+{
+  ScanfTestFile input("%37%%nn");
+  int        intValue;
+  char       str[8];
+  float      floatValue;
+
+  int count = fscanf_s(input.getStream(), "%%%d", &intValue);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+  NW_CHECK_EQUAL_INTS(37, intValue);
+
+  input.seekStart();
+
+  count = fscanf_s(input.getStream(), "%%%d%%%s", &intValue, str, sizeof(str));
+
+  NW_CHECK_EQUAL_INTS(2, count);
+  NW_CHECK_EQUAL_INTS(37, intValue);
+  NW_CHECK_EQUAL_STRCMP("%nn", str);
+
+  ScanfTestFile input2("%5.6%   abc");
+
+  input.seekStart();
+
+  count = fscanf_s(input2.getStream(), "%%%f%%%s", &floatValue, str, sizeof(str));
+
+  NW_CHECK_EQUAL_INTS(2, count);
+  NW_CHECK_EQUAL(5.6f, floatValue);
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+}
+#ifndef __GNUC__
+NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrSymbolsCountTest)
+{
+  ScanfTestFile input("123  abc		4def5");
+
+  char str1[8];
+  char str2[8];
+  char str3[8];
+
+  int count1;
+  int count2;
+  int count3;
+
+  int count = fscanf_s(input.getStream(), "%s%n%s%n%s%n",
+                       str1, sizeof(str1), &count1,
+                       str2, sizeof(str2), &count2,
+                       str3, sizeof(str3), &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_STRCMP("123", str1);
+  NW_CHECK_EQUAL_INTS(3, count1);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str2);
+  NW_CHECK_EQUAL_INTS(8, count2);
+
+  NW_CHECK_EQUAL_STRCMP("4def5", str3);
+  NW_CHECK_EQUAL_INTS(15, count3);
+
+  input.seekStart();
+
+  count = fscanf_s(input.getStream(), "%2s%n%s%n%s%n",
+                   str1, sizeof(str1), &count1,
+                   str2, sizeof(str2), &count2,
+                   str3, sizeof(str3), &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_STRCMP("12", str1);
+  NW_CHECK_EQUAL_INTS(2, count1);
+
+  NW_CHECK_EQUAL_STRCMP("3", str2);
+  NW_CHECK_EQUAL_INTS(3, count2);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str3);
+  NW_CHECK_EQUAL_INTS(8, count3);
+}
+
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FScanfIntSymbolCountTest)
+{
+  ScanfTestFile  input("0230  -0045 123abc");
+  int   intNum1;
+  int   intNum2;
+  int   intNum3;
+
+  int count1;
+  int count2;
+  int count3;
+
+  int count = fscanf_s(input.getStream(), "%10d%n%d%n%d%n", &intNum1, &count1, &intNum2, &count2, &intNum3, &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_INTS(4, count1);
+
+  NW_CHECK_EQUAL_INTS(-45, intNum2);
+  NW_CHECK_EQUAL_INTS(11, count2);
+
+  NW_CHECK_EQUAL_INTS(123, intNum3);
+  NW_CHECK_EQUAL_INTS(15, count3);
+
+  input.seekStart();
+
+  count = fscanf_s(input.getStream(), "%d%n%2d%n", &intNum1, &count1, &intNum2, &count2);
+
+  NW_CHECK_EQUAL_INTS(2, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_INTS(4, count1);
+
+  NW_CHECK_EQUAL_INTS(0, intNum2);
+  NW_CHECK_EQUAL_INTS(8, count2);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FScanfIntLongSymbolCountTest)
+{
+  ScanfTestFile  input("0230  -0045 123abc");
+  int   intNum1;
+  int   intNum2;
+  int   intNum3;
+
+  long int count1;
+  long int count2;
+  long long int count3;
+
+  int count = fscanf_s(input.getStream(), "%10d%ln%d%ln%d%lln", &intNum1, &count1, &intNum2, &count2, &intNum3, &count3);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+
+  NW_CHECK_EQUAL_INTS(230, intNum1);
+  NW_CHECK_EQUAL_LONGS(4, count1);
+
+  NW_CHECK_EQUAL_INTS(-45, intNum2);
+  NW_CHECK_EQUAL_LONGS(11, count2);
+
+  NW_CHECK_EQUAL_INTS(123, intNum3);
+  NW_CHECK_EQUAL_LONGS(15, count3);
+}
+#endif
 NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfFileEmptyTest)
 {
   ScanfTestFileW input(L"");
