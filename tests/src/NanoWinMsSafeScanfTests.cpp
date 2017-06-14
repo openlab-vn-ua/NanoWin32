@@ -1063,7 +1063,7 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfPercentCharInFormatTest)
   NW_CHECK_EQUAL(5.6f, floatValue);
   NW_CHECK_EQUAL_STRCMP("abc", str);
 }
-#ifndef __GNUC__
+
 NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrSymbolsCountTest)
 {
   ScanfTestFile input("123  abc		4def5");
@@ -1110,7 +1110,6 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrSymbolsCountTest)
   NW_CHECK_EQUAL_STRCMP("abc", str3);
   NW_CHECK_EQUAL_INTS(8, count3);
 }
-
 
 NW_TEST(NanoWinSafeFScanfTestGroup, FScanfIntSymbolCountTest)
 {
@@ -1173,7 +1172,7 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfIntLongSymbolCountTest)
   NW_CHECK_EQUAL_INTS(123, intNum3);
   NW_CHECK_EQUAL_LONGS(15, count3);
 }
-#endif
+
 NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfFileEmptyTest)
 {
   ScanfTestFileW input(L"");
