@@ -122,6 +122,58 @@ namespace
 }
 
 
+static int VSScanfSTestHelper(const char *src, const char *format, ...)
+{
+  va_list args;
+
+  va_start(args, format);
+
+  int result = vsscanf_s(src, format, args);
+
+  va_end(args);
+
+  return result;
+}
+
+static int VSWScanfSTestHelper(const wchar_t *src, const wchar_t *format, ...)
+{
+  va_list args;
+
+  va_start(args, format);
+
+  int result = vswscanf_s(src, format, args);
+
+  va_end(args);
+
+  return result;
+}
+
+static int VFScanfSTestHelper(FILE *src, const char *format, ...)
+{
+  va_list args;
+
+  va_start(args, format);
+
+  int result = vfscanf_s(src, format, args);
+
+  va_end(args);
+
+  return result;
+}
+
+static int VFWScanfSTestHelper(FILE *src, const wchar_t *format, ...)
+{
+  va_list args;
+
+  va_start(args, format);
+
+  int result = vfwscanf_s(src, format, args);
+
+  va_end(args);
+
+  return result;
+}
+
 NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMsSafeSScanfSTestGroup)
 
 #define NW_DEFINE_SIMPLE_TYPED_SSCANF_TEST(type,expected_value,specifier,testname)  \
@@ -944,7 +996,55 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfSBadFormatTest)
 
   NW_CHECK_EQUAL(0, parsedFieldCount);
 }
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, VSScanfSTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue1;
+  int                          intValue2;
+  float                        floatValue;
 
+  parsedFieldCount = VSScanfSTestHelper("5 -3.14", "%d %d", &intValue1, &intValue2);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3, intValue2);
+
+  parsedFieldCount = VSScanfSTestHelper("5 -3.14", "%d %f", &intValue1, &floatValue);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3.14f, floatValue);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, VSScanfSStrTest)
+{
+  int                          parsedFieldCount;
+  char                         str1[8];
+  char                         str2[8];
+
+  parsedFieldCount = VSScanfSTestHelper("abc  123     ", "%s%s%s", str1, sizeof(str1), str2, sizeof(str2));
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL_STRCMP("abc", str1);
+  NW_CHECK_EQUAL_STRCMP("123", str2);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, VSScanfSStrIntCharTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue;
+  char                         str1[8];
+  char                         symbol;
+
+  parsedFieldCount = VSScanfSTestHelper("abc  123  bb   ", "%s%d%c", str1, sizeof(str1), &intValue, &symbol, 1);
+
+  NW_CHECK_EQUAL(3, parsedFieldCount);
+  NW_CHECK_EQUAL_STRCMP("abc", str1);
+  NW_CHECK_EQUAL(123, intValue);
+  NW_CHECK_EQUAL_INTS(' ', symbol);
+}
+#endif
 NW_END_TEST_GROUP()
 
 
@@ -1172,6 +1272,59 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfIntLongSymbolCountTest)
   NW_CHECK_EQUAL_LONGS(15, count3);
 }
 
+NW_TEST(NanoWinSafeFScanfTestGroup, VFScanfSTest)
+{
+  ScanfTestFile  input("5 -3.14");
+  int                          parsedFieldCount;
+  int                          intValue1;
+  int                          intValue2;
+  float                        floatValue;
+
+  parsedFieldCount = VFScanfSTestHelper(input.getStream(), "%d %d", &intValue1, &intValue2);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3, intValue2);
+
+  input.seekStart();
+
+  parsedFieldCount = VFScanfSTestHelper(input.getStream(), "%d %f", &intValue1, &floatValue);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3.14f, floatValue);
+}
+#ifndef __GNUC__  // test failed
+NW_TEST(NanoWinSafeFScanfTestGroup, VFScanfSStrTest)
+{
+  ScanfTestFile  input("abc  123     ");
+  int                          parsedFieldCount;
+  char                         str1[8];
+  char                         str2[8];
+
+  parsedFieldCount = VFScanfSTestHelper(input.getStream(), "%s%s%s", str1, sizeof(str1), str2, sizeof(str2));
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL_STRCMP("abc", str1);
+  NW_CHECK_EQUAL_STRCMP("123", str2);
+}
+#endif
+NW_TEST(NanoWinSafeFScanfTestGroup, VFScanfSStrIntCharTest)
+{
+  ScanfTestFile  input("abc 123 bb    ");
+  int                          parsedFieldCount;
+  int                          intValue;
+  char                         str1[8];
+  char                         symbol;
+
+  parsedFieldCount = VFScanfSTestHelper(input.getStream(), "%s%d%c", str1, sizeof(str1), &intValue, &symbol, 1);
+
+  NW_CHECK_EQUAL(3, parsedFieldCount);
+  NW_CHECK_EQUAL_STRCMP("abc", str1);
+  NW_CHECK_EQUAL(123, intValue);
+  NW_CHECK_EQUAL_INTS(' ', symbol);
+}
+
 NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfFileEmptyTest)
 {
   ScanfTestFileW input(L"");
@@ -1325,7 +1478,64 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfIntLongSymbolCountTest)
   NW_CHECK_EQUAL_INTS(123, intNum3);
   NW_CHECK_EQUAL_LONGS(15, count3);
 }
+#ifndef __GNUC__
+NW_TEST(NanoWinSafeFScanfTestGroup, VFWScanfSTest)
+{
+  ScanfTestFileW  input(L"5 -3.14");
+  int                          parsedFieldCount;
+  int                          intValue1;
+  int                          intValue2;
+  float                        floatValue;
 
+  parsedFieldCount = VFWScanfSTestHelper(input.getStream(), L"%d %d", &intValue1, &intValue2);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3, intValue2);
+    
+  input.seekStart();
+
+  parsedFieldCount = VFWScanfSTestHelper(input.getStream(), L"%d %f", &intValue1, &floatValue);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3.14f, floatValue);
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, VFWScanfSStrTest)
+{
+  ScanfTestFileW  input(L"abc  123     ");
+  int                          parsedFieldCount;
+  wchar_t                      str1[8];
+  wchar_t                      str2[8];
+
+  parsedFieldCount = VFWScanfSTestHelper(input.getStream(), L"%s%s%s",
+                                         str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)), 
+                                         str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL_MEMCMP(L"abc", str1, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_MEMCMP(L"123", str2, 3 * sizeof(wchar_t));
+}
+
+NW_TEST(NanoWinSafeFScanfTestGroup, VFWScanfSStrIntCharTest)
+{
+  ScanfTestFileW  input(L"abc 123 bb    ");
+  int                          parsedFieldCount;
+  int                          intValue;
+  wchar_t                      str1[8];
+  wchar_t                      symbol;
+
+  parsedFieldCount = VFWScanfSTestHelper(input.getStream(), L"%s%d%c", 
+                                         str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                                         &intValue, &symbol, sizeof(wchar_t));
+
+  NW_CHECK_EQUAL(3, parsedFieldCount);
+  NW_CHECK_EQUAL_MEMCMP(L"abc", str1, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL(123, intValue);
+  NW_CHECK_EQUAL_INTS(L' ', symbol);
+}
+#endif
 NW_END_TEST_GROUP()
 
 
@@ -1612,5 +1822,57 @@ NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfCommonTest)
   NW_CHECK_EQUAL_MEMCMP(L"4def", str2, 4 * sizeof(wchar_t));
   NW_CHECK_EQUAL(5.6f, floatNum1);
 }
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, VSWScanfSTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue1;
+  int                          intValue2;
+  float                        floatValue;
 
+  parsedFieldCount = VSWScanfSTestHelper(L"5 -3.14", L"%d %d", &intValue1, &intValue2);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3, intValue2);
+
+  parsedFieldCount = VSWScanfSTestHelper(L"5 -3.14", L"%d %f", &intValue1, &floatValue);
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL(5, intValue1);
+  NW_CHECK_EQUAL(-3.14f, floatValue);
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, VSWScanfSStrTest)
+{
+  int                          parsedFieldCount;
+  wchar_t                      str1[8];
+  wchar_t                      str2[8];
+
+  parsedFieldCount = VSWScanfSTestHelper(L"abc  123     ", L"%s%s%s",
+                                        str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)), 
+                                        str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)));
+
+  NW_CHECK_EQUAL(2, parsedFieldCount);
+  NW_CHECK_EQUAL_MEMCMP(L"abc", str1, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_MEMCMP(L"123", str2, 3 * sizeof(wchar_t));
+}
+
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, VSWScanfSStrIntCharTest)
+{
+  int                          parsedFieldCount;
+  int                          intValue;
+  wchar_t                      str1[8];
+  wchar_t                      symbol;
+
+  parsedFieldCount = VSWScanfSTestHelper(L"abc  123  bb   ", L"%s%d%c",
+                                        str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                                        &intValue, &symbol, sizeof(wchar_t));
+
+  NW_CHECK_EQUAL(3, parsedFieldCount);
+  NW_CHECK_EQUAL_MEMCMP(L"abc", str1, 3 * sizeof(wchar_t));
+  NW_CHECK_EQUAL(123, intValue);
+  NW_CHECK_EQUAL_INTS(L' ', symbol);
+}
+#endif
 NW_END_TEST_GROUP()
