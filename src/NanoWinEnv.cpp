@@ -44,7 +44,7 @@ DWORD GetEnvironmentVariableA
     strcpy_s(lpBuffer, nSize, result);
   }
 
-  return(nSize < resultlen + 1 ? resultlen + 1 : resultlen);
+  return(static_cast<DWORD>(nSize < resultlen + 1 ? resultlen + 1 : resultlen));
 }
 
 DWORD GetEnvironmentVariableW
@@ -65,7 +65,7 @@ DWORD GetEnvironmentVariableW
   DWORD resulta;
   WStrToStrClone     sName(lpName);
   WStrByStrResultBag sBuffer(nSize, lpBuffer);
-  resulta = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), sBuffer.bagSize());
+  resulta = GetEnvironmentVariableA(sName.c_str(), sBuffer.bag(), static_cast<DWORD>(sBuffer.bagSize()));
   sBuffer.copyBag(lpBuffer, nSize); // we allow truncate here
 
   if (resulta == 0)
@@ -74,7 +74,7 @@ DWORD GetEnvironmentVariableW
   }
   else if (lpBuffer != NULL)
   {
-    DWORD resultw = wcslen(lpBuffer);
+    DWORD resultw = static_cast<DWORD>(wcslen(lpBuffer));
     if ((resultw+1) < nSize)
     {
       return(resultw); // Fit, return real length

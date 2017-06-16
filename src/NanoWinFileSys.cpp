@@ -64,7 +64,7 @@ static bool CurrDirCalculateRequiredBufferSize (_Out_ DWORD *requiredBufferSize,
 
       if (getcwd(buffer, currBufferSize) != NULL)
       {
-        *requiredBufferSize = strlen(buffer) + 1;
+        *requiredBufferSize = static_cast<DWORD>(strlen(buffer) + 1);
         requiredSizeFound = true;
       }
       else
@@ -110,7 +110,7 @@ extern DWORD WINAPI GetCurrentDirectoryA (_In_ DWORD nBufferLength, _Out_ LPSTR 
     {
       // ok, return number of characters written not including null character
 
-      result = strlen(lpBuffer);
+      result = static_cast<DWORD>(strlen(lpBuffer));
     }
     else
     {
@@ -195,16 +195,16 @@ extern DWORD WINAPI GetCurrentDirectoryW (_In_ DWORD nBufferLength, _Out_ LPWSTR
         {
           wcpcpy(lpBuffer, wideCurrDir.c_str());
 
-          result = wideCurrDirLen;
+          result = static_cast<DWORD>(wideCurrDirLen);
         }
         else
         {
-          result = wideCurrDirLen + 1;
+          result = static_cast<DWORD>(wideCurrDirLen + 1);
         }
       }
       else
       {
-        result = wideCurrDirLen + 1;
+        result = static_cast<DWORD>(wideCurrDirLen + 1);
       }
     }
     catch (NanoWin::StrConverter::Error)

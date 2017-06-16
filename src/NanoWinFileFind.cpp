@@ -204,16 +204,16 @@ static void NanoWinFillFindData(NanoWinFileFindData *data, const char *dirName, 
       {
         if (sizeof(entryData.st_size) > sizeof(DWORD))
         {
-          fileSizeLow  = entryData.st_size & 0xFFFFFFFFLU;
+          fileSizeLow  = static_cast<DWORD>(entryData.st_size & 0xFFFFFFFFLU);
           // just to prevent warning here:
           // fileSizeHigh = entryData.st_size >> (sizeof(DWORD) * 8);
           entryData.st_size >>= (sizeof(DWORD)/2 * 8);
           entryData.st_size >>= (sizeof(DWORD)/2 * 8);
-          fileSizeHigh = entryData.st_size & 0xFFFFFFFFLU;
+          fileSizeHigh = static_cast<DWORD>(entryData.st_size & 0xFFFFFFFFLU);
         }
         else
         {
-          fileSizeLow  = entryData.st_size;
+          fileSizeLow  = static_cast<DWORD>(entryData.st_size);
           fileSizeHigh = 0;
         }
 

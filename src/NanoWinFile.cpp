@@ -217,7 +217,7 @@ extern BOOL WINAPI WriteFile(_In_        HANDLE       hFile,
 
   if (lpOverlapped != NULL) { SetLastError(ERROR_INVALID_PARAMETER); return FALSE; } // not supported
 
-  *lpNumberOfBytesWritten = fwrite(lpBuffer,1,nNumberOfBytesToWrite,(FILE*)hFile);
+  *lpNumberOfBytesWritten = static_cast<DWORD>(fwrite(lpBuffer,1,nNumberOfBytesToWrite,(FILE*)hFile));
 
   if (*lpNumberOfBytesWritten < nNumberOfBytesToWrite)
   {
@@ -241,7 +241,7 @@ extern BOOL WINAPI ReadFile(_In_        HANDLE       hFile,
 
   if (lpOverlapped != NULL) { SetLastError(ERROR_INVALID_PARAMETER); return FALSE; } // not supported
 
-  *lpNumberOfBytesRead = fread(lpBuffer,1,nNumberOfBytesToRead,(FILE*)hFile);
+  *lpNumberOfBytesRead = static_cast<DWORD>(fread(lpBuffer,1,nNumberOfBytesToRead,(FILE*)hFile));
 
   if (*lpNumberOfBytesRead < nNumberOfBytesToRead && ferror((FILE*)hFile))
   {
