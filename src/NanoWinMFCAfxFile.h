@@ -191,7 +191,7 @@ class CFileFind : public CObject
 
   static bool CStringEndsWithChar(const CString &str, TCHAR ch)
   {
-    size_t len = str.GetLength();
+    int len = str.GetLength();
 
     return len > 0 && str.GetAt(len - 1) == ch;
   }
