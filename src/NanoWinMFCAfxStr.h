@@ -35,8 +35,8 @@ class NanoWinStringUtils
   static size_t base_tcslen  (const char    *psz) { return(strlen(psz)); }
 
   // _tcsncpy_s
-  static void base_tcsncpy_s (wchar_t* pchDest, int nDestMax, const wchar_t* pchSrc, int nChars) { wcsncpy_s(pchDest, nDestMax, pchSrc, nChars); }
-  static void base_tcsncpy_s (char*    pchDest, int nDestMax, const char*    pchSrc, int nChars) { strncpy_s(pchDest, nDestMax, pchSrc, nChars); }
+  static void base_tcsncpy_s (wchar_t* pchDest, int nDestMax, const wchar_t* pchSrc, rsize_t nChars) { wcsncpy_s(pchDest, nDestMax, pchSrc, nChars); }
+  static void base_tcsncpy_s (char*    pchDest, int nDestMax, const char*    pchSrc, rsize_t nChars) { strncpy_s(pchDest, nDestMax, pchSrc, nChars); }
 
   // _tcslwr
   static void base_tcslwr    (wchar_t* pchDest) { wcslwr(pchDest); }
@@ -63,7 +63,7 @@ class NanoWinStringUtils
     va_list argsCopy;
     va_copy(argsCopy,args);
 
-    ssize_t result;
+    int result; // ssize_t result looks logicaly OK, but vsnprintf returns int for some reason
     result = VSNPRINTF(NULL, 0, lpszFormat, args);
     if (result < 0) { return(result); }
     out.clear(); // this->Empty();
@@ -94,7 +94,7 @@ class NanoWinStringUtils
     va_list argsCopy;
     va_copy(argsCopy,args);
 
-    ssize_t result;
+    int result; // ssize_t result looks logicaly OK, but vsnprintf returns int for some reason
     result = VSNPRINTF(NULL, 0, lpszFormat, args);
     if (result < 0) { return(result); }
     out.clear(); // this->Empty();
@@ -118,6 +118,12 @@ class NanoWinStringUtils
 // Class to implement CSimpleStringT subset. [Only null-terminated strings supported]
 // Note that for MBCS strings, CString still counts, returns, and manipulates strings based on 8-bit characters,
 // and your application must interpret MBCS lead and trail bytes itself
+
+// Note:
+// Original CString class has all external length/pos interfaces as int
+// So, using it does not require any types like size_t.
+// On other hand since int is 32 bit on most 64 platforms,
+// it leads to 2G implicit limit on string (rande for positive vales for signed int)
 
 template<typename TXCHAR, typename TYCHAR, class TStringBuf>
 class CSimpleStringT
@@ -144,7 +150,7 @@ class CSimpleStringT
   typedef YCHAR       *PYSTR;  // [Non-native char type] *
   typedef const YCHAR *PCYSTR; // const [Non-native char type] *
 
-  static int  StringLength   (const XCHAR   *psz) { return(NanoWinStringUtils::base_tcslen(psz)); }
+  static int  StringLength   (const XCHAR   *psz) { return(static_cast<int>(NanoWinStringUtils::base_tcslen(psz))); }
 
   // Need some study (do we need this?)
   // static void CopyChars(XCHAR* pchDest, const XCHAR* pchSrc, int nChars) throw(); // XCHAR=XCHAR here
@@ -182,10 +188,16 @@ class CSimpleStringT
     strBuf.shrink_to_fit();
   }
 
+  const XCHAR *GetString()
+  const
+  {
+    return(strBuf.c_str());
+  }
+
   int  GetLength()
   const
   {
-    return(strBuf.length());
+    return(static_cast<int>(strBuf.length()));
   }
 
   // Preallocate/FreeExtra/GetAllocLength // TODO: Clarify what length here mean? XCHAR[Length] or XCHAR[Length+1] 
@@ -218,7 +230,7 @@ class CSimpleStringT
   int GetAllocLength()
   const
   {
-    return(strBuf.capacity());
+    return(static_cast<int>(strBuf.capacity()));
   }
 
   // LockBuffer/UnlockBuffer
@@ -310,8 +322,8 @@ class CSimpleStringT
   {
     REQUIRE(src != NULL);
     if (nLength <= 0)          { Empty(); return; }
-    int dlen = strBuf.length();
-    const XCHAR *dst = strBuf.c_str();
+    int dlen = GetLength();
+    const XCHAR *dst = GetString();
     if (src == dst)
     {
       // Copy to myself, but at most first nLength chars only
@@ -351,12 +363,6 @@ class CSimpleStringT
       dst[clen] = 0; // Null terminate
       UnlockBuffer();
     }
-  }
-
-  const XCHAR *GetString()
-  const
-  {
-    return(strBuf.c_str());
   }
 
   XCHAR GetAt(int iChar)
@@ -432,7 +438,7 @@ class CSimpleStringT
   operator PCXSTR ()
   const
   {
-    return(strBuf.c_str());
+    return(GetString());
   }
 
   XCHAR operator[] (int nIndex)
@@ -505,7 +511,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     }
     else
     {
-      return(result);
+      return(static_cast<int>(result));
     }
   }
 
@@ -520,7 +526,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     }
     else
     {
-      return(result);
+      return(static_cast<int>(result));
     }
   }
 
@@ -535,7 +541,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     }
     else
     {
-      return(result);
+      return(static_cast<int>(result));
     }
   }
 
@@ -683,16 +689,16 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     if (this->IsEmpty())
     {
       this->strBuf.append(1, src);
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
     else if (nIndex <= 0)
     {
       this->strBuf.insert(0, 1, src);
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
     else
     {
-      int dlen = this->strBuf.length();
+      int dlen = this->GetLength();
       if (nIndex >= dlen)
       {
         this->strBuf.append(1, src);
@@ -715,21 +721,21 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     if (src[0] == 0)
     {
       // src is empty - nothing to do
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
     else if (this->IsEmpty())
     {
       this->strBuf.append(src);
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
     else if (nIndex <= 0)
     {
       this->strBuf.insert(0, src);
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
     else
     {
-      int dlen = this->strBuf.length();
+      int dlen = this->GetLength();
       if (nIndex >= dlen)
       {
         this->strBuf.append(src);
@@ -738,7 +744,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
       {
         this->strBuf.insert(nIndex, src);
       }
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
   }
 
@@ -752,18 +758,18 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     }
     else if (nCount <= 0)
     {
-      return(this->strBuf.length()); // Nothing to do
+      return(this->GetLength()); // Nothing to do
     }
     else if (nIndex <= 0)
     {
       this->strBuf.erase(0, nCount);
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
     else
     {
-      // would throw an exception if nIndex is out of string range (this is aligned with MFC)
+      // would throw an exception if nIndex is out of string range (this is aligned with MFC) // TODO: remap exception
       this->strBuf.erase(nIndex, nCount);
-      return(this->strBuf.length());
+      return(this->GetLength());
     }
   }
 
@@ -856,7 +862,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
 
   void TrimLeft(_In_ PCXSTR delims)
   {
-    const XCHAR *src = this->strBuf.c_str();
+    const XCHAR *src = this->GetString();
     int   pos = 0;
 
     while(src[pos] != 0)
@@ -892,8 +898,8 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
 
   void TrimRight(_In_ PCXSTR delims)
   {
-    const XCHAR *src = this->strBuf.c_str();
-    int   slen = this->strBuf.length();
+    const XCHAR *src = this->GetString();
+    int   slen = this->GetLength();
 
     if (slen <= 0) { return; } // nothing to do
 
