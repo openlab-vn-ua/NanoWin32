@@ -145,7 +145,11 @@ extern  wchar_t *wcsupr      (wchar_t *s);
 // Other MS-specific functions
 // ---------------------------------------------
 
-extern wchar_t *wgetcwd(wchar_t *buffer,  int maxlen);
+// Get current directory (wchar_t version of getcwd).
+// stores data to buffer[maxsize]
+// if buffer is NULL, malloc the buffer (at least maxsize bytes)
+// Note: To make prototype consitent with POSIX getcwd, maxlen has size_t type
+extern wchar_t *wgetcwd(wchar_t *buffer, size_t maxsize);
 
 NW_EXTERN_C_END
 

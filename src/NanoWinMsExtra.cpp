@@ -98,8 +98,9 @@ extern errno_t _dupenv_s(char **buffer, size_t *numberOfElements, const char *va
 
 // extern errno_t _wdupenv_s(wchar_t **buffer, size_t *numberOfElements, const wchar_t *varname); // TODO: Implement me
 
-extern wchar_t *wgetcwd(wchar_t *dest,  int destsz)
+extern wchar_t *wgetcwd(wchar_t *dest, size_t destsz)
 {
+  // Note: under MSVC destsz is int (both for _getcwd and _wgetcwd) [looks not aligned with POSIX]
   if (dest == NULL)
   {
     // dynamic buffer allocation (at least destsz chars), as GCC says
@@ -142,25 +143,40 @@ extern wchar_t *wgetcwd(wchar_t *dest,  int destsz)
   }
 }
 
+NW_EXTERN_C_END
+
 // MS string functions
 // ---------------------------------------------
+
+NW_EXTERN_C_BEGIN
 
 extern  char    *strlwr      (char    *s)  { if (s==NULL) { return(s); } char    *data = (s); while (*data != 0) { *data = (char)tolower (*data); data++;} return(s); }
 extern  char    *strupr      (char    *s)  { if (s==NULL) { return(s); } char    *data = (s); while (*data != 0) { *data = (char)toupper (*data); data++;} return(s); }
 extern  wchar_t *wcslwr      (wchar_t *s)  { if (s==NULL) { return(s); } wchar_t *data = (s); while (*data != 0) { *data = towlower(*data); data++;} return(s); }
 extern  wchar_t *wcsupr      (wchar_t *s)  { if (s==NULL) { return(s); } wchar_t *data = (s); while (*data != 0) { *data = towupper(*data); data++;} return(s); }
 
+NW_EXTERN_C_END
+
 // Path support (looks like MS specific)
 // ---------------------------------------------
 
 #define pathfunc_handle_errcode(errcode) { errno = (errcode); } // MS spce says func should assign errno
 
-static bool     is_path_sep  (char     value) // would work for wchar_t also (?)
+static bool     is_path_sep  (char     value)
 {
   if (value == NW_DIRECTORY_SEPARATOR_CHAR)     { return(true); }
   if (value == NW_DIRECTORY_SEPARATOR_ALT_CHAR) { return(true); }
   return(false);
 }
+
+static bool     is_path_sep  (wchar_t  value)
+{
+  if (value == NW_DIRECTORY_SEPARATOR_CHAR)     { return(true); }
+  if (value == NW_DIRECTORY_SEPARATOR_ALT_CHAR) { return(true); }
+  return(false);
+}
+
+NW_EXTERN_C_BEGIN
 
 extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, rsize_t destabspathsz)
 {
@@ -550,11 +566,21 @@ extern errno_t  _wmakepath_s (wchar_t *destpath, rsize_t destsz, const wchar_t *
   #undef FN
 }
 
+NW_EXTERN_C_END
+
 static bool     is_drv_sep   (char     value)
 {
   if (value == ':') { return(true); } // coment me under LINUX production
   return(false);
 }
+
+static bool     is_drv_sep   (wchar_t  value)
+{
+  if (value == ':') { return(true); } // coment me under LINUX production
+  return(false);
+}
+
+NW_EXTERN_C_BEGIN
 
 extern errno_t  _splitpath_s (const char    *srcpath, char    *destdrive, rsize_t destdrivesz, char    *destdir, rsize_t destdirsz, char    *destfname, rsize_t destfnamesz, char    *destext, rsize_t destextsz)
 {
