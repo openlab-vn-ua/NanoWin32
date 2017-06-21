@@ -10,12 +10,38 @@
 #include "NanoWinModule.h"
 #include "NanoWinError.h"
 
+#include <limits.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
 #include <stdio.h>
 
 NW_EXTERN_C_BEGIN
+
+static void BrokenTimeToSystemTime(SYSTEMTIME      *systemTime,
+                                   const struct tm *brokenTime)
+{
+  systemTime->wYear          = (WORD)(brokenTime->tm_year+1900);
+  systemTime->wMonth         = (WORD)(brokenTime->tm_mon+1);
+  systemTime->wDayOfWeek     = (WORD)brokenTime->tm_wday;
+  systemTime->wDay           = (WORD)brokenTime->tm_mday;
+  systemTime->wHour          = (WORD)brokenTime->tm_hour;
+  systemTime->wMinute        = (WORD)brokenTime->tm_min;
+  systemTime->wSecond        = (WORD)brokenTime->tm_sec;
+  systemTime->wMilliseconds  = 0;
+}
+
+static void SystemTimeToBrokenTime(struct tm        *brokenTime,
+                                   const SYSTEMTIME *systemTime)
+{
+  brokenTime->tm_year = systemTime->wYear - 1900;
+  brokenTime->tm_mon  = systemTime->wMonth - 1;
+  brokenTime->tm_wday = systemTime->wDayOfWeek;
+  brokenTime->tm_mday = systemTime->wDay;
+  brokenTime->tm_hour = systemTime->wHour;
+  brokenTime->tm_min  = systemTime->wMinute;
+  brokenTime->tm_sec  = systemTime->wSecond;
+}
 
 // Retrieves the current local date and time. (in local time zone)
 extern void WINAPI GetLocalTime(_Out_ LPSYSTEMTIME lpSystemTime)
@@ -27,13 +53,9 @@ extern void WINAPI GetLocalTime(_Out_ LPSYSTEMTIME lpSystemTime)
   if (clock_gettime(CLOCK_REALTIME, &result) != 0) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
   struct tm parts;
   if (localtime_r(&result.tv_sec, &parts) == NULL) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
-  lpSystemTime->wYear      = (WORD)(parts.tm_year+1900);
-  lpSystemTime->wMonth     = (WORD)(parts.tm_mon+1);
-  lpSystemTime->wDayOfWeek = (WORD)parts.tm_wday;
-  lpSystemTime->wDay       = (WORD)parts.tm_mday;
-  lpSystemTime->wHour      = (WORD)parts.tm_hour;
-  lpSystemTime->wMinute    = (WORD)parts.tm_min;
-  lpSystemTime->wSecond    = (WORD)parts.tm_sec;
+
+  BrokenTimeToSystemTime(lpSystemTime,&parts);
+
   lpSystemTime->wMilliseconds = (WORD)(result.tv_nsec / 1000000);
   lpSystemTime->wMilliseconds %= 1000; // just in case
 }
@@ -48,15 +70,95 @@ extern void WINAPI GetSystemTime(_Out_ LPSYSTEMTIME lpSystemTime)
   if (clock_gettime(CLOCK_REALTIME, &result) != 0) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
   struct tm parts;
   if (gmtime_r(&result.tv_sec, &parts) == NULL) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); return; }
-  lpSystemTime->wYear      = (WORD)(parts.tm_year+1900);
-  lpSystemTime->wMonth     = (WORD)(parts.tm_mon+1);
-  lpSystemTime->wDayOfWeek = (WORD)parts.tm_wday;
-  lpSystemTime->wDay       = (WORD)parts.tm_mday;
-  lpSystemTime->wHour      = (WORD)parts.tm_hour;
-  lpSystemTime->wMinute    = (WORD)parts.tm_min;
-  lpSystemTime->wSecond    = (WORD)parts.tm_sec;
+
+  BrokenTimeToSystemTime(lpSystemTime,&parts);
+
   lpSystemTime->wMilliseconds = (WORD)(result.tv_nsec / 1000000);
   lpSystemTime->wMilliseconds %= 1000; // just in case
+}
+
+extern int  WINAPI GetTimeFormat(_In_            LCID       Locale,
+                                 _In_            DWORD      dwFlags,
+                                 _In_opt_  const SYSTEMTIME *lpTime,
+                                 _In_opt_        LPCTSTR    lpFormat,
+                                 _Out_opt_       LPTSTR     lpTimeStr,
+                                 _In_            int        cchTime)
+{
+  if (Locale != LOCALE_USER_DEFAULT && Locale != LOCALE_SYSTEM_DEFAULT) { SetLastError(ERROR_INVALID_PARAMETER); return 0; } // not supported
+  if (dwFlags != 0)                                                     { SetLastError(ERROR_INVALID_FLAGS); return 0; }     // not supported
+  if (lpFormat != NULL)                                                 { SetLastError(ERROR_INVALID_PARAMETER); return 0; } // not supported
+
+  if (lpTimeStr == NULL && cchTime != 0)                                { SetLastError(ERROR_INSUFFICIENT_BUFFER); return 0; }
+
+  struct tm brokenTime;
+
+  if (lpTime == NULL)
+  {
+    SYSTEMTIME currTime;
+
+    GetLocalTime(&currTime);
+
+    SystemTimeToBrokenTime(&brokenTime,&currTime);
+  }
+  else
+  {
+    SystemTimeToBrokenTime(&brokenTime,lpTime);
+  }
+
+  size_t charCount = strftime(cchTime == 0 ? NULL : lpTimeStr,cchTime != 0 ? cchTime : INT_MAX,"%r",&brokenTime);
+
+  if (charCount == 0)
+  {
+    SetLastError(ERROR_INSUFFICIENT_BUFFER);
+
+    return 0;
+  }
+  else
+  {
+    return charCount + 1; // must return number of character including '\0'
+  }
+}
+
+extern int  WINAPI GetDateFormat(_In_            LCID       Locale,
+                                 _In_            DWORD      dwFlags,
+                                 _In_opt_  const SYSTEMTIME *lpDate,
+                                 _In_opt_        LPCTSTR    lpFormat,
+                                 _Out_opt_       LPTSTR     lpDateStr,
+                                 _In_            int        cchDate)
+{
+  if (Locale != LOCALE_USER_DEFAULT && Locale != LOCALE_SYSTEM_DEFAULT) { SetLastError(ERROR_INVALID_PARAMETER); return 0; } // not supported
+  if (dwFlags != 0)                                                     { SetLastError(ERROR_INVALID_FLAGS); return 0; }     // not supported
+  if (lpFormat != NULL)                                                 { SetLastError(ERROR_INVALID_PARAMETER); return 0; } // not supported
+
+  if (lpDateStr == NULL && cchDate != 0)                                { SetLastError(ERROR_INSUFFICIENT_BUFFER); return 0; }
+
+  struct tm brokenTime;
+
+  if (lpDate == NULL)
+  {
+    SYSTEMTIME currDate;
+
+    GetLocalTime(&currDate);
+
+    SystemTimeToBrokenTime(&brokenTime,&currDate);
+  }
+  else
+  {
+    SystemTimeToBrokenTime(&brokenTime,lpDate);
+  }
+
+  size_t charCount = strftime(cchDate == 0 ? NULL : lpDateStr,cchDate != 0 ? cchDate : INT_MAX,"%x",&brokenTime);
+
+  if (charCount == 0)
+  {
+    SetLastError(ERROR_INSUFFICIENT_BUFFER);
+
+    return 0;
+  }
+  else
+  {
+    return charCount + 1; // must return number of character including '\0'
+  }
 }
 
 // Psapi.h
