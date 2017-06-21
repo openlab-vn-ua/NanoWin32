@@ -354,6 +354,11 @@ typedef void SECURITY_ATTRIBUTES; // Not supported as var
 typedef SECURITY_ATTRIBUTES FAR  *LPSECURITY_ATTRIBUTES;
 typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 
+// Locale-related definitions
+typedef DWORD LCID;
+#define LOCALE_USER_DEFAULT   (0x0400)
+#define LOCALE_SYSTEM_DEFAULT (0x0800)
+
 // Constants for sync. objects
 // -----------------------------------------------------------------------
 
