@@ -288,7 +288,7 @@ class CFileFind : public CObject
 // MFC Files
 // ------------------------------------
 
-class CFile : public CObject // TODO: LINUX: Implement me (via FILE)
+class CFile : public CObject
 {
   public:
 
@@ -359,6 +359,35 @@ class CFile : public CObject // TODO: LINUX: Implement me (via FILE)
   ULONGLONG          SeekToEnd();
 
   virtual ULONGLONG  GetLength() const;
+};
+
+class CStdioFile : public CFile
+{
+  public:
+
+  FILE              *m_pStream;
+
+                     CStdioFile   ();
+                     CStdioFile   (LPCTSTR lpszFileName, UINT nOpenFlags);
+
+  virtual BOOL       Open         (LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL);
+
+  virtual void       WriteString  (LPCTSTR lpsz);
+
+  virtual LPTSTR     ReadString   (_Out_writes_z_(nMax) LPTSTR lpsz, _In_ UINT nMax);
+  virtual BOOL       ReadString   (CString& rString);
+
+//virtual void       Flush        (); // by parent
+  virtual void       Close        (); // by parent
+
+  private:
+
+  #if defined(UNICODE) || defined(_UNICODE)
+  LPWSTR             ReadToWideString (_Out_writes_z_(nMax) LPWSTR lpsz, _In_ UINT nMax);
+  BOOL               ReadToWideChar   (WCHAR *wch);
+  #else
+  LPSTR              ReadToMbString   (_Out_writes_z_(nMax) LPSTR  lpsz, _In_ UINT nMax);
+  #endif
 };
 
 #endif // linux
