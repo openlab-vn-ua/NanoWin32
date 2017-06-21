@@ -28,28 +28,43 @@ CString CTime::Format(_In_z_ LPCTSTR pszFormat) const
   #else
   #define format_func strftime
   #endif
-  constexpr int bufferStartSize = 255 + 1;
+  constexpr int initialBufferSize = 255 + 1;
   CString   formattedTime;
   struct tm brokenTime;
+  TCHAR     initialBuffer[initialBufferSize];
 
   if (localtime_r(&timeValue, &brokenTime) == &brokenTime)
   {
-    TCHAR *buffer = formattedTime.GetBufferSetLength(bufferStartSize);
-
-    if (format_func(buffer, bufferStartSize, pszFormat, &brokenTime) == 0)
+    if (format_func(initialBuffer, initialBufferSize, pszFormat, &brokenTime) == 0)
     {
-      buffer[0] = '\0';
-
-      formattedTime.ReleaseBuffer();
-
       size_t requiredSize = format_func(NULL,0,pszFormat,&brokenTime) + 1;
 
-      buffer = formattedTime.GetBufferSetLength(requiredSize);
+      TCHAR *buffer = (TCHAR*)malloc(sizeof(TCHAR) * requiredSize);
+
+      if (buffer == NULL)
+      {
+        throw new CMemoryException();
+      }
 
       format_func(buffer,requiredSize,pszFormat,&brokenTime);
-    }
 
-    formattedTime.ReleaseBuffer();
+      try
+      {
+        formattedTime = buffer;
+      }
+      catch (...)
+      {
+        free(buffer);
+
+        throw;
+      }
+
+      free(buffer);
+    }
+    else
+    {
+      formattedTime = initialBuffer;
+    }
   }
 
   return formattedTime;
