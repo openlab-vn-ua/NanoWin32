@@ -40,12 +40,15 @@ namespace NanoWin
 
     const char *c_str() const; // To look like std::string
 
+    bool is_valid () const;
+
     private:
 
     enum { PREALLOCATED_STRING_LEN = 256 };
 
     char  preallocatedBuffer[PREALLOCATED_STRING_LEN + 1];
     char *buffer;
+    bool  validFlag;
 
     NW_NOCOPY_CONSTRUCTOR(WStrToStrClone);
     NW_NOASSIGN_OPERATOR(WStrToStrClone);
@@ -63,11 +66,14 @@ namespace NanoWin
 
     const wchar_t *c_str() const; // To look like std::string
 
+    bool is_valid () const;
+
     private:
 
     // TODO: Optimize me like WStrToStrClone (uncritical)
     std::wstring       result;
     bool               resultIsNull;
+    bool               validFlag;
 
     NW_NOCOPY_CONSTRUCTOR(StrToWStrClone);
     NW_NOASSIGN_OPERATOR(StrToWStrClone);

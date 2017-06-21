@@ -115,7 +115,8 @@ namespace NanoWin
 {
   WStrToStrClone::WStrToStrClone(const wchar_t *src)
   {
-    buffer = preallocatedBuffer;
+    buffer    = preallocatedBuffer;
+    validFlag = true;
 
     if (src == NULL)
     {
@@ -132,7 +133,7 @@ namespace NanoWin
 
     size_t requiredLen = wcsrtombs(NULL, &srcCopy, 0, &state);
 
-    if (requiredLen != (size_t)-1)
+    if (requiredLen != static_cast<size_t>(-1))
     {
       if (requiredLen > PREALLOCATED_STRING_LEN)
       {
@@ -142,9 +143,17 @@ namespace NanoWin
       memset(&state, 0, sizeof(state));
       srcCopy = src;
 
-      wcsrtombs(buffer, &srcCopy, requiredLen + 1, &state);
+      if (wcsrtombs(buffer, &srcCopy, requiredLen + 1, &state) == static_cast<size_t>(-1))
+      {
+        validFlag = false;
+      }
     }
     else
+    {
+      validFlag = false;
+    }
+
+    if (!validFlag)
     {
       buffer[0] = '\0';
     }
@@ -162,12 +171,19 @@ namespace NanoWin
   {
     return buffer;
   }
+
+  bool WStrToStrClone::is_valid() const
+  {
+    return validFlag;
+  }
 }
 
 namespace NanoWin
 {
   StrToWStrClone::StrToWStrClone(const char*src)
   {
+    validFlag = true;
+
     if (src == NULL)
     {
       resultIsNull = true;
@@ -183,6 +199,8 @@ namespace NanoWin
     catch(...)
     {
       result.clear();
+
+      validFlag = false;
     }
   }
 
@@ -195,6 +213,11 @@ namespace NanoWin
   {
     if (resultIsNull) { return(NULL); }
     return result.c_str();
+  }
+
+  bool StrToWStrClone::is_valid() const
+  {
+    return validFlag;
   }
 }
 
