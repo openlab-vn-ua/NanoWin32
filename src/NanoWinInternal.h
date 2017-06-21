@@ -13,6 +13,7 @@
 #if defined LINUX
 
 #include <time.h>
+#include <stdio.h>
 
 NW_EXTERN_C_BEGIN
 
@@ -24,6 +25,8 @@ extern bool NanoWinFileNameMatchMaskA(const char *name, const char *mask);
 extern bool NanoWinFileNameMatchMaskW(const wchar_t *name, const wchar_t *mask);
 
 extern void NanoWinTimeSpecAddTimeoutInMillis (struct timespec *ts, DWORD millis);
+
+extern FILE*NanoWinFileHandleAsStdioFILE (HANDLE fileHandle);
 
 NW_EXTERN_C_END
 
