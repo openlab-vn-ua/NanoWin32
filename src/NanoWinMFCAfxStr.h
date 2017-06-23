@@ -52,67 +52,122 @@ class NanoWinStringUtils
   static int  base_tcsicmp   (const char*    s1, const char*    s2) { return(stricmp(s1, s2)); }
   static int  base_tcsicmp   (const wchar_t* s1, const wchar_t* s2) { return(wcsicmp(s1, s2)); }
 
-  #define VSNPRINTF  vsnprintf
-  #define VSPRINTF_S vsprintf_s
-  #define XCHAR      char
-  #define STDSTRING  std::string
-
-  static int base_vsprintf(STDSTRING &out, const XCHAR *lpszFormat, va_list args)
+  template<typename XCHAR, typename XSTRING>
+  static int base_vsprintf(XSTRING &out, const XCHAR *lpszFormat, va_list args)
   {
-    // Body invariant to char/wchar
     va_list argsCopy;
     va_copy(argsCopy,args);
 
     int result; // ssize_t result looks logicaly OK, but vsnprintf returns int for some reason
-    result = VSNPRINTF(NULL, 0, lpszFormat, args);
+    result = vsnprintf_overload(NULL, 0, lpszFormat, args);
     if (result < 0) { return(result); }
-    out.clear(); // this->Empty();
-	if (result == 0) { return(0); } // Nothing to output and out already clear
-    out.reserve(result+1); // this->Preallocate(result+1)
-    XCHAR *dst = const_cast<XCHAR*>(out.c_str()); // this->LockBuffer()
+    out.Empty(); // this->Empty();
+  	if (result == 0) { return(0); } // Nothing to output and out already clear
+    out.Preallocate(result+1); // this->Preallocate(result+1)
+    XCHAR *dst = out.LockBuffer(); // this->LockBuffer()
     error_t cresult;
-    cresult = VSPRINTF_S(dst, result + 1, lpszFormat, argsCopy);
+    cresult = vsprintf_s_overload(dst, result + 1, lpszFormat, argsCopy);
     va_end(argsCopy);
-    //this->UnlockBuffer();
+    out.UnlockBuffer();
     if (cresult < 0) { result = -1; } // Catch of unlikely error // Note: Out may be overwritten in this point
-	return(result);
+    return(result);
   }
 
-  #undef  VSNPRINTF
-  #undef  VSPRINTF_S
-  #undef  XCHAR
-  #undef  STDSTRING
+  private :
 
-  #define VSNPRINTF  vswprintf
-  #define VSPRINTF_S vswprintf_s
-  #define XCHAR      wchar_t
-  #define STDSTRING  std::wstring
-
-  static int base_vsprintf(STDSTRING &out, const XCHAR *lpszFormat, va_list args)
+  static int vsnprintf_overload(char *buffer, size_t count, const char *format, va_list argptr)
   {
-    // Body invariant to char/wchar
-    va_list argsCopy;
-    va_copy(argsCopy,args);
-
-    int result; // ssize_t result looks logicaly OK, but vsnprintf returns int for some reason
-    result = VSNPRINTF(NULL, 0, lpszFormat, args);
-    if (result < 0) { return(result); }
-    out.clear(); // this->Empty();
-	if (result == 0) { return(0); } // Nothing to output and out already clear
-    out.reserve(result+1); // this->Preallocate(result+1)
-    XCHAR *dst = const_cast<XCHAR*>(out.c_str()); // this->LockBuffer()
-    error_t cresult;
-    cresult = VSPRINTF_S(dst, result + 1, lpszFormat, argsCopy);
-    va_end(argsCopy);
-    //this->UnlockBuffer();
-    if (cresult < 0) { result = -1; } // Catch of unlikely error // Note: Out may be overwritten in this point
-	return(result);
+    return vsnprintf(buffer,count,format,argptr);
   }
 
-  #undef  VSNPRINTF
-  #undef  VSPRINTF_S
-  #undef  XCHAR
-  #undef  STDSTRING
+  static int vsnprintf_overload(wchar_t *buffer, size_t count, const wchar_t *format, va_list argptr)
+  {
+    return vswprintf(buffer,count,format,argptr);
+  }
+
+  static int vsprintf_s_overload(char *buffer, size_t numberOfElements, const char *format, va_list argptr)
+  {
+    return vsprintf_s(buffer,numberOfElements,format,argptr);
+  }
+
+  static int vsprintf_s_overload(wchar_t *buffer, size_t numberOfElements, const wchar_t *format, va_list argptr )
+  {
+    return vsprintf_s_overload(buffer,numberOfElements,format,argptr);
+  }
+};
+
+template<typename XCHAR>
+struct TStringContainer
+{
+  size_t capacity;
+  XCHAR  buffer[0];
+
+  static XCHAR *Allocate (size_t initialCapacity)
+  {
+    TStringContainer<XCHAR> *container = (TStringContainer<XCHAR>*)malloc(sizeof(TStringContainer<XCHAR>) + initialCapacity * sizeof(XCHAR));
+
+    if (container == NULL) throw std::bad_alloc();
+
+    container->capacity = initialCapacity;
+
+    return (XCHAR*)&container->buffer;
+  }
+
+  static void Free(XCHAR *buffer)
+  {
+    free(GetContainerPtr(buffer));
+  }
+
+  //FIXME: add optimization here
+  static void ReAllocate(XCHAR **buffer, size_t newCapacity)
+  {
+    TStringContainer<XCHAR> *oldContainer = GetContainerPtr(*buffer);
+    TStringContainer<XCHAR> *newContainer = (TStringContainer<XCHAR>*)realloc(oldContainer,sizeof(TStringContainer<XCHAR>) + newCapacity * sizeof(XCHAR));
+
+    if (newContainer != NULL)
+    {
+      newContainer->capacity = newCapacity;
+
+      *buffer = (XCHAR*)&newContainer->buffer;
+    }
+    else
+    {
+      throw std::bad_alloc();
+    }
+  }
+
+  static void ReAllocateIfNeeded(XCHAR **buffer, size_t newCapacity)
+  {
+    TStringContainer<XCHAR> *container = GetContainerPtr(*buffer);
+
+    if (container->capacity < newCapacity)
+    {
+      ReAllocate(buffer,newCapacity);
+    }
+  }
+
+  static size_t GetCapacity (const XCHAR *buffer)
+  {
+    return GetContainerPtr(buffer)->capacity;
+  }
+
+  static void Insert(XCHAR *buffer, size_t startPos, size_t count, const XCHAR *data, size_t tailSize)
+  {
+    memmove(&buffer[startPos + count],&buffer[startPos],tailSize * sizeof(XCHAR));
+    memcpy(&buffer[startPos],data,count * sizeof(XCHAR));
+  }
+
+  static void Move (XCHAR *buffer, size_t dstPos, size_t srcPos, size_t count)
+  {
+    memmove(&buffer[dstPos],&buffer[srcPos],count * sizeof(XCHAR));
+  }
+
+  private :
+
+  static TStringContainer<XCHAR> *GetContainerPtr(const XCHAR *buffer)
+  {
+    return (TStringContainer<XCHAR>*)((char*)buffer - sizeof(TStringContainer<XCHAR>));
+  }
 };
 
 // Class to implement CSimpleStringT subset. [Only null-terminated strings supported]
@@ -125,7 +180,7 @@ class NanoWinStringUtils
 // On other hand since int is 32 bit on most 64 platforms,
 // it leads to 2G implicit limit on string (rande for positive vales for signed int)
 
-template<typename TXCHAR, typename TYCHAR, class TStringBuf>
+template<typename TXCHAR, typename TYCHAR>
 class CSimpleStringT
 {
   // Note: Current (simple) implemenation not use value sharing optimisation, so all strings has its own independent buffer
@@ -135,10 +190,9 @@ class CSimpleStringT
 
   protected:
 
-  typedef TStringBuf                     strBuf_type;
-  typedef typename TStringBuf::size_type strBuf_size_type;
+  typedef TStringContainer<TXCHAR>       container_type;
 
-  TStringBuf           strBuf;
+  TXCHAR              *buffer;
 
   public:
 
@@ -166,38 +220,69 @@ class CSimpleStringT
   void Append(const XCHAR *text)
   {
     REQUIRE(text != NULL);
-    strBuf.append(text);
-  }
+
+    size_t thisLen = NanoWinStringUtils::base_tcslen(buffer);
+    size_t srcLen  = NanoWinStringUtils::base_tcslen(text);
+
+    size_t requiredSize = thisLen + srcLen + 1;
+
+    container_type::ReAllocateIfNeeded(&buffer,requiredSize);
+
+    memcpy(&buffer[thisLen],text,sizeof(XCHAR) * (srcLen + 1));
+   }
 
   void Append(const XCHAR *text, int nLength)
   {
     REQUIRE(text != NULL);
     REQUIRE(nLength >= 0);
-    strBuf.append(text, nLength);
+
+    size_t srcLen = NanoWinStringUtils::base_tcslen(text);
+
+    if (nLength >= srcLen)
+    {
+      Append(text);
+    }
+    else
+    {
+      size_t thisLen      = NanoWinStringUtils::base_tcslen(buffer);
+      size_t requiredSize = thisLen + nLength + 1;
+
+      container_type::ReAllocateIfNeeded(&buffer,requiredSize);
+
+      memcpy(&buffer[thisLen],text,sizeof(XCHAR) * nLength);
+      buffer[requiredSize - 1] = '\0';
+    }
   }
 
   void AppendChar(XCHAR item)
   {
     REQUIRE(item != 0); // TODO: Check assumption
-    strBuf.append(1, item);
+
+    size_t thisLen      = NanoWinStringUtils::base_tcslen(buffer);
+    size_t requiredSize = thisLen + 1 + 1;
+
+    container_type::ReAllocateIfNeeded(&buffer,requiredSize);
+
+    buffer[thisLen]     = item;
+    buffer[thisLen + 1] = '\0';
   }
 
   void Empty(void)
   {
-    strBuf.clear();
-    strBuf.shrink_to_fit();
+    container_type::ReAllocate(&buffer,1);
+    buffer[0] = '\0';
   }
 
   const XCHAR *GetString()
   const
   {
-    return(strBuf.c_str());
+    return(buffer);
   }
 
   int  GetLength()
   const
   {
-    return(static_cast<int>(strBuf.length()));
+    return(static_cast<int>(NanoWinStringUtils::base_tcslen(buffer)));
   }
 
   // Preallocate/FreeExtra/GetAllocLength // TODO: Clarify what length here mean? XCHAR[Length] or XCHAR[Length+1] 
@@ -206,7 +291,10 @@ class CSimpleStringT
 
   void FreeExtraSoftHint(void)
   {
-    strBuf.reserve(0); // Implemenation-defined hint to free extra mem
+    size_t thisLen = NanoWinStringUtils::base_tcslen(buffer);
+
+    //FIXME: need more smart logic here
+    container_type::ReAllocate(&buffer,thisLen + 1);
   }
 
   public:
@@ -219,18 +307,23 @@ class CSimpleStringT
     // Actually, some guard +1 space is here (thanks to std::string). BTW CAfxStringMgr::Allocate look like do the same :)
 
     REQUIRE(nLength >= 0);
-    strBuf.reserve(nLength); 
+
+    size_t requiredSize = nLength + 1; //FIXME: not sure if +1 is required here
+
+    container_type::ReAllocateIfNeeded(&buffer,requiredSize);
   }
 
   void FreeExtra(void)
   {
-    strBuf.shrink_to_fit();
+    size_t thisLen = NanoWinStringUtils::base_tcslen(buffer);
+
+    container_type::ReAllocate(&buffer,thisLen + 1);
   }
 
   int GetAllocLength()
   const
   {
-    return(static_cast<int>(strBuf.capacity()));
+    return(static_cast<int>(container_type::GetCapacity(buffer)));
   }
 
   // LockBuffer/UnlockBuffer
@@ -239,7 +332,7 @@ class CSimpleStringT
   // Note: It is good idea to Preallocate(nLength) space in buffer first!
   XCHAR *LockBuffer()
   {
-    return(const_cast<XCHAR *>(strBuf.c_str())); // Fairly simple, since we do not implement value sharing optimisation
+    return(buffer); // Fairly simple, since we do not implement value sharing optimisation
   }
 
   // Unlock buffer previously locked by LockBuffer()
@@ -313,8 +406,13 @@ class CSimpleStringT
   void SetString(const XCHAR *src)
   {
     REQUIRE(src != NULL);
-    if (src == strBuf.c_str()) { return; } // Copy to myself: nothing to do
-    strBuf = src;
+    if (src == buffer) { return; } // Copy to myself: nothing to do
+
+    size_t srcLen = NanoWinStringUtils::base_tcslen(src);
+
+    container_type::ReAllocateIfNeeded(&buffer,srcLen + 1);
+
+    memcpy(buffer,src,sizeof(XCHAR) * (srcLen + 1));
   }
 
   // No more then nLength char + checks if we are in the same buffer as the current string
@@ -397,7 +495,7 @@ class CSimpleStringT
     REQUIRE(nNewLength >= 0);
     if (GetLength() > nNewLength)
     {
-      strBuf.resize(nNewLength);
+      buffer[nNewLength] = '\0';
     }
   }
 
@@ -409,7 +507,14 @@ class CSimpleStringT
   { 
     if (value != 0) // '\0' cannot be appended to acsiiz string
     {
-      strBuf.push_back(value);
+      buffer = container_type::Allocate(2);
+      buffer[0] = value;
+      buffer[1] = '\0';
+    }
+    else
+    {
+      buffer = container_type::Allocate(1);
+      buffer[0] = '\0';
     }
   }
 
@@ -417,22 +522,67 @@ class CSimpleStringT
   CSimpleStringT()
   {
     // Do defaults
+
+    buffer = container_type::Allocate(1);
+    buffer[0] = '\0';
   }
 
-  CSimpleStringT(const XCHAR *value) : strBuf(value) {}
+  CSimpleStringT(const XCHAR *value)
+  {
+    size_t valueLen = NanoWinStringUtils::base_tcslen(value);
+
+    buffer = container_type::Allocate(valueLen + 1);
+
+    memcpy(buffer,value,sizeof(XCHAR) * (valueLen + 1));
+  }
 
   #if !defined(NW_CSTRING_DISABLE_NARROW_WIDE_CONVERSION) // _CSTRING_DISABLE_NARROW_WIDE_CONVERSION
   CSimpleStringT(const YCHAR *value)
   {
-    strBuf = NanoWin::StrConverter::Convert(value);
+    std::basic_string<XCHAR> tempStr = NanoWin::StrConverter::Convert(value);
+
+    size_t valueLen = tempStr.length();
+
+    buffer = container_type::Allocate(valueLen + 1);
+
+    memcpy(buffer,tempStr.c_str(),sizeof(XCHAR) * (valueLen + 1));
   }
   #endif
+
+  CSimpleStringT(const CSimpleStringT &src)
+  {
+    size_t srcCapacity = container_type::GetCapacity(src.buffer);
+
+    buffer = container_type::Allocate(srcCapacity);
+
+    memcpy(buffer,src.buffer,sizeof(XCHAR) * srcCapacity);
+  }
 
   // Operators
 
   void operator= (const XCHAR *value)
   {
-    strBuf = value;
+    if (value == buffer) return;
+
+    size_t valueLen = NanoWinStringUtils::base_tcslen(value);
+
+    container_type::ReAllocate(&buffer,valueLen + 1);
+
+    memcpy(buffer,value,sizeof(XCHAR) * (valueLen + 1));
+  }
+
+  void operator= (const CSimpleStringT &src)
+  {
+    if (&src == this) return;
+
+    size_t srcCapacity = container_type::GetCapacity(src.buffer);
+
+    if (srcCapacity > container_type::GetCapacity(buffer))
+    {
+      container_type::ReAllocate(&buffer,srcCapacity);
+    }
+
+    memcpy(buffer,src.buffer,sizeof(XCHAR) * srcCapacity);
   }
 
   operator PCXSTR ()
@@ -449,8 +599,7 @@ class CSimpleStringT
 
   void operator+= (PCXSTR pszSrc)
   {
-    REQUIRE(pszSrc != NULL);
-    strBuf += pszSrc;
+    Append(pszSrc);
   }
 
   #undef CHECKUP
@@ -460,18 +609,15 @@ class CSimpleStringT
 // Class to implement CString subset. [Only null-terminated strings supported]
 // Note that for MBCS strings, CString still counts, returns, and manipulates strings based on 8-bit characters,
 // and your application must interpret MBCS lead and trail bytes itself
-template<typename TXCHAR, typename TYCHAR, class TStringBuf>
-class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
+template<typename TXCHAR, typename TYCHAR>
+class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
 {
   #define REQUIRE(f) if (!(f)) { throw "CString has invalid param:" #f; }
   #define CHECKUP(f) if (!(f)) { throw "CString operation failed:" #f; }
 
   protected:
 
-  typedef CSimpleStringT<TXCHAR, TYCHAR, TStringBuf> parent;
-
-  typedef typename parent::strBuf_type       strBuf_type;
-  typedef typename parent::strBuf_size_type  strBuf_size_type;
+  typedef CSimpleStringT<TXCHAR, TYCHAR> parent;
 
   public:
 
@@ -504,14 +650,36 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   int Find (PCXSTR sub, int startPos = 0)
   const
   {
-    strBuf_size_type result = this->strBuf.find(sub, startPos);
-    if (result == strBuf_type::npos)
+    size_t currPos = static_cast<size_t>(startPos);
+    size_t thisLen = this->GetLength();
+
+    if (currPos >= thisLen) { return -1; }
+
+    bool found = false;
+
+    while (!found && this->buffer[currPos] != '\0')
     {
-      return(-1);
+      size_t offset;
+
+      for (offset = 0; this->buffer[currPos + offset] == sub[offset] && sub[offset] != '\0'; offset++)
+      {
+      }
+
+      found = sub[offset] == '\0';
+
+      if (!found)
+      {
+        currPos++;
+      }
+    }
+
+    if (found)
+    {
+      return(static_cast<int>(currPos));
     }
     else
     {
-      return(static_cast<int>(result));
+      return -1;
     }
   }
 
@@ -519,14 +687,27 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   int Find (XCHAR sch, int startPos = 0)
   const
   {
-    strBuf_size_type result = this->strBuf.find(sch, startPos);
-    if (result == strBuf_type::npos)
+    size_t currPos = static_cast<size_t>(startPos);
+    size_t thisLen = this->GetLength();
+
+    if (currPos >= thisLen) { return -1; }
+
+    bool found = false;
+
+    while (!found && this->buffer[currPos] != '\0')
     {
-      return(-1);
+      found = this->buffer[currPos] == sch;
+
+      currPos++;
+    }
+
+    if (found)
+    {
+      return(static_cast<int>(currPos - 1));
     }
     else
     {
-      return(static_cast<int>(result));
+      return -1;
     }
   }
 
@@ -534,23 +715,26 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   int ReverseFind(XCHAR sch)
   const
   {
-    strBuf_size_type result = this->strBuf.rfind(sch);
-    if (result == strBuf_type::npos)
+    int foundPos = -1;
+
+    for (size_t offset = 0; this->buffer[offset] != '\0'; offset++)
     {
-      return(-1);
+      if (this->buffer[offset] == sch)
+      {
+        foundPos = static_cast<int>(offset);
+      }
     }
-    else
-    {
-      return(static_cast<int>(result));
-    }
+
+    return foundPos;
   }
 
   // Manipulation
 
-  void FormatV(LPCTSTR lpszFormat, va_list args)
+  void FormatV(PCXSTR lpszFormat, va_list args)
   {
-    int result = NanoWinStringUtils::base_vsprintf(this->strBuf, lpszFormat, args);
-	CHECKUP(result >= 0);
+    int result = NanoWinStringUtils::base_vsprintf<XCHAR,parent>(*this,lpszFormat,args);
+
+	  CHECKUP(result >= 0);
   }
 
   protected:
@@ -587,8 +771,9 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   {
     if (!this->IsEmpty())
     {
-      NanoWinStringUtils::base_tcslwr(const_cast<XCHAR*>(this->strBuf.c_str()));
+      NanoWinStringUtils::base_tcslwr(this->buffer);
     }
+
     return(*this);
   }
 
@@ -597,26 +782,27 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   {
     if (!this->IsEmpty())
     {
-      NanoWinStringUtils::base_tcsupr(const_cast<XCHAR*>(this->strBuf.c_str()));
+      NanoWinStringUtils::base_tcsupr(this->buffer);
     }
-	return(*this);
+
+  	return(*this);
   }
 
   // Reverces characters in a string
   CStringT& MakeReverse()
   {
-    strBuf_size_type len     = this->strBuf.length();
-    strBuf_size_type halfLen = len / 2;
+    size_t len     = NanoWinStringUtils::base_tcslen(this->buffer);
+    size_t halfLen = len / 2;
 
-    for (strBuf_size_type i = 0; i < halfLen; i++)
+    for (size_t i = 0; i < halfLen; i++)
     {
-      XCHAR tmp = this->strBuf[i];
+      XCHAR tmp = this->buffer[i];
 
-      this->strBuf[i]           = this->strBuf[len - i - 1];
-      this->strBuf[len - i - 1] = tmp;
+      this->buffer[i]           = this->buffer[len - i - 1];
+      this->buffer[len - i - 1] = tmp;
     }
 
-	return(*this);
+    return(*this);
   }
 
   // Extracts last (rightmost) nCount characters and returns a copy of the extracted substring.
@@ -628,7 +814,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     if (nCount <= 0)           { return("");    }
     int len = this->GetLength();
     if (nCount >= len)         { return(*this); }
-    const XCHAR *from = this->strBuf.c_str();
+    const XCHAR *from = this->buffer;
     from += (len-nCount);
     return(from);
   }
@@ -640,7 +826,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     if (nFirst <= 0)           { return(*this); }
     int len = this->GetLength();
     if (nFirst >= len)         { return("");    }
-    const XCHAR *from = this->strBuf.c_str();
+    const XCHAR *from = this->buffer;
     from += nFirst;
     return(from);
   }
@@ -658,7 +844,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
       nCount = len - nFirst;
     }
 
-    const XCHAR *from = this->strBuf.c_str();
+    const XCHAR *from = this->buffer;
     from += nFirst;
 
     // Trick: We can do things this way only because we know internals
@@ -686,31 +872,35 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   int Insert(int nIndex, XCHAR src)
   {
     REQUIRE(src != 0); // Cannot insert null character (we do not support binary strings)
-    if (this->IsEmpty())
+
+    int thisLen = this->GetLength();
+    size_t requiredSize = thisLen + 1 + 1;
+
+    parent::container_type::ReAllocateIfNeeded(&this->buffer,requiredSize);
+
+    if (thisLen == 0)
     {
-      this->strBuf.append(1, src);
-      return(this->GetLength());
+      this->buffer[0] = src;
+      this->buffer[1] = '\0';
     }
     else if (nIndex <= 0)
     {
-      this->strBuf.insert(0, 1, src);
-      return(this->GetLength());
+      parent::container_type::Insert(this->buffer,0,1,&src,thisLen + 1);
     }
     else
     {
-      int dlen = this->GetLength();
-      if (nIndex >= dlen)
+      if (nIndex >= thisLen)
       {
-        this->strBuf.append(1, src);
-        dlen++;
+        this->buffer[thisLen]     = src;
+        this->buffer[thisLen + 1] = '\0';
       }
       else
       {
-        this->strBuf.insert(nIndex, 1, src);
-        dlen++;
+        parent::container_type::Insert(this->buffer,nIndex,1,&src,thisLen - nIndex + 1);
       }
-      return(dlen);
     }
+
+    return(thisLen + 1);
   }
 
   // Insert src at specified nIndex (zero based). If nIndex >= GetLength(), src will be appended
@@ -725,26 +915,34 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     }
     else if (this->IsEmpty())
     {
-      this->strBuf.append(src);
-      return(this->GetLength());
-    }
-    else if (nIndex <= 0)
-    {
-      this->strBuf.insert(0, src);
+      this->SetString(src);
       return(this->GetLength());
     }
     else
     {
-      int dlen = this->GetLength();
-      if (nIndex >= dlen)
+      int    thisLen      = this->GetLength();
+      int    srcLen       = NanoWinStringUtils::base_tcslen(src);
+      size_t requiredSize = thisLen + srcLen + 1;
+
+      parent::container_type::ReAllocateIfNeeded(&this->buffer,requiredSize);
+
+      if (nIndex <= 0)
       {
-        this->strBuf.append(src);
+        parent::container_type::Insert(this->buffer,0,srcLen,src,thisLen + 1);
       }
       else
       {
-        this->strBuf.insert(nIndex, src);
+        if (nIndex >= thisLen)
+        {
+          this->Append(src);
+        }
+        else
+        {
+          parent::container_type::Insert(this->buffer,nIndex,srcLen,src,thisLen - nIndex + 1);
+        }
       }
-      return(this->GetLength());
+
+      return(thisLen + srcLen);
     }
   }
 
@@ -762,14 +960,36 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     }
     else if (nIndex <= 0)
     {
-      this->strBuf.erase(0, nCount);
-      return(this->GetLength());
+      int thisLen = this->GetLength();
+
+      if (nCount > thisLen)
+      {
+        nCount = thisLen;
+      }
+
+      parent::container_type::Move(this->buffer,0,nCount,thisLen - nCount + 1);
+
+      return(thisLen - nCount);
     }
     else
     {
-      // would throw an exception if nIndex is out of string range (this is aligned with MFC) // TODO: remap exception
-      this->strBuf.erase(nIndex, nCount);
-      return(this->GetLength());
+      int thisLen = this->GetLength();
+
+      if (nIndex < thisLen)
+      {
+        if (nIndex + nCount > thisLen)
+        {
+          nCount = thisLen - nIndex;
+        }
+
+        parent::container_type::Move(this->buffer,nIndex,nIndex + nCount,thisLen - (nIndex + nCount) + 1);
+      }
+      else
+      {
+        throw new CInvalidArgException();
+      }
+
+      return(thisLen - nCount);
     }
   }
 
@@ -777,19 +997,20 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   {
     int replaceCount = 0;
 
-    for (strBuf_size_type pos = this->strBuf.find(chOld);
-         pos != strBuf_type::npos;
-         pos = this->strBuf.find(chOld,pos + 1))
+    for (XCHAR *ptr = this->buffer; *ptr != '\0'; ptr++)
     {
-      this->strBuf[pos] = chNew;
+      if (*ptr == chOld)
+      {
+        *ptr = chNew;
 
-      replaceCount++;
+        replaceCount++;
+      }
     }
 
     return replaceCount;
   }
 
-  int Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
+  int Replace(PCXSTR lpszOld, PCXSTR lpszNew)
   {
     int    replaceCount = 0;
     size_t oldLen       = this->StringLength(lpszOld);
@@ -798,22 +1019,48 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
     {
       size_t newLen = this->StringLength(lpszNew);
 
-      for (strBuf_size_type pos = this->strBuf.find(lpszOld);
-           pos != strBuf_type::npos;
-           pos = this->strBuf.find(lpszOld,pos + newLen))
+      if (newLen > oldLen)
       {
-        this->strBuf.replace(pos,oldLen,lpszNew);
+        size_t deltaLen = newLen - oldLen;
+        size_t thisLen  = this->GetLength();
 
-        replaceCount++;
+        for (int currPos = this->Find(lpszOld); currPos >= 0; currPos = this->Find(lpszOld,currPos))
+        {
+          parent::container_type::ReAllocateIfNeeded(&this->buffer,thisLen + deltaLen + 1);
+
+          parent::container_type::Move(this->buffer,currPos + oldLen + deltaLen,currPos + oldLen,thisLen - (currPos + oldLen) + 1);
+
+          memcpy(&this->buffer[currPos],lpszNew,newLen * sizeof(XCHAR));
+
+          thisLen += deltaLen;
+          currPos += newLen;
+
+          replaceCount++;
+        }
+      }
+      else
+      {
+        size_t deltaLen = oldLen - newLen;
+        size_t thisLen  = this->GetLength();
+
+        for (int currPos = this->Find(lpszOld); currPos >= 0; currPos = this->Find(lpszOld,currPos))
+        {
+          parent::container_type::Move(this->buffer,currPos + newLen ,currPos + oldLen,thisLen - (currPos + oldLen) + 1);
+
+          memcpy(&this->buffer[currPos],lpszNew,newLen * sizeof(XCHAR));
+
+          thisLen -= deltaLen;
+          currPos += newLen;
+
+          replaceCount++;
+        }
       }
     }
     else
     {
-      for (strBuf_size_type pos = this->strBuf.find(lpszOld);
-           pos != strBuf_type::npos;
-           pos = this->strBuf.find(lpszOld,pos))
+      for (int currPos = this->Find(lpszOld); currPos >= 0; currPos = this->Find(lpszOld,currPos))
       {
-        this->strBuf.erase(pos,oldLen);
+        this->Delete(currPos,oldLen);
 
         replaceCount++;
       }
@@ -972,20 +1219,20 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
 
   const CStringT& operator= (const XCHAR *value)
   {
-    this->strBuf = value;
+    this->SetString(value);
     return(*this);
   }
 
   const CStringT& operator+= (PCXSTR pszSrc)
   {
     REQUIRE(pszSrc != NULL);
-    this->strBuf += pszSrc;
+    this->Append(pszSrc);
     return(*this);
   }
 
   const CStringT& operator+= (const CStringT &src)
   {
-    this->strBuf += (PCXSTR)src;
+    this->Append(src.buffer);
     return(*this);
   }
 
@@ -1005,8 +1252,8 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR, TStringBuf>
   #undef REQUIRE
 };
 
-typedef CStringT<char, wchar_t, std::string>  CStringA;
-typedef CStringT<wchar_t, char, std::wstring> CStringW;
+typedef CStringT<char, wchar_t> CStringA;
+typedef CStringT<wchar_t, char> CStringW;
 
 // CString 2 operand operators
 
