@@ -129,7 +129,7 @@ struct TStringContainer
     {
       TStringContainer<XCHAR> *container = (TStringContainer<XCHAR>*)malloc(sizeof(TStringContainer<XCHAR>) + initialCapacity * sizeof(XCHAR));
 
-      if (container == NULL) throw std::bad_alloc();
+      if (container == NULL) throw new CMemoryException();
 
       container->capacity = initialCapacity;
 
@@ -154,42 +154,7 @@ struct TStringContainer
     }
   }
 
-  //FIXME: add optimization here
-  static void ReAllocate(XCHAR **buffer, size_t newCapacity)
-  {
-    if (!IsEmptyStr(*buffer))
-    {
-      TStringContainer<XCHAR> *oldContainer = GetContainerPtr(*buffer);
-
-      if (newCapacity > 0)
-      {
-        TStringContainer<XCHAR> *newContainer = (TStringContainer<XCHAR>*)realloc(oldContainer,sizeof(TStringContainer<XCHAR>) + newCapacity * sizeof(XCHAR));
-
-        if (newContainer != NULL)
-        {
-          newContainer->capacity = newCapacity;
-
-          *buffer = (XCHAR*)&newContainer->buffer;
-        }
-        else
-        {
-          throw std::bad_alloc();
-        }
-      }
-      else
-      {
-        free(oldContainer);
-
-        *buffer = (XCHAR*)GetEmptyStr();
-      }
-    }
-    else
-    {
-      *buffer = Allocate(newCapacity);
-    }
-  }
-
-  static void ReAllocateIfNeeded(XCHAR **buffer, size_t newCapacity)
+  static void ExtendIfNeeded(XCHAR **buffer, size_t newCapacity)
   {
     if (!IsEmptyStr(*buffer))
     {
@@ -197,13 +162,23 @@ struct TStringContainer
 
       if (container->capacity < newCapacity)
       {
-        ReAllocate(buffer,newCapacity);
+        ReAllocate(buffer,CalcOptimalCapacity(container->capacity,newCapacity));
       }
     }
     else
     {
-      ReAllocate(buffer,newCapacity);
+      ReAllocate(buffer,CalcOptimalCapacity(0,newCapacity));
     }
+  }
+
+  static void Shrink (XCHAR **buffer, size_t newCapacity)
+  {
+    ReAllocate(buffer,newCapacity);
+  }
+
+  static void ShrinkHint(XCHAR **buffer, size_t newCapacity)
+  {
+    ReAllocate(buffer,newCapacity);
   }
 
   static void SetToEmptyStr (XCHAR **buffer)
@@ -236,9 +211,74 @@ struct TStringContainer
 
   private :
 
+  static size_t GetAlignedBlockSize(size_t blockSize, size_t alignment)
+  {
+    return ((blockSize + alignment - 1) / alignment) * alignment;
+  }
+
+  static size_t CalcOptimalCapacity(size_t oldCapacity, size_t newCapacity)
+  {
+    if      (newCapacity < oldCapacity)
+    {
+      if (newCapacity > 0)
+      {
+        return GetAlignedBlockSize(newCapacity,OPTIMAL_ALLOCATION_BLOCK_SIZE);
+      }
+      else
+      {
+        return 0;
+      }
+    }
+    else if (newCapacity > oldCapacity)
+    {
+      return GetAlignedBlockSize(newCapacity,OPTIMAL_ALLOCATION_BLOCK_SIZE);
+    }
+    else //if (newCapacity == oldCapacity)
+    {
+      return newCapacity;
+    }
+  }
+
   static TStringContainer<XCHAR> *GetContainerPtr(const XCHAR *buffer)
   {
     return (TStringContainer<XCHAR>*)((char*)buffer - sizeof(TStringContainer<XCHAR>));
+  }
+
+  static void ReAllocate(XCHAR **buffer, size_t newCapacity)
+  {
+    if (!IsEmptyStr(*buffer))
+    {
+      TStringContainer<XCHAR> *oldContainer = GetContainerPtr(*buffer);
+
+      if (newCapacity > 0)
+      {
+        if (newCapacity != oldContainer->capacity)
+        {
+          TStringContainer<XCHAR> *newContainer = (TStringContainer<XCHAR>*)realloc(oldContainer,sizeof(TStringContainer<XCHAR>) + newCapacity * sizeof(XCHAR));
+
+          if (newContainer != NULL)
+          {
+            newContainer->capacity = newCapacity;
+
+            *buffer = (XCHAR*)&newContainer->buffer;
+          }
+          else
+          {
+            throw new CMemoryException();
+          }
+        }
+      }
+      else
+      {
+        free(oldContainer);
+
+        *buffer = (XCHAR*)GetEmptyStr();
+      }
+    }
+    else
+    {
+      *buffer = Allocate(newCapacity);
+    }
   }
 
   static bool IsEmptyStr (const XCHAR *buffer)
@@ -250,6 +290,8 @@ struct TStringContainer
   {
     return CStringEmptyStrData<XCHAR>::GetEmptyStr();
   }
+
+  static constexpr size_t OPTIMAL_ALLOCATION_BLOCK_SIZE = 32;
 };
 
 // Class to implement CSimpleStringT subset. [Only null-terminated strings supported]
@@ -308,7 +350,7 @@ class CSimpleStringT
 
     size_t requiredSize = thisLen + srcLen + 1;
 
-    container_type::ReAllocateIfNeeded(&buffer,requiredSize);
+    container_type::ExtendIfNeeded(&buffer,requiredSize);
 
     memcpy(&buffer[thisLen],text,sizeof(XCHAR) * (srcLen + 1));
    }
@@ -329,7 +371,7 @@ class CSimpleStringT
       size_t thisLen      = NanoWinStringUtils::base_tcslen(buffer);
       size_t requiredSize = thisLen + nLength + 1;
 
-      container_type::ReAllocateIfNeeded(&buffer,requiredSize);
+      container_type::ExtendIfNeeded(&buffer,requiredSize);
 
       memcpy(&buffer[thisLen],text,sizeof(XCHAR) * nLength);
       buffer[requiredSize - 1] = '\0';
@@ -343,7 +385,7 @@ class CSimpleStringT
     size_t thisLen      = NanoWinStringUtils::base_tcslen(buffer);
     size_t requiredSize = thisLen + 1 + 1;
 
-    container_type::ReAllocateIfNeeded(&buffer,requiredSize);
+    container_type::ExtendIfNeeded(&buffer,requiredSize);
 
     buffer[thisLen]     = item;
     buffer[thisLen + 1] = '\0';
@@ -374,8 +416,14 @@ class CSimpleStringT
   {
     size_t thisLen = NanoWinStringUtils::base_tcslen(buffer);
 
-    //FIXME: need more smart logic here
-    container_type::ReAllocate(&buffer,thisLen + 1);
+    if (thisLen > 0)
+    {
+      container_type::ShrinkHint(&buffer,thisLen + 1);
+    }
+    else
+    {
+      container_type::ResetToEmptyStr(&buffer);
+    }
   }
 
   public:
@@ -391,14 +439,21 @@ class CSimpleStringT
 
     size_t requiredSize = nLength + 1; //FIXME: not sure if +1 is required here
 
-    container_type::ReAllocateIfNeeded(&buffer,requiredSize);
+    container_type::ExtendIfNeeded(&buffer,requiredSize);
   }
 
   void FreeExtra(void)
   {
     size_t thisLen = NanoWinStringUtils::base_tcslen(buffer);
 
-    container_type::ReAllocate(&buffer,thisLen + 1);
+    if (thisLen > 0)
+    {
+      container_type::Shrink(&buffer,thisLen + 1);
+    }
+    else
+    {
+      container_type::ResetToEmptyStr(&buffer);
+    }
   }
 
   int GetAllocLength()
@@ -491,9 +546,16 @@ class CSimpleStringT
 
     size_t srcLen = NanoWinStringUtils::base_tcslen(src);
 
-    container_type::ReAllocateIfNeeded(&buffer,srcLen + 1);
+    if (srcLen > 0)
+    {
+      container_type::ExtendIfNeeded(&buffer,srcLen + 1);
 
-    memcpy(buffer,src,sizeof(XCHAR) * (srcLen + 1));
+      memcpy(buffer,src,sizeof(XCHAR) * (srcLen + 1));
+    }
+    else
+    {
+      container_type::ResetToEmptyStr(&buffer);
+    }
   }
 
   // No more then nLength char + checks if we are in the same buffer as the current string
@@ -668,7 +730,7 @@ class CSimpleStringT
 
     if (valueLen > 0)
     {
-      container_type::ReAllocate(&buffer,valueLen + 1);
+      container_type::ExtendIfNeeded(&buffer,valueLen + 1);
 
       memcpy(buffer,value,sizeof(XCHAR) * (valueLen + 1));
     }
@@ -684,12 +746,16 @@ class CSimpleStringT
 
     size_t srcCapacity = container_type::GetCapacity(src.buffer);
 
-    if (srcCapacity > container_type::GetCapacity(buffer))
+    if (srcCapacity > 0)
     {
-      container_type::ReAllocate(&buffer,srcCapacity);
-    }
+      container_type::ExtendIfNeeded(&buffer,srcCapacity);
 
-    memcpy(buffer,src.buffer,sizeof(XCHAR) * srcCapacity);
+      memcpy(buffer,src.buffer,sizeof(XCHAR) * srcCapacity);
+    }
+    else
+    {
+      container_type::ResetToEmptyStr(&buffer);
+    }
   }
 
   operator PCXSTR ()
@@ -983,7 +1049,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
     int thisLen = this->GetLength();
     size_t requiredSize = thisLen + 1 + 1;
 
-    parent::container_type::ReAllocateIfNeeded(&this->buffer,requiredSize);
+    parent::container_type::ExtendIfNeeded(&this->buffer,requiredSize);
 
     if (thisLen == 0)
     {
@@ -1031,7 +1097,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
       int    srcLen       = NanoWinStringUtils::base_tcslen(src);
       size_t requiredSize = thisLen + srcLen + 1;
 
-      parent::container_type::ReAllocateIfNeeded(&this->buffer,requiredSize);
+      parent::container_type::ExtendIfNeeded(&this->buffer,requiredSize);
 
       if (nIndex <= 0)
       {
@@ -1133,7 +1199,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
 
         for (int currPos = this->Find(lpszOld); currPos >= 0; currPos = this->Find(lpszOld,currPos))
         {
-          parent::container_type::ReAllocateIfNeeded(&this->buffer,thisLen + deltaLen + 1);
+          parent::container_type::ExtendIfNeeded(&this->buffer,thisLen + deltaLen + 1);
 
           parent::container_type::Move(this->buffer,currPos + oldLen + deltaLen,currPos + oldLen,thisLen - (currPos + oldLen) + 1);
 
