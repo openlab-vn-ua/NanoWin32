@@ -73,6 +73,9 @@ class NanoWinStringUtils
     return(result);
   }
 
+  static const char    *empty_str;
+  static const wchar_t *empty_wstr;
+
   private :
 
   static int vsnprintf_overload(char *buffer, size_t count, const char *format, va_list argptr)
@@ -96,6 +99,24 @@ class NanoWinStringUtils
   }
 };
 
+template <typename XCHAR>
+struct CStringEmptyStrData
+{
+  static XCHAR *GetEmptyStr () { return XCHAR::EmptyStr; }
+};
+
+template<>
+struct CStringEmptyStrData<char>
+{
+  static const char *GetEmptyStr () { return NanoWinStringUtils::empty_str; }
+};
+
+template<>
+struct CStringEmptyStrData<wchar_t>
+{
+  static const wchar_t *GetEmptyStr () { return NanoWinStringUtils::empty_wstr; }
+};
+
 template<typename XCHAR>
 struct TStringContainer
 {
@@ -104,51 +125,102 @@ struct TStringContainer
 
   static XCHAR *Allocate (size_t initialCapacity)
   {
-    TStringContainer<XCHAR> *container = (TStringContainer<XCHAR>*)malloc(sizeof(TStringContainer<XCHAR>) + initialCapacity * sizeof(XCHAR));
+    if (initialCapacity > 0)
+    {
+      TStringContainer<XCHAR> *container = (TStringContainer<XCHAR>*)malloc(sizeof(TStringContainer<XCHAR>) + initialCapacity * sizeof(XCHAR));
 
-    if (container == NULL) throw std::bad_alloc();
+      if (container == NULL) throw std::bad_alloc();
 
-    container->capacity = initialCapacity;
+      container->capacity = initialCapacity;
 
-    return (XCHAR*)&container->buffer;
+      return (XCHAR*)&container->buffer;
+    }
+    else
+    {
+      return (XCHAR*)GetEmptyStr();
+    }
+  }
+
+  static XCHAR *AllocateEmpty()
+  {
+    return Allocate(0);
   }
 
   static void Free(XCHAR *buffer)
   {
-    free(GetContainerPtr(buffer));
+    if (!IsEmptyStr(buffer))
+    {
+      free(GetContainerPtr(buffer));
+    }
   }
 
   //FIXME: add optimization here
   static void ReAllocate(XCHAR **buffer, size_t newCapacity)
   {
-    TStringContainer<XCHAR> *oldContainer = GetContainerPtr(*buffer);
-    TStringContainer<XCHAR> *newContainer = (TStringContainer<XCHAR>*)realloc(oldContainer,sizeof(TStringContainer<XCHAR>) + newCapacity * sizeof(XCHAR));
-
-    if (newContainer != NULL)
+    if (!IsEmptyStr(*buffer))
     {
-      newContainer->capacity = newCapacity;
+      TStringContainer<XCHAR> *oldContainer = GetContainerPtr(*buffer);
 
-      *buffer = (XCHAR*)&newContainer->buffer;
+      if (newCapacity > 0)
+      {
+        TStringContainer<XCHAR> *newContainer = (TStringContainer<XCHAR>*)realloc(oldContainer,sizeof(TStringContainer<XCHAR>) + newCapacity * sizeof(XCHAR));
+
+        if (newContainer != NULL)
+        {
+          newContainer->capacity = newCapacity;
+
+          *buffer = (XCHAR*)&newContainer->buffer;
+        }
+        else
+        {
+          throw std::bad_alloc();
+        }
+      }
+      else
+      {
+        free(oldContainer);
+
+        *buffer = (XCHAR*)GetEmptyStr();
+      }
     }
     else
     {
-      throw std::bad_alloc();
+      *buffer = Allocate(newCapacity);
     }
   }
 
   static void ReAllocateIfNeeded(XCHAR **buffer, size_t newCapacity)
   {
-    TStringContainer<XCHAR> *container = GetContainerPtr(*buffer);
+    if (!IsEmptyStr(*buffer))
+    {
+      TStringContainer<XCHAR> *container = GetContainerPtr(*buffer);
 
-    if (container->capacity < newCapacity)
+      if (container->capacity < newCapacity)
+      {
+        ReAllocate(buffer,newCapacity);
+      }
+    }
+    else
     {
       ReAllocate(buffer,newCapacity);
     }
   }
 
+  static void SetToEmptyStr (XCHAR **buffer)
+  {
+    *buffer = (XCHAR*)GetEmptyStr();
+  }
+
+  static void ResetToEmptyStr (XCHAR **buffer)
+  {
+    Free(*buffer);
+
+    *buffer = (XCHAR*)GetEmptyStr();
+  }
+
   static size_t GetCapacity (const XCHAR *buffer)
   {
-    return GetContainerPtr(buffer)->capacity;
+    return IsEmptyStr(buffer) ? 0 : GetContainerPtr(buffer)->capacity;
   }
 
   static void Insert(XCHAR *buffer, size_t startPos, size_t count, const XCHAR *data, size_t tailSize)
@@ -167,6 +239,16 @@ struct TStringContainer
   static TStringContainer<XCHAR> *GetContainerPtr(const XCHAR *buffer)
   {
     return (TStringContainer<XCHAR>*)((char*)buffer - sizeof(TStringContainer<XCHAR>));
+  }
+
+  static bool IsEmptyStr (const XCHAR *buffer)
+  {
+    return buffer == GetEmptyStr();
+  }
+
+  static const XCHAR *GetEmptyStr()
+  {
+    return CStringEmptyStrData<XCHAR>::GetEmptyStr();
   }
 };
 
@@ -269,8 +351,7 @@ class CSimpleStringT
 
   void Empty(void)
   {
-    container_type::ReAllocate(&buffer,1);
-    buffer[0] = '\0';
+    container_type::ResetToEmptyStr(&buffer);
   }
 
   const XCHAR *GetString()
@@ -513,8 +594,7 @@ class CSimpleStringT
     }
     else
     {
-      buffer = container_type::Allocate(1);
-      buffer[0] = '\0';
+      buffer = container_type::AllocateEmpty();
     }
   }
 
@@ -523,17 +603,23 @@ class CSimpleStringT
   {
     // Do defaults
 
-    buffer = container_type::Allocate(1);
-    buffer[0] = '\0';
+    buffer = container_type::AllocateEmpty();
   }
 
   CSimpleStringT(const XCHAR *value)
   {
     size_t valueLen = NanoWinStringUtils::base_tcslen(value);
 
-    buffer = container_type::Allocate(valueLen + 1);
+    if (valueLen > 0)
+    {
+      buffer = container_type::Allocate(valueLen + 1);
 
-    memcpy(buffer,value,sizeof(XCHAR) * (valueLen + 1));
+      memcpy(buffer,value,sizeof(XCHAR) * (valueLen + 1));
+    }
+    else
+    {
+      buffer = container_type::AllocateEmpty();
+    }
   }
 
   #if !defined(NW_CSTRING_DISABLE_NARROW_WIDE_CONVERSION) // _CSTRING_DISABLE_NARROW_WIDE_CONVERSION
@@ -543,9 +629,16 @@ class CSimpleStringT
 
     size_t valueLen = tempStr.length();
 
-    buffer = container_type::Allocate(valueLen + 1);
+    if (valueLen > 0)
+    {
+      buffer = container_type::Allocate(valueLen + 1);
 
-    memcpy(buffer,tempStr.c_str(),sizeof(XCHAR) * (valueLen + 1));
+      memcpy(buffer,tempStr.c_str(),sizeof(XCHAR) * (valueLen + 1));
+    }
+    else
+    {
+      container_type::AllocateEmpty();
+    }
   }
   #endif
 
@@ -553,9 +646,16 @@ class CSimpleStringT
   {
     size_t srcCapacity = container_type::GetCapacity(src.buffer);
 
-    buffer = container_type::Allocate(srcCapacity);
+    if (srcCapacity > 0)
+    {
+      buffer = container_type::Allocate(srcCapacity);
 
-    memcpy(buffer,src.buffer,sizeof(XCHAR) * srcCapacity);
+      memcpy(buffer,src.buffer,sizeof(XCHAR) * srcCapacity);
+    }
+    else
+    {
+      buffer = container_type::AllocateEmpty();
+    }
   }
 
   // Operators
@@ -566,9 +666,16 @@ class CSimpleStringT
 
     size_t valueLen = NanoWinStringUtils::base_tcslen(value);
 
-    container_type::ReAllocate(&buffer,valueLen + 1);
+    if (valueLen > 0)
+    {
+      container_type::ReAllocate(&buffer,valueLen + 1);
 
-    memcpy(buffer,value,sizeof(XCHAR) * (valueLen + 1));
+      memcpy(buffer,value,sizeof(XCHAR) * (valueLen + 1));
+    }
+    else
+    {
+      container_type::ResetToEmptyStr(&buffer);
+    }
   }
 
   void operator= (const CSimpleStringT &src)

@@ -9,6 +9,9 @@
 
 // #include "NanoWinError.h"
 
+const char    *NanoWinStringUtils::empty_str  = "";
+const wchar_t *NanoWinStringUtils::empty_wstr = L"";
+
 extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString, int iSubString, TCHAR chSep)
 {
   if (lpszFullString == NULL) { return(FALSE); }
