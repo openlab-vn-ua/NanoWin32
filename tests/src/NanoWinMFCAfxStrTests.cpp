@@ -228,8 +228,18 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringInsertLPCTSTRTest)
 
 	NW_CHECK_EQUAL(9, n);
 	NW_CHECK_EQUAL_STRCMP("zzzabcdef", cString);
-}
 
+  n = cString.Insert(100, "zzz");
+
+  NW_CHECK_EQUAL(12, n);
+  NW_CHECK_EQUAL_STRCMP("zzzabcdefzzz", cString);
+
+  n = cString.Insert(-1, "a");
+
+  NW_CHECK_EQUAL(13, n);
+  NW_CHECK_EQUAL_STRCMP("azzzabcdefzzz", cString);
+}
+#ifndef __GNUC__
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringDeleteTest)
 {
 	CString cString("abcdefabc");
@@ -243,8 +253,13 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringDeleteTest)
 
 	NW_CHECK_EQUAL(3, n);
 	NW_CHECK_EQUAL_STRCMP("abc", cString);
-}
 
+  n = cString.Delete(10, 1);
+
+  NW_CHECK_EQUAL(3, n); // ???
+  NW_CHECK_EQUAL_STRCMP("abc", cString);
+}
+#endif
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringRemoveTest)
 {
 	CString cString("abcdefabc");
@@ -363,7 +378,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareNoCaseTest)
 	res = cString.CompareNoCase("ABcdE");
 	NW_CHECK(res > 0);
 }
-
+#ifndef __GNUC__
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 {
 	CString str;
@@ -375,8 +390,22 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 	str.Format("", 2, 3, 4, 5); // format string is empty, args does not matter
 
 	NW_CHECK_EQUAL_STRCMP("", str);
-}
 
+  CString str2("abc");
+
+  str.Format("%s", str2);
+  
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+
+  str.Format("%s%s", str2, "123");
+ 
+  NW_CHECK_EQUAL_STRCMP("abc123", str);
+
+  str.Format("%s%d", str2, 123);
+
+  NW_CHECK_EQUAL_STRCMP("abc123", str);
+}
+#endif
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
 {
 	// This works under Win32 only...
@@ -518,6 +547,59 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, C2CMacroTest)
 	ttest = c32;
 	NW_CHECK_EQUAL(0,_tcscmp(_T("abc"), ttest));
 	NW_CHECK_EQUAL(0,_tcscmp(_T("abc"), CW2CT(L"abc")));
+}
+
+NW_TEST(NanoWinMFCAfxStrTestGroup, ReleaseBufferTest)
+{
+  constexpr int bufferStartSize = 255 + 1;
+  CString   str;
+
+  TCHAR *buffer = str.GetBufferSetLength(bufferStartSize);
+
+  strcpy(buffer, "2017");
+
+  str.ReleaseBuffer();
+
+  NW_CHECK_EQUAL_STRCMP(str.GetString(), "2017");
+}
+#ifndef __GNUC__
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringSetStringTest)
+{
+  CString str;
+  bool exceptionCatched = false;
+
+  str.SetString("abcd", 3);
+  NW_CHECK_EQUAL_STRCMP("abc", str.GetString());
+  
+  try
+  {
+    str.SetString("abcd", -1);
+  }
+  catch (...)
+  {
+    exceptionCatched = true;
+  }
+
+  NW_CHECK_TRUE(exceptionCatched);
+  
+  str.SetString("abcd", 10);
+  NW_CHECK_EQUAL_STRCMP("abcd", str.GetString());
+}
+#endif
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringAddSymbolTest)
+{
+  CString str;
+
+  for (int i = 0; i < 128; i++)
+  {
+    str.AppendChar('a');
+  }
+
+  NW_CHECK_EQUAL(128, str.GetLength());
+  NW_CHECK_EQUAL_STRCMP("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", str.GetString());
 }
 
 NW_END_TEST_GROUP()
