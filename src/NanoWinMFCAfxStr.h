@@ -922,22 +922,21 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
 
   public:
 
-  void Format(PCXSTR lpszFormat, ...)
-  {
-    va_list args;
-    va_start (args, lpszFormat);
-    FormatV(lpszFormat, args);
-    va_end (args);
-  }
-
-  // Call gates to support up to 5 CString parameters
-  // This is not a complete solution, but this gived old code chance to work w/o modification
+  // Format is defined as a template in order to support CString parameters
+  // This is not the best solution, but this gived old code chance to work w/o modification
   // Note: according to MSDN you have to cast CString to (LPCTSTR) when passing it to printf-like functions
-  void Format(PCXSTR lpszFormat, PCXSTR arg1) { this->FormatF(lpszFormat, arg1); }
-  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2) { this->FormatF(lpszFormat, arg1, arg2); }
-  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2, PCXSTR arg3) { this->FormatF(lpszFormat, arg1, arg2, arg3); }
-  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2, PCXSTR arg3, PCXSTR arg4) { this->FormatF(lpszFormat, arg1, arg2, arg3, arg4); }
-  void Format(PCXSTR lpszFormat, PCXSTR arg1, PCXSTR arg2, PCXSTR arg3, PCXSTR arg4, PCXSTR arg5) { this->FormatF(lpszFormat, arg1, arg2, arg3, arg4, arg5);  }
+ 
+  template<typename T>
+  static inline T CStringArgAsFormatArg (T v) { return v; }
+
+  static inline const XCHAR *CStringArgAsFormatArg(const CStringT<XCHAR,YCHAR> &v) { return v.GetString(); }
+  static inline const XCHAR *CStringArgAsFormatArg(const XCHAR *v) { return v; }
+
+  template<typename... Args>
+  inline void Format(PCXSTR lpszFormat, Args&&... args)
+  {
+    FormatF(lpszFormat,CStringArgAsFormatArg(args)...);
+  }
 
   // Converts to lowercase
   CStringT& MakeLower()
