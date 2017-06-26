@@ -226,6 +226,22 @@ errno_t _wsplitpath_s
    wchar_t       (&destext  )[destextsz]
 ) { return(_wsplitpath_s(srcpath, destdrive, destdrivesz, destdir, destdirsz, destfname, destfnamesz, destext, destextsz)); }
 
+// Unicode versions of some calls
+// ---------------------------------------------
+
+NW_EXTERN_C_BEGIN
+
+// Exec command via shell
+// if lpCommand is NULL     check existence of shell, returns non-zero if available, else returns 0
+// if lpCommand is not null runs specified command and returns its exit code (returns -1 in case failed to run and sets errno)
+extern int      wsystem  (const wchar_t *lpCommand);
+
+#ifndef NW_NO_MS_ISO_ALIASES // MS aliases for "obsolete" func
+#define _wsystem             wsystem
+#endif
+
+NW_EXTERN_C_END
+
 // C++ gates and tricks
 // ---------------------------------------------
 

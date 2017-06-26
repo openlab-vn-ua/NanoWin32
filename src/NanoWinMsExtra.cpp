@@ -883,3 +883,40 @@ extern errno_t  _wsplitpath_s(const wchar_t *srcpath, wchar_t *destdrive, rsize_
 }
 
 NW_EXTERN_C_END
+
+// Unicode versions of some calls
+// ---------------------------------------------
+
+NW_EXTERN_C_BEGIN
+
+extern int      wsystem  (const wchar_t *lpCommand)
+{
+  if (lpCommand == NULL)
+  {
+    int result = system(NULL);
+    if (result == 0)
+	{
+      set_errno(ENOENT);
+    }
+
+    return(result);
+  }
+  else
+  {
+    NanoWin::WStrToStrClone sCommand(lpCommand);
+
+	if (!sCommand.is_valid()) { set_errno(EINVAL); return(-1); }
+
+	int result = system(sCommand.c_str());
+	if (result == -1)
+    {
+      // it is not clear should stdlib set errno in that case
+      // we try to keep existing errno here, overwritting it only on case its zero
+      if (errno == 0) { set_errno(ENOEXEC); }
+    }
+
+    return(result);
+  }
+}
+
+NW_EXTERN_C_END
