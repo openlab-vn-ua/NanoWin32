@@ -9,7 +9,6 @@
 #define NanoWinSystemIncluded
 
 #include "NanoWinTypes.h"
-#include "NanoWinTCHAR.h"
 
 #if defined LINUX
 
@@ -36,19 +35,33 @@ extern void WINAPI GetSystemTime(_Out_ LPSYSTEMTIME lpSystemTime);
 // Current implementation supports only LOCALE_USER_DEFAULT and LOCALE_SYSTEM_DEFAULT locales,
 // no flags support and lpFormat string must be NULL (default time and date formats for
 // locale are used)
-extern int  WINAPI GetTimeFormat(_In_            LCID       Locale,
-                                 _In_            DWORD      dwFlags,
-                                 _In_opt_  const SYSTEMTIME *lpTime,
-                                 _In_opt_        LPCTSTR    lpFormat,
-                                 _Out_opt_       LPTSTR     lpTimeStr,
-                                 _In_            int        cchTime);
+extern int  WINAPI GetTimeFormatA(_In_            LCID       Locale,
+                                  _In_            DWORD      dwFlags,
+                                  _In_opt_  const SYSTEMTIME *lpTime,
+                                  _In_opt_        LPCSTR     lpFormat,
+                                  _Out_opt_       LPSTR      lpTimeStr,
+                                  _In_            int        cchTime);
 
-extern int  WINAPI GetDateFormat(_In_            LCID       Locale,
-                                 _In_            DWORD      dwFlags,
-                                 _In_opt_  const SYSTEMTIME *lpDate,
-                                 _In_opt_        LPCTSTR    lpFormat,
-                                 _Out_opt_       LPTSTR     lpDateStr,
-                                 _In_            int        cchDate);
+extern int  WINAPI GetTimeFormatW(_In_            LCID       Locale,
+                                  _In_            DWORD      dwFlags,
+                                  _In_opt_  const SYSTEMTIME *lpTime,
+                                  _In_opt_        LPCWSTR    lpFormat,
+                                  _Out_opt_       LPWSTR     lpTimeStr,
+                                  _In_            int        cchTime);
+
+extern int  WINAPI GetDateFormatA(_In_            LCID       Locale,
+                                  _In_            DWORD      dwFlags,
+                                  _In_opt_  const SYSTEMTIME *lpDate,
+                                  _In_opt_        LPCSTR     lpFormat,
+                                  _Out_opt_       LPSTR      lpDateStr,
+                                  _In_            int        cchDate);
+
+extern int  WINAPI GetDateFormatW(_In_            LCID       Locale,
+                                  _In_            DWORD      dwFlags,
+                                  _In_opt_  const SYSTEMTIME *lpDate,
+                                  _In_opt_        LPCWSTR    lpFormat,
+                                  _Out_opt_       LPWSTR     lpDateStr,
+                                  _In_            int        cchDate);
 
 // Psapi.h
 // -----------------------------
@@ -84,7 +97,11 @@ extern BOOL WINAPI GetProcessMemoryInfo
                    );
 
 #if defined(UNICODE) || defined(_UNICODE)
+ #define GetTimeFormat GetTimeFormatW
+ #define GetDateFormat GetDateFormatW
 #else
+ #define GetTimeFormat GetTimeFormatA
+ #define GetDateFormat GetDateFormatA
 #endif
 
 NW_EXTERN_C_END
