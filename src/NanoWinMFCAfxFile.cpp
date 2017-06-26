@@ -16,14 +16,8 @@
 #include "NanoWinStrConvert.h"
 #include "NanoWinInternal.h"
 
-#ifndef AfxThrowInvalidArgException
- #define AfxThrowInvalidArgException() throw new CInvalidArgException()
-#endif
-
-#ifndef AfxThrowFileException
- #define AfxThrowFileException() throw new CFileException()
-#endif
-
+// CFileFind
+// --------------
 
 #ifdef UNICODE
 const TCHAR CFileFind::WILDCARD_ALL_FILES[] = L"*.*";
@@ -31,31 +25,90 @@ const TCHAR CFileFind::WILDCARD_ALL_FILES[] = L"*.*";
 const TCHAR CFileFind::WILDCARD_ALL_FILES[] = "*.*";
 #endif
 
+// CFile tools
+// --------------
+
+static void AfxFillFileExceptionWithWin32Error(CFileException *pe, DWORD copy_error_from_errcode)
+{
+}
+
+static void AfxFillFileExceptionWithErrno(CFileException *pe, int copy_error_from_errno)
+{
+}
+
+static void AfxThrowFileExceptionWithWin32Error(DWORD copy_error_from_errcode)
+{
+  throw new CFileException();
+}
+
+static void AfxThrowFileExceptionWithErrno(int copy_error_from_errno)
+{
+  throw new CFileException();
+}
+
+static void AfxThrowFileException(CFileException *copy_error_from_e)
+{
+  throw new CFileException();
+}
+
+static void AfxThrowFileException()
+{
+  throw new CFileException();
+}
+
+// CFile
+// --------------
+
 const HANDLE CFile::hFileNull = INVALID_HANDLE_VALUE;
 
 CFile::CFile()
 {
-  m_hFile = INVALID_HANDLE_VALUE;
+  InitAsClosed();
+}
+
+CFile::CFile (CAtlTransactionManager* pTM) // nothrow()
+       : CFile()
+{
+  m_pTM = pTM;
+}
+
+CFile::CFile(HANDLE hFile)
+{
+  InitAsClosed();
+  m_hFile = hFile;
+  m_bCloseOnDelete = FALSE; // Do not close me if open externaly
 }
 
 CFile::CFile(LPCTSTR lpszFileName, UINT nOpenFlags)
 {
-  m_hFile = INVALID_HANDLE_VALUE;
+  InitAsClosed();
 
   CFileException errorInfo;
 
   if (!Open(lpszFileName, nOpenFlags, &errorInfo))
   {
-    AfxThrowFileException();
+    AfxThrowFileException(&errorInfo);
   }
+}
+
+CFile::CFile(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
+       : CFile(lpszFileName, nOpenFlags)
+{
+  m_pTM = pTM;
 }
 
 CFile::~CFile()
 {
-  if (m_hFile != INVALID_HANDLE_VALUE)
+  if ((m_hFile != INVALID_HANDLE_VALUE) && (m_bCloseOnDelete))
   {
     Close();
   }
+}
+
+BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
+{
+  m_pTM = pTM;
+  return(Open(lpszFileName, nOpenFlags, pError));
 }
 
 BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
@@ -63,9 +116,12 @@ BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
   ASSERT(lpszFileName != NULL);
   ASSERT(m_hFile == INVALID_HANDLE_VALUE);
 
+  InitAsClosed();
+
   if (lpszFileName == NULL)
   {
-    AfxThrowInvalidArgException();
+    AfxFillFileExceptionWithErrno(pError, EINVAL);
+    return(FALSE);
   }
 
   DWORD desiredAccess = 0;
@@ -89,7 +145,8 @@ BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
 
     default :
     {
-      AfxThrowInvalidArgException();
+      AfxFillFileExceptionWithErrno(pError, EINVAL);
+      return(FALSE);
     }
   }
 
@@ -120,16 +177,19 @@ BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
 
   if (m_hFile == INVALID_HANDLE_VALUE)
   {
-    return FALSE;
+    AfxFillFileExceptionWithWin32Error(pError, GetLastError());
+    return(FALSE);
   }
   else
   {
+    m_bCloseOnDelete = TRUE;
     return TRUE;
   }
 }
 
 void CFile::Close()
 {
+  m_bCloseOnDelete = FALSE; // No matter what, do not try close me after this call
   if (m_hFile != INVALID_HANDLE_VALUE)
   {
     BOOL closeStatus = CloseFileHandle(m_hFile);
@@ -138,20 +198,35 @@ void CFile::Close()
 
     if (!closeStatus)
     {
+      InitAsClosed();
       AfxThrowFileException();
     }
   }
+  InitAsClosed();
 }
 
 void CFile::Abort()
 {
+  m_bCloseOnDelete = FALSE; // No matter what, do not try close me after this call
   if (m_hFile != INVALID_HANDLE_VALUE)
   {
     CloseFileHandle(m_hFile);
-
     m_hFile = INVALID_HANDLE_VALUE;
   }
+  InitAsClosed();
 }
+
+void CFile::Flush()
+{
+  ASSERT(m_hFile != INVALID_HANDLE_VALUE);
+
+  if (!FlushFileBuffers(m_hFile))
+  {
+    AfxThrowFileExceptionWithWin32Error(GetLastError());
+  }
+}
+
+// Action methods
 
 UINT CFile::Read(void* lpBuf, UINT nCount)
 {
@@ -161,7 +236,7 @@ UINT CFile::Read(void* lpBuf, UINT nCount)
 
   if (!ReadFile(m_hFile, lpBuf, nCount, &readCount, NULL))
   {
-    AfxThrowFileException();
+    AfxThrowFileExceptionWithWin32Error(GetLastError());
   }
 
   return readCount;
@@ -175,24 +250,14 @@ void CFile::Write(const void* lpBuf, UINT nCount)
 
   if (!WriteFile(m_hFile, lpBuf, nCount, &writtenCount, NULL))
   {
-    AfxThrowFileException();
+    AfxThrowFileExceptionWithWin32Error(GetLastError());
   }
   else
   {
     if (writtenCount < nCount)
     {
-      AfxThrowFileException();
+      AfxThrowFileExceptionWithErrno(ENODATA);
     }
-  }
-}
-
-void CFile::Flush()
-{
-  ASSERT(m_hFile != INVALID_HANDLE_VALUE);
-
-  if (!FlushFileBuffers(m_hFile))
-  {
-    AfxThrowFileException();
   }
 }
 
@@ -210,7 +275,7 @@ ULONGLONG CFile::Seek(LONGLONG lOff, UINT nFrom)
   {
     if (GetLastError() != ERROR_SUCCESS)
     {
-      AfxThrowFileException();
+      AfxThrowFileExceptionWithWin32Error(GetLastError());
     }
   }
 
@@ -240,16 +305,32 @@ ULONGLONG CFile::GetLength() const
   {
     if (GetLastError() != ERROR_SUCCESS)
     {
-      AfxThrowFileException();
+      AfxThrowFileExceptionWithWin32Error(GetLastError());
     }
   }
 
   return (((ULONGLONG)highPart) << (sizeof(DWORD) * 8)) | lowPart;
 }
 
+// CStdioFile
+// --------------
+
 CStdioFile::CStdioFile ()
+  : CFile()
 {
-  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
+  m_pStream = NULL;
+}
+
+CStdioFile::CStdioFile (CAtlTransactionManager* pTM)
+  : CFile(pTM)
+{
+  m_pStream = NULL;
+}
+
+CStdioFile::CStdioFile(FILE *stream)
+  : CFile(NanoWinStdioFileAsFileHandle(stream))
+{
+  m_pStream = stream;
 }
 
 CStdioFile::CStdioFile(LPCTSTR lpszFileName, UINT nOpenFlags)
@@ -258,20 +339,50 @@ CStdioFile::CStdioFile(LPCTSTR lpszFileName, UINT nOpenFlags)
   m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
 }
 
+CStdioFile::CStdioFile(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
+  : CFile(lpszFileName,nOpenFlags, pTM)
+{
+  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
+}
+
 BOOL CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
 {
   BOOL result = CFile::Open(lpszFileName, nOpenFlags, pError);
-
   m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
-
   return result;
 }
+
+BOOL CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
+{
+  BOOL result = CFile::Open(lpszFileName, nOpenFlags, pTM, pError);
+  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
+  return result;
+}
+
+void CStdioFile::Close()
+{
+  CFile::Close();
+  m_pStream = NULL;
+}
+
+void CStdioFile::Abort()
+{
+  CFile::Abort();
+  m_pStream = NULL;
+}
+
+void CStdioFile::Flush()
+{
+  CFile::Flush();
+}
+
+// Action methods
 
 void CStdioFile::WriteString(LPCTSTR lpsz)
 {
   if (lpsz == NULL)
   {
-    AfxThrowInvalidArgException();
+    AfxThrowFileExceptionWithErrno(EINVAL);
   }
 
   if (m_pStream == NULL)
@@ -287,7 +398,7 @@ void CStdioFile::WriteString(LPCTSTR lpsz)
     {
       if (fputs(str.c_str(),m_pStream) < 0)
       {
-        AfxThrowFileException();
+        AfxThrowFileExceptionWithErrno(errno);
       }
     }
     else
@@ -299,7 +410,7 @@ void CStdioFile::WriteString(LPCTSTR lpsz)
   {
     if (fputs(lpsz,m_pStream) < 0)
     {
-      AfxThrowFileException();
+      AfxThrowFileExceptionWithErrno(errno);
     }
   }
   #endif
@@ -309,12 +420,12 @@ LPTSTR CStdioFile::ReadString(_Out_writes_z_(nMax) LPTSTR lpsz, _In_ UINT nMax)
 {
   if (lpsz == NULL)
   {
-    AfxThrowInvalidArgException();
+    AfxThrowFileExceptionWithErrno(EINVAL);
   }
 
   if (nMax < 1)
   {
-    AfxThrowInvalidArgException();
+    AfxThrowFileExceptionWithErrno(EINVAL);
   }
 
   if (m_pStream == NULL)
@@ -501,15 +612,3 @@ BOOL CStdioFile::ReadString(CString& rString)
 
   return !(eof && rString.GetLength() == 0);
 }
-
-void CStdioFile::Close()
-{
-  CFile::Close();
-
-  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
-}
-
-NW_EXTERN_C_BEGIN
-
-
-NW_EXTERN_C_END

@@ -101,9 +101,14 @@ extern void NanoWinTimeSpecAddTimeoutInMillis(struct timespec *ts, DWORD millis)
   }
 }
 
-extern FILE*NanoWinFileHandleAsStdioFILE(HANDLE fileHandle)
+extern FILE*  NanoWinFileHandleAsStdioFILE (HANDLE fileHandle)
 {
   return fileHandle == INVALID_HANDLE_VALUE ? NULL : (FILE*)fileHandle;
+}
+
+extern HANDLE NanoWinStdioFileAsFileHandle (FILE *fileStream)
+{
+  return fileStream == NULL ? INVALID_HANDLE_VALUE : (HANDLE)fileStream;
 }
 
 NW_EXTERN_C_END
