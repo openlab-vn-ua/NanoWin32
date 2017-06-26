@@ -13,6 +13,7 @@
 #if defined LINUX
 
 #include <unistd.h>
+#include <string.h>
 
 NW_EXTERN_C_BEGIN
 
@@ -20,8 +21,37 @@ NW_EXTERN_C_BEGIN
 #define __try		try
 #define __except(a)	catch(...)
 
-extern BOOL IsBadReadPtr (const void *lp, UINT_PTR ucb); 
-extern BOOL IsBadWritePtr (const void *lp, UINT_PTR ucb);
+// Memory functions
+
+#define ZeroMemory(dest,destszb)       memset((dest),0,(destszb))
+
+extern PVOID SecureZeroMemory (_In_ volatile PVOID dest, _In_ SIZE_T destszb);
+
+extern BOOL  IsBadReadPtr (const void *lp, UINT_PTR ucb); 
+extern BOOL  IsBadWritePtr (const void *lp, UINT_PTR ucb);
+
+// Legacy heap functions (subset)
+
+typedef HANDLE HGLOBAL;
+
+#define GMEM_FIXED      (0x0000)                     // Allocates fixed memory. The return value is a pointer.
+#define GMEM_ZEROINIT   (0x0040)                     // Initializes memory contents to zero.
+#define GPTR            (GMEM_FIXED | GMEM_ZEROINIT) // Combines GMEM_FIXED and GMEM_ZEROINIT.
+
+extern  HGLOBAL WINAPI  GlobalAlloc(_In_ UINT uFlags, _In_ SIZE_T sz);
+extern  HGLOBAL WINAPI  GlobalFree(_In_ HGLOBAL hMem);
+
+typedef HANDLE HLOCAL;
+
+#define LMEM_FIXED      (0x0000)                     // Allocates fixed memory. The return value is a pointer to the memory object.
+#define LMEM_ZEROINIT   (0x0040)                     // Initializes memory contents to zero.
+#define LPTR            (LMEM_FIXED | LMEM_ZEROINIT) // Combines LMEM_FIXED and LMEM_ZEROINIT.
+#define NONZEROLPTR     (LMEM_FIXED)                 // Same as LMEM_FIXED.
+
+extern  HLOCAL WINAPI   LocalAlloc(_In_ UINT   uFlags, _In_ SIZE_T sz);
+extern  HLOCAL WINAPI   LocalFree(_In_ HLOCAL hMem);
+
+// Timer
 
 #define Sleep(dwMilliseconds)    usleep((dwMilliseconds)*1000)
 extern  DWORD GetTickCount();    // Return value in ms
