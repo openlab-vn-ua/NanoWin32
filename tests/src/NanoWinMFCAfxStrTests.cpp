@@ -378,7 +378,34 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareNoCaseTest)
 	res = cString.CompareNoCase("ABcdE");
 	NW_CHECK(res > 0);
 }
-#ifndef __GNUC__
+
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatSimpleTest)
+{
+  CString str;
+  CString str2("abc");
+
+  str.Format("%s", str2);
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+
+  str.Format("%d", 123);
+  NW_CHECK_EQUAL_STRCMP("123", str);
+
+  str.Format("%f", 1.23f);
+  NW_CHECK_EQUAL_STRCMP("1.230000", str);
+
+  str.Format("%x", 0xFFF);
+  NW_CHECK_EQUAL_STRCMP("fff", str);
+
+  str.Format("%c", 'a');
+  NW_CHECK_EQUAL_STRCMP("a", str);
+
+  str.Format("%lu", 123);
+  NW_CHECK_EQUAL_STRCMP("123", str);
+
+  str.Format("%hd", 123);
+  NW_CHECK_EQUAL_STRCMP("123", str);
+}
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 {
 	CString str;
@@ -394,18 +421,21 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
   CString str2("abc");
 
   str.Format("%s", str2);
-  
   NW_CHECK_EQUAL_STRCMP("abc", str);
 
   str.Format("%s%s", str2, "123");
- 
   NW_CHECK_EQUAL_STRCMP("abc123", str);
 
   str.Format("%s%d", str2, 123);
+  NW_CHECK_EQUAL_STRCMP("abc123", str)
 
-  NW_CHECK_EQUAL_STRCMP("abc123", str);
+  str.Format("%s %d %4f", str2, 123, 5.67f);
+  NW_CHECK_EQUAL_STRCMP("abc 123 5.670000", str);
+
+  str.Format("%s %x", str2, 0xFF123);
+  NW_CHECK_EQUAL_STRCMP("abc ff123", str);
 }
-#endif
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
 {
 	// This works under Win32 only...
