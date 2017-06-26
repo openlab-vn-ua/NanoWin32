@@ -92,6 +92,16 @@ typedef LPSTR                LPTSTR;
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
+#define _tcsdup             wcsdup
+#define _tcstod             wcstod
+#define _tcstoul            wcstoul
+#else
+#define _tcsdup             strdup
+#define _tcstod             strtod
+#define _tcstoul            strtoul
+#endif
+
+#if defined(UNICODE) || defined(_UNICODE)
 #define _tstoi              _wtoi
 #else
 #define _tstoi              atoi
@@ -177,6 +187,12 @@ typedef LPSTR                LPTSTR;
 #define _tsplitpath          _splitpath
 #define _tsplitpath_s        _splitpath_s
 
+#endif
+
+#if defined(UNICODE) || defined(_UNICODE)
+#define _tsystem             wsystem
+#else
+#define _tsystem             system
 #endif
 
 #endif // linux
