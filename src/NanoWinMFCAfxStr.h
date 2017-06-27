@@ -1541,103 +1541,79 @@ extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString,
 
 #include "NanoWinStrConvert.h"
 
+#define   NW_CX2Y_MACROS_CONST_ONLY // CX2Y macros produces only "const X *" output (aligned with MSDN spec, but not names)
+
 namespace NanoWin
 {
+  #if defined(NW_CX2Y_MACROS_CONST_ONLY)
+
+  // Non-const output classes are unavailable
+
+  #else
+
   class WStrToStrCloneInPlace : public WStrToStrClone, public CStringCanProvideStrOf<char>
   {
     public:
-    WStrToStrCloneInPlace (const wchar_t *src) : WStrToStrClone(src)
-    {
-    }
 
-    const char *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<char>
+    WStrToStrCloneInPlace (const wchar_t *src) : WStrToStrClone(src)  {   }
 
-    operator char* ()
-    const // This is not good, but just to make stuff compile where const passed as source
-    {
-      return(const_cast<char*>(this->c_str()));
-    }
+    const char *get_c_cstr()        const { return(this->c_str()); } // CStringCanProvideStrOf<char>
 
-	#if defined(__GNUC__)
+	// Convert to non-const pointer to target character type. location may not be writable.
+	// Note: This is not good, but may be required by some legacy code. 
+    operator char* ()               const { return(const_cast<char*>(this->c_str())); }
 
-	// conversion operator from const char* may not work under GCC. This goes not look optimal, but works
-
-	operator const std::string ()
-    const
-	{
-      return(std::string(this->c_str()));
-	}
-
-	operator const CStringA ()
-    const
-	{
-      return(CStringA(this->c_str()));
-	}
-
+	#if defined(__GNUC__) // conversion operator from cahar pointer to string types may not work under GCC. This goes not look optimal, but works
+	operator const std::string ()   const { return(std::string(this->c_str()));	}
+	operator const CStringA ()      const { return(CStringA(this->c_str()));    }
 	#endif
   };
 
   class StrToWStrCloneInPlace : public StrToWStrClone, public CStringCanProvideStrOf<wchar_t>
   {
     public:
-    StrToWStrCloneInPlace (const char *src) : StrToWStrClone(src)
-    {
-    }
 
-    const wchar_t *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<wchar_t>
+    StrToWStrCloneInPlace (const char *src) : StrToWStrClone(src)  {   }
 
-    operator wchar_t* ()
-    const // This is not good, but just to make stuff compile where const passed as source
-    {
-      return(const_cast<wchar_t*>(this->c_str()));
-    }
+    const wchar_t *get_c_cstr()     const { return(this->c_str()); } // CStringCanProvideStrOf<wchar_t>
 
-	#if defined(__GNUC__)
+	// Convert to non-const pointer to target character type. location may not be writable.
+	// Note: This is not good, but may be required by some legacy code. 
+    operator wchar_t* ()            const { return(const_cast<wchar_t*>(this->c_str())); }
 
-	// conversion operator from const char* may not work under GCC. This goes not look optimal, but works
-
-	operator const std::wstring ()
-    const
-	{
-      return(std::wstring(this->c_str()));
-	}
-
-	operator const CStringW ()
-    const
-	{
-      return(CStringW(this->c_str()));
-	}
-
+	#if defined(__GNUC__) // conversion operator from cahar pointer to string types may not work under GCC. This goes not look optimal, but works
+	operator const std::wstring ()  const { return(std::wstring(this->c_str())); }
+	operator const CStringW ()      const { return(CStringW(this->c_str()));     }
 	#endif
   };
 
-  class WStrToCStrCloneInPlace : public WStrToStrClone
+  #endif
+
+  class WStrToCStrCloneInPlace : public WStrToStrClone, public CStringCanProvideStrOf<char>
   {
     public:
-    WStrToCStrCloneInPlace (const wchar_t *src) : WStrToStrClone(src)
-    {
-    }
 
-    operator const char* ()
-    const
-    {
-      return(this->c_str());
-    }
+    WStrToCStrCloneInPlace (const wchar_t *src) : WStrToStrClone(src) {   }
+
+    const char *get_c_cstr()        const { return(this->c_str()); } // CStringCanProvideStrOf<char>
+
+    operator const char* ()         const { return(this->c_str()); }
   };
 
-  class StrToWCStrCloneInPlace : public StrToWStrClone
+  class StrToWCStrCloneInPlace : public StrToWStrClone, public CStringCanProvideStrOf<wchar_t>
   {
     public:
-    StrToWCStrCloneInPlace (const char *src) : StrToWStrClone(src)
-    {
-    }
 
-    operator const wchar_t* ()
-    const
-    {
-      return(this->c_str());
-    }
+    StrToWCStrCloneInPlace (const char *src) : StrToWStrClone(src) {   }
+
+    const wchar_t *get_c_cstr()     const { return(this->c_str()); } // CStringCanProvideStrOf<wchar_t>
+
+    operator const wchar_t* ()      const { return(this->c_str()); }
   };
+
+  #if defined(NW_CX2Y_MACROS_CONST_ONLY)
+  // CXTPtrToXTPtrRef not available
+  #else
 
   template<typename XT>
   class CXTPtrToXTPtrRef : public CStringCanProvideStrOf<XT>
@@ -1652,14 +1628,14 @@ namespace NanoWin
       this->src = src;
     }
 
-    operator XT* ()
-    const // This is not good, but just to make stuff compile where const passed as source
-    {
-      return(const_cast<XT*>(this->src));
-    }
-
     const XT *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<XT>
+
+	// Convert to non-const pointer to target character type. location may not be writable.
+	// Note: This is not good, but may be required by some legacy code. 
+    operator XT* ()        const { return(const_cast<XT*>(this->src)); }
   };
+
+  #endif
 
   template<typename XT>
   class CXTPtrToCXTPtrRef : public CStringCanProvideStrOf<XT>
@@ -1674,20 +1650,22 @@ namespace NanoWin
       this->src = src;
     }
 
-    operator const XT* ()
-    const
-    {
-      return(this->src);
-    }
-
     const XT *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<XT>
+
+    operator const XT* ()  const { return(this->src);  }
   };
 }
 
 #define USES_CONVERSION // Nothing to do here all T2W stuff works automatically
 
+#if defined(NW_CX2Y_MACROS_CONST_ONLY)
+#define CW2A     NanoWin::WStrToCStrCloneInPlace
+#define CA2W     NanoWin::StrToWCStrCloneInPlace
+#else
 #define CW2A     NanoWin::WStrToStrCloneInPlace
 #define CA2W     NanoWin::StrToWStrCloneInPlace
+#endif
+
 #define CW2CA    NanoWin::WStrToCStrCloneInPlace // Not part of ATL/MFC, NW extension
 #define CA2CW    NanoWin::StrToWCStrCloneInPlace // Not part of ATL/MFC, NW extension
 
@@ -1696,13 +1674,23 @@ namespace NanoWin
 #define CA2T     CA2W
 #define CT2CA    CW2CA
 #define CA2CT    CA2CW
+#if defined(NW_CX2Y_MACROS_CONST_ONLY)
+#define CT2W     NanoWin::CXTPtrToCXTPtrRef<wchar_t>
+#define CW2T     NanoWin::CXTPtrToCXTPtrRef<TCHAR>
+#else
 #define CT2W     NanoWin::CXTPtrToXTPtrRef<wchar_t>
 #define CW2T     NanoWin::CXTPtrToXTPtrRef<TCHAR>
+#endif
 #define CT2CW    NanoWin::CXTPtrToCXTPtrRef<wchar_t>
 #define CW2CT    NanoWin::CXTPtrToCXTPtrRef<TCHAR>
 #else
+#if defined(NW_CX2Y_MACROS_CONST_ONLY)
+#define CT2A     NanoWin::CXTPtrToCXTPtrRef<char>
+#define CA2T     NanoWin::CXTPtrToCXTPtrRef<TCHAR>
+#else
 #define CT2A     NanoWin::CXTPtrToXTPtrRef<char>
 #define CA2T     NanoWin::CXTPtrToXTPtrRef<TCHAR>
+#endif
 #define CT2CA    NanoWin::CXTPtrToCXTPtrRef<char>
 #define CA2CT    NanoWin::CXTPtrToCXTPtrRef<TCHAR>
 #define CT2W     CA2W
