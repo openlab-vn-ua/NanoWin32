@@ -147,4 +147,180 @@ NW_TEST(NanoWinSystemTestGroup, GetProcessMemoryInfoExTest)
 	NW_CHECK(MemCounters.PagefileUsage  <= MemCounters.PeakPagefileUsage);
 }
 
+NW_TEST(NanoWinSystemTestGroup, GetTimeFormatASystemDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  char buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 6;
+  systemtime.wDayOfWeek = 1;
+  systemtime.wDay = 26;
+  systemtime.wHour = 20;
+  systemtime.wMinute = 30;
+  systemtime.wSecond = 40;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetTimeFormatA(LOCALE_SYSTEM_DEFAULT, 0, &systemtime, NULL, buff, 64);
+
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(12, count);
+  NW_CHECK_EQUAL_STRCMP("08:30:40 PM", buff);
+}
+
+NW_TEST(NanoWinSystemTestGroup, GetTimeFormatAUserDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  char buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 6;
+  systemtime.wDayOfWeek = 1;
+  systemtime.wDay = 26;
+  systemtime.wHour = 0;
+  systemtime.wMinute = 0;
+  systemtime.wSecond = 0;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetTimeFormatA(LOCALE_USER_DEFAULT, 0, &systemtime, NULL, buff, 64);
+  
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(12, count);
+  NW_CHECK_EQUAL_STRCMP("12:00:00 AM", buff);
+}
+
+NW_TEST(NanoWinSystemTestGroup, GetDateFormatASystemDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  char buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 6;
+  systemtime.wDayOfWeek = 1;
+  systemtime.wDay = 26;
+  systemtime.wHour = 20;
+  systemtime.wMinute = 30;
+  systemtime.wSecond = 40;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetDateFormatA(LOCALE_SYSTEM_DEFAULT, 0, &systemtime, NULL, buff, 64);
+
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(9, count);
+  NW_CHECK_EQUAL_STRCMP("06/26/17", buff);
+}
+
+NW_TEST(NanoWinSystemTestGroup, GetDateFormatAUserDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  char buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 1;
+  systemtime.wDayOfWeek = 4;
+  systemtime.wDay = 1;
+  systemtime.wHour = 0;
+  systemtime.wMinute = 0;
+  systemtime.wSecond = 0;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetDateFormatA(LOCALE_USER_DEFAULT, 0, &systemtime, NULL, buff, 64);
+
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(9, count);
+  NW_CHECK_EQUAL_STRCMP("01/01/17", buff);
+}
+
+NW_TEST(NanoWinSystemTestGroup, GetTimeFormatWSystemDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  wchar_t buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 6;
+  systemtime.wDayOfWeek = 1;
+  systemtime.wDay = 26;
+  systemtime.wHour = 20;
+  systemtime.wMinute = 30;
+  systemtime.wSecond = 40;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetTimeFormatW(LOCALE_SYSTEM_DEFAULT, 0, &systemtime, NULL, buff, 64);
+
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(12, count);
+  NW_CHECK_EQUAL_STRCMP(L"08:30:40 PM", buff);
+}
+
+NW_TEST(NanoWinSystemTestGroup, GetTimeFormatWUserDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  wchar_t buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 6;
+  systemtime.wDayOfWeek = 1;
+  systemtime.wDay = 26;
+  systemtime.wHour = 0;
+  systemtime.wMinute = 0;
+  systemtime.wSecond = 0;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetTimeFormatW(LOCALE_USER_DEFAULT, 0, &systemtime, NULL, buff, 64);
+
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(12, count);
+  NW_CHECK_EQUAL_STRCMP(L"12:00:00 AM", buff);
+}
+
+NW_TEST(NanoWinSystemTestGroup, GetDateFormatWSystemDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  wchar_t buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 6;
+  systemtime.wDayOfWeek = 1;
+  systemtime.wDay = 26;
+  systemtime.wHour = 20;
+  systemtime.wMinute = 30;
+  systemtime.wSecond = 40;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetDateFormatW(LOCALE_SYSTEM_DEFAULT, 0, &systemtime, NULL, buff, 64);
+
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(9, count);
+  NW_CHECK_EQUAL_STRCMP(L"06/26/17", buff);
+}
+
+NW_TEST(NanoWinSystemTestGroup, GetDateFormatWUserDefaultTest)
+{
+  SYSTEMTIME systemtime;
+
+  wchar_t buff[128];
+
+  systemtime.wYear = 2017;
+  systemtime.wMonth = 1;
+  systemtime.wDayOfWeek = 4;
+  systemtime.wDay = 1;
+  systemtime.wHour = 0;
+  systemtime.wMinute = 0;
+  systemtime.wSecond = 0;
+  systemtime.wMilliseconds = 0;
+
+  int count = GetDateFormatW(LOCALE_USER_DEFAULT, 0, &systemtime, NULL, buff, 64);
+
+  NW_CHECK(count > 0);
+  NW_CHECK_EQUAL(9, count);
+  NW_CHECK_EQUAL_STRCMP(L"01/01/17", buff);
+}
+
 NW_END_TEST_GROUP()
