@@ -239,7 +239,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringInsertLPCTSTRTest)
   NW_CHECK_EQUAL(13, n);
   NW_CHECK_EQUAL_STRCMP("azzzabcdefzzz", cString);
 }
-#ifndef __GNUC__
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringDeleteTest)
 {
 	CString cString("abcdefabc");
@@ -256,10 +256,10 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringDeleteTest)
 
   n = cString.Delete(10, 1);
 
-  NW_CHECK_EQUAL(3, n); // ???
+  NW_CHECK_EQUAL(3, n);
   NW_CHECK_EQUAL_STRCMP("abc", cString);
 }
-#endif
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringRemoveTest)
 {
 	CString cString("abcdefabc");
@@ -460,10 +460,8 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
 	str.Format("just a [%s] [%s] [%s] test", one, two, three);
 	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] test", str);
 
-	#ifndef LINUX
 	str.Format("just a [%s] [%s] [%s] %d test", one, two, three, 4);
 	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] 4 test", str);
-	#endif
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringOperatorAssignTest)
@@ -592,7 +590,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, ReleaseBufferTest)
 
   NW_CHECK_EQUAL_STRCMP(str.GetString(), "2017");
 }
-#ifndef __GNUC__
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringSetStringTest)
 {
   CString str;
@@ -600,7 +598,13 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringSetStringTest)
 
   str.SetString("abcd", 3);
   NW_CHECK_EQUAL_STRCMP("abc", str.GetString());
-  
+
+  str.SetString("efgh", 10);
+  NW_CHECK_EQUAL_STRCMP("efgh", str.GetString());
+
+  /* trying to pass -1 as nLength parameter throws exception in MS implementation,
+     NanoWin implementation clears string */
+  /*
   try
   {
     str.SetString("abcd", -1);
@@ -611,11 +615,9 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringSetStringTest)
   }
 
   NW_CHECK_TRUE(exceptionCatched);
-  
-  str.SetString("abcd", 10);
-  NW_CHECK_EQUAL_STRCMP("abcd", str.GetString());
+  */
 }
-#endif
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringAddSymbolTest)
 {
   CString str;
