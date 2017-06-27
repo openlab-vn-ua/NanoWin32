@@ -21,12 +21,13 @@ NW_EXTERN_C_BEGIN
 #else
 #endif
 
-extern bool NanoWinFileNameMatchMaskA(const char *name, const char *mask);
-extern bool NanoWinFileNameMatchMaskW(const wchar_t *name, const wchar_t *mask);
+extern bool   NanoWinFileNameMatchMaskA(const char *name, const char *mask);
+extern bool   NanoWinFileNameMatchMaskW(const wchar_t *name, const wchar_t *mask);
 
-extern void NanoWinTimeSpecAddTimeoutInMillis (struct timespec *ts, DWORD millis);
+extern void   NanoWinTimeSpecAddTimeoutInMillis (struct timespec *ts, DWORD millis);
 
-extern FILE*NanoWinFileHandleAsStdioFILE (HANDLE fileHandle);
+extern FILE*  NanoWinFileHandleAsStdioFILE (HANDLE fileHandle);
+extern HANDLE NanoWinStdioFileAsFileHandle (FILE *fileStream);
 
 NW_EXTERN_C_END
 

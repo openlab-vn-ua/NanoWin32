@@ -15,9 +15,15 @@
 #include <libgen.h>
 
 #include "NanoWinFileFind.h"
+#include "NanoWinFile.h"
 
 #include "NanoWinMFCAfx.h"
 #include "NanoWinMFCAfxStr.h"
+
+#if !defined(CAtlTransactionManager)
+class    CAtlTransactionManager; // // [Dummy object] Define it somewhere
+#define  CAtlTransactionManager  CAtlTransactionManager // [Dummy object] // just flag its defined
+#endif
 
 class CFileFind : public CObject
 {
@@ -322,15 +328,17 @@ class CFile : public CObject
 
   enum From
   {
-	  begin   = (int)0x00,
-	  current = (int)0x01,
-	  end     = (int)0x02,
+	  begin   = (int)FILE_BEGIN,
+	  current = (int)FILE_CURRENT,
+	  end     = (int)FILE_END,
   };
 
   public:
-  HANDLE                m_hFile;
+  HANDLE                  m_hFile;
+  BOOL                    m_bCloseOnDelete; // If open with external handle, do not close me on Delete
+  CAtlTransactionManager* m_pTM; // For compatibility only, not used actually
 
-  static const HANDLE   hFileNull; // = NULL;
+  static const HANDLE     hFileNull; // = NULL;
 
   protected:
 
@@ -339,19 +347,33 @@ class CFile : public CObject
     return(m_hFile != hFileNull);
   }
 
+  void InitAsClosed()
+  {
+    m_hFile = INVALID_HANDLE_VALUE;
+    m_bCloseOnDelete = FALSE;
+	m_pTM = NULL;
+  }
+
   public:
 
                      CFile (); // nothrow()
-                     CFile (LPCTSTR lpszFileName,  UINT nOpenFlags); // throw()
+                     CFile (CAtlTransactionManager* pTM); // nothrow()
+                     CFile (HANDLE hFile); // nothrow()
+                     CFile (LPCTSTR lpszFileName,  UINT nOpenFlags); // throw CFileException()
+                     CFile (LPCTSTR lpszFileName,  UINT nOpenFlags, CAtlTransactionManager* pTM); // throw CFileException()
   virtual           ~CFile ();
 
-  virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL);  // nothrow()
-  virtual void       Close();
+  virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL); // nothrow()
+  virtual BOOL       Open(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError = NULL);  // nothrow()
+  virtual void       Close(); // throw CFileException()
   virtual void       Abort(); // Close if open, // nothrow()
+  virtual void       Flush(); // throw CFileException()
+
+  // Action methods
+  // All may throw CFileException() to signal error condition
 
   virtual UINT       Read  (void* lpBuf, UINT nCount);
   virtual void       Write (const void* lpBuf, UINT nCount);
-  virtual void       Flush ();
 
   virtual ULONGLONG  Seek  (LONGLONG lOff, UINT nFrom);
 
@@ -367,18 +389,26 @@ class CStdioFile : public CFile
 
   FILE              *m_pStream;
 
-                     CStdioFile   ();
-                     CStdioFile   (LPCTSTR lpszFileName, UINT nOpenFlags);
+                     CStdioFile   (); // nothrow()
+                     CStdioFile   (CAtlTransactionManager* pTM); // nothrow()
+                     CStdioFile   (FILE *stream); // nothrow()
+                     CStdioFile   (LPCTSTR lpszFileName, UINT nOpenFlags); // throw CFileException()
+                     CStdioFile   (LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM); // throw CFileException()
 
-  virtual BOOL       Open         (LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL);
+  virtual BOOL       Open         (LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL); // nothrow()
+  virtual BOOL       Open         (LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError = NULL);  // nothrow()
+
+  virtual void       Close(); // throw CFileException()
+  virtual void       Abort(); // Close if open, // nothrow()
+  virtual void       Flush(); // throw CFileException()
+
+  // Action methods
+  // All may throw CFileException() to signal error condition
 
   virtual void       WriteString  (LPCTSTR lpsz);
 
   virtual LPTSTR     ReadString   (_Out_writes_z_(nMax) LPTSTR lpsz, _In_ UINT nMax);
   virtual BOOL       ReadString   (CString& rString);
-
-//virtual void       Flush        (); // by parent
-  virtual void       Close        (); // by parent
 
   private:
 

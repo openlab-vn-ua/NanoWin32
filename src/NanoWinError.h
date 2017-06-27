@@ -40,6 +40,10 @@
 #define ERROR_INVALID_FLAGS            (0x3EC)   //  1004 // Invalid flags
 #define ERROR_NO_UNICODE_TRANSLATION   (0x459)   //  1113 // No mapping for the Unicode character exists in the target multi-byte code page
 
+// Additional constants
+
+#define NO_ERROR                       ERROR_SUCCESS
+
 // Error functions
 // -----------------------------------------------------------------------
 
