@@ -1176,7 +1176,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
       }
       else
       {
-        throw new CInvalidArgException();
+        nCount = 0; // ignore call - startIndex is outside of the string
       }
 
       return(thisLen - nCount);

@@ -5,13 +5,63 @@
 
 // Error suuport functions and constants
 
+#include "NanoWinOther.h"
 #include "NanoWinError.h"
 
 #include <errno.h>
+#include <string.h>
+
+typedef struct
+{
+  DWORD          errorCode;
+  const char    *errorMessageA;
+  const wchar_t *errorMessageW;
+} NanoWinErrorMessageTableEntry;
 
 NW_EXTERN_C_BEGIN
 
 static __thread DWORD LastError = ERROR_SUCCESS;
+
+static NanoWinErrorMessageTableEntry NanoWinErrorMessageTable[]
+{
+  { ERROR_SUCCESS, "OK, no error", L"OK, no error" },
+  { ERROR_INVALID_FUNCTION, "Incorrect function", L"Incorrect function" },
+  { ERROR_FILE_NOT_FOUND, "The system cannot find the file specified", L"The system cannot find the file specified" },
+  { ERROR_PATH_NOT_FOUND, "The system cannot find the path specified", L"The system cannot find the path specified" },
+  { ERROR_TOO_MANY_OPEN_FILES, "The system cannot open the file", L"The system cannot open the file" },
+  { ERROR_ACCESS_DENIED, "Access is denied", L"Access is denied" },
+  { ERROR_INVALID_HANDLE, "The handle is invalid", L"The handle is invalid" },
+  { ERROR_NOT_ENOUGH_MEMORY, "Not enough storage is available to process this command", L"Not enough storage is available to process this command" },
+  { ERROR_INVALID_DATA, "The data is invalid", L"The data is invalid" },
+  { ERROR_SHARING_VIOLATION, "The process cannot access the file because it is being used by another process", L"The process cannot access the file because it is being used by another process" },
+  { ERROR_NOT_SUPPORTED, "The request is not supported", L"The request is not supported" },
+  { ERROR_FILE_EXISTS, "The file exists", L"The file exists" },
+  { ERROR_INVALID_PARAMETER, "The parameter is incorrect", L"The parameter is incorrect" },
+  { ERROR_INSUFFICIENT_BUFFER, "The data area passed to a system call is too small", L"The data area passed to a system call is too small" },
+  { ERROR_ALREADY_EXISTS, "Cannot create a file when that file already exists", L"Cannot create a file when that file already exists" },
+  { ERROR_ENVVAR_NOT_FOUND, "The system could not find the environment option that was entered", L"The system could not find the environment option that was entered" },
+  { ERROR_FILENAME_EXCED_RANGE, "The filename or extension is too long", L"The filename or extension is too long" },
+  { ERROR_INVALID_FLAGS, "Invalid flags", L"Invalid flags" },
+  { ERROR_NO_UNICODE_TRANSLATION, "No mapping for the Unicode character exists in the target multi-byte code page", L"No mapping for the Unicode character exists in the target multi-byte code page" },
+  { ERROR_RESOURCE_LANG_NOT_FOUND, "The specified resource language ID cannot be found in the image file", L"The specified resource language ID cannot be found in the image file" },
+};
+
+static NanoWinErrorMessageTableEntry *NanoWinErrorMessageTableFindEntry(DWORD errorCode)
+{
+  bool               found = false;
+  unsigned int       index = 0;
+  const unsigned int size  = sizeof(NanoWinErrorMessageTable) / sizeof(NanoWinErrorMessageTable[0]);
+
+  for (index = 0; !found && index < size; index++)
+  {
+    if (NanoWinErrorMessageTable[index].errorCode == errorCode)
+    {
+      found = true;
+    }
+  }
+
+  return found ? &NanoWinErrorMessageTable[index] : NULL;
+}
 
 extern  DWORD NanoWinGetLastError(void)
 {
@@ -87,6 +137,184 @@ extern  DWORD NanoWinErrorByErrnoRaw (errno_t errno_value, DWORD winErrorForZero
 extern  DWORD NanoWinErrorByErrnoAtFail(errno_t errno_value)
 {
   return NanoWinErrorByErrnoRaw (errno_value, NW_DEFAULT_ERROR_AT_FAIL);
+}
+
+// constants for unsupported FormatMessage flags defined here to check
+// for unsupported modes
+#ifndef FORMAT_MESSAGE_ARGUMENT_ARRAY
+ #define FORMAT_MESSAGE_ARGUMENT_ARRAY (0x00002000)
+#endif
+
+#ifndef FORMAT_MESSAGE_FROM_HMODULE
+ #define FORMAT_MESSAGE_FROM_HMODULE   (0x00000800)
+#endif
+
+#ifndef FORMAT_MESSAGE_FROM_STRING
+ #define FORMAT_MESSAGE_FROM_STRING    (0x00000400)
+#endif
+
+extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
+                                   _In_opt_ LPCVOID lpSource,
+                                   _In_     DWORD   dwMessageId,
+                                   _In_     DWORD   dwLanguageId,
+                                   _Out_    LPSTR   lpBuffer,
+                                   _In_     DWORD   nSize,
+                                   _In_opt_ va_list *Arguments)
+{
+  if (((dwFlags & FORMAT_MESSAGE_ARGUMENT_ARRAY) != 0) ||
+      ((dwFlags & FORMAT_MESSAGE_FROM_HMODULE) != 0) ||
+      ((dwFlags & FORMAT_MESSAGE_FROM_STRING) != 0))
+  {
+    SetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  if ((dwFlags & FORMAT_MESSAGE_FROM_SYSTEM) == 0)
+  {
+    SetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  if (dwLanguageId != MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT))
+  {
+    SetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  NanoWinErrorMessageTableEntry *messageInfo = NanoWinErrorMessageTableFindEntry(dwMessageId);
+
+  if (messageInfo == NULL)
+  {
+    SetLastError(ERROR_RESOURCE_LANG_NOT_FOUND);
+
+    return 0;
+  }
+
+  size_t messageLen   = strlen(messageInfo->errorMessageA);
+  size_t requiredSize = messageLen + 1;
+
+  if ((dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) != 0)
+  {
+    if (requiredSize < nSize)
+    {
+      requiredSize = nSize;
+    }
+
+    char *destPtr = (char*)LocalAlloc(LMEM_FIXED,requiredSize);
+
+    if (destPtr != NULL)
+    {
+      strcpy(destPtr,messageInfo->errorMessageA);
+
+      *((char**)lpBuffer) = destPtr;
+    }
+    else
+    {
+      SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+
+      return 0;
+    }
+  }
+  else
+  {
+    if (nSize >= requiredSize)
+    {
+      strcpy(lpBuffer,messageInfo->errorMessageA);
+    }
+    else
+    {
+      SetLastError(ERROR_INSUFFICIENT_BUFFER);
+
+      return 0;
+    }
+  }
+
+  return messageLen;
+}
+
+extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
+                                   _In_opt_ LPCVOID lpSource,
+                                   _In_     DWORD   dwMessageId,
+                                   _In_     DWORD   dwLanguageId,
+                                   _Out_    LPWSTR  lpBuffer,
+                                   _In_     DWORD   nSize,
+                                   _In_opt_ va_list *Arguments)
+{
+  if (((dwFlags & FORMAT_MESSAGE_ARGUMENT_ARRAY) != 0) ||
+      ((dwFlags & FORMAT_MESSAGE_FROM_HMODULE) != 0) ||
+      ((dwFlags & FORMAT_MESSAGE_FROM_STRING) != 0))
+  {
+    SetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  if ((dwFlags & FORMAT_MESSAGE_FROM_SYSTEM) == 0)
+  {
+    SetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  if (dwLanguageId != MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT))
+  {
+    SetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  NanoWinErrorMessageTableEntry *messageInfo = NanoWinErrorMessageTableFindEntry(dwMessageId);
+
+  if (messageInfo == NULL)
+  {
+    SetLastError(ERROR_RESOURCE_LANG_NOT_FOUND);
+
+    return 0;
+  }
+
+  size_t messageLen   = wcslen(messageInfo->errorMessageW);
+  size_t requiredSize = messageLen + 1;
+
+  if ((dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) != 0)
+  {
+    if (requiredSize < nSize)
+    {
+      requiredSize = nSize;
+    }
+
+    wchar_t *destPtr = (wchar_t*)LocalAlloc(LMEM_FIXED,requiredSize * sizeof(wchar_t));
+
+    if (destPtr != NULL)
+    {
+      wcscpy(destPtr,messageInfo->errorMessageW);
+
+      *((wchar_t**)lpBuffer) = destPtr;
+    }
+    else
+    {
+      SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+
+      return 0;
+    }
+  }
+  else
+  {
+    if (nSize >= requiredSize)
+    {
+      wcscpy(lpBuffer,messageInfo->errorMessageW);
+    }
+    else
+    {
+      SetLastError(ERROR_INSUFFICIENT_BUFFER);
+
+      return 0;
+    }
+  }
+
+  return messageLen;
 }
 
 NW_EXTERN_C_END

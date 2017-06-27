@@ -359,6 +359,12 @@ typedef DWORD LCID;
 #define LOCALE_USER_DEFAULT   (0x0400)
 #define LOCALE_SYSTEM_DEFAULT (0x0800)
 
+#define LANG_NEUTRAL          (0x00)
+#define SUBLANG_DEFAULT       (0x01)
+
+#define MAKELANGID(lang,sublang)  (((WORD)(sublang) << 10) | ((WORD)(lang)))
+
+
 // Constants for sync. objects
 // -----------------------------------------------------------------------
 
