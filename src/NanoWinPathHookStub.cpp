@@ -41,16 +41,13 @@ NW_MAKE_STUB(openat64)
 
 #define STUB(func, ...)  NW_MAKE_STUB(func)
 
-STUB(fopen, FILE *, const char *path, const char *mode)
-STUB(fopen64, FILE *, const char *path, const char *mode)
-STUB(freopen, FILE *, const char *path, const char *mode, FILE *stream)
-
 // STUB(open, int, const char *pathname, int flags, mode_t mode) // handled specially
 // STUB(open64, int, const char *pathname, int flags, mode_t mode) // handled specially
 // STUB(openat, int, const char *pathname, int flags, mode_t mode) // handled specially
 // STUB(openat64, int, const char *pathname, int flags, mode_t mode) // handled specially
-// STUB(creat, int const char *pathname, mode_t mode) // hooked via open
-// STUB(creat64, int const char *pathname, mode_t mode) // hooked via open
+
+STUB(creat, int, const char *pathname, mode_t mode) // hooked via open
+STUB(creat64, int, const char *pathname, mode_t mode) // hooked via open
 
 STUB(access, int, const char *pathname, int mode)
 STUB(stat, int, const char *path, struct stat *buf)
@@ -84,5 +81,10 @@ STUB(chdir, int, const char *pathname)
 
 STUB(mount, int, const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data)
 
+// Top level
+
+STUB(fopen, FILE *, const char *path, const char *mode) // may produce double hooks
+STUB(fopen64, FILE *, const char *path, const char *mode) // may produce double hooks
+STUB(freopen, FILE *, const char *path, const char *mode, FILE *stream) // may produce double hooks
 
 #endif // linux

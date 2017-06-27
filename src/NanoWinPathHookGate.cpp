@@ -155,31 +155,22 @@ NW_EXTERN_C_BEGIN
 
 #define XLATED(path) NW_PROC_FNAME_CSTR(path)
 
-GATE(fopen, FILE *, const char *path, const char *mode)
-{
-  XLATE(path, NULL);
-  return FOREWARD(fopen)(XLATED(path), mode);
-}
-
-
-GATE(fopen64, FILE *, const char *path, const char *mode)
-{
-  XLATE(path, NULL);
-  return FOREWARD(fopen64)(XLATED(path), mode);
-}
-
-GATE(freopen, FILE *, const char *path, const char *mode, FILE *stream)
-{
-  XLATE(path, NULL);
-  return FOREWARD(freopen)(XLATED(path), mode, stream);
-}
-
 // GATE(open, int, const char *pathname, int flags, mode_t mode) // handled specially
 // GATE(open64, int, const char *pathname, int flags, mode_t mode) // handled specially
 // GATE(openat, int, const char *pathname, int flags, mode_t mode) // handled specially
 // GATE(openat64, int, const char *pathname, int flags, mode_t mode) // handled specially
-// GATE(creat, int const char *pathname, mode_t mode) // hooked via open
-// GATE(creat64, int const char *pathname, mode_t mode) // hooked via open
+
+GATE(creat, int, const char *pathname, mode_t mode) // may produce double hook via open
+{
+  XLATE(pathname, -1);
+  return FOREWARD(creat)(XLATED(pathname), mode);
+}
+
+GATE(creat64, int, const char *pathname, mode_t mode) // may produce double hook via open64
+{
+  XLATE(pathname, -1);
+  return FOREWARD(creat64)(XLATED(pathname), mode);
+}
 
 GATE(access, int, const char *pathname, int mode)
 {
@@ -337,6 +328,26 @@ GATE(mount, int, const char *source, const char *target, const char *filesystemt
   XLATE(source, -1);
   XLATE(target, -1);
   return FOREWARD(mount)(XLATED(source), XLATED(target), filesystemtype, mountflags, data);
+}
+
+// Top level
+
+GATE(fopen, FILE *, const char *path, const char *mode) // may produce double hooks
+{
+  XLATE(path, NULL);
+  return FOREWARD(fopen)(XLATED(path), mode);
+}
+
+GATE(fopen64, FILE *, const char *path, const char *mode) // may produce double hooks
+{
+  XLATE(path, NULL);
+  return FOREWARD(fopen64)(XLATED(path), mode);
+}
+
+GATE(freopen, FILE *, const char *path, const char *mode, FILE *stream) // may produce double hooks
+{
+  XLATE(path, NULL);
+  return FOREWARD(freopen)(XLATED(path), mode, stream);
 }
 
 NW_EXTERN_C_END
