@@ -779,6 +779,14 @@ class CSimpleStringT
   #undef REQUIRE
 };
 
+template <typename TXCHAR>
+class CStringCanProvideStrOf
+{
+  public:
+  const TXCHAR *get_c_str()
+  const;
+};
+
 // Class to implement CString subset. [Only null-terminated strings supported]
 // Note that for MBCS strings, CString still counts, returns, and manipulates strings based on 8-bit characters,
 // and your application must interpret MBCS lead and trail bytes itself
@@ -927,7 +935,17 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
   // Note: according to MSDN you have to cast CString to (LPCTSTR) when passing it to printf-like functions
  
   template<typename T>
-  static inline T CStringArgAsFormatArg (T v) { return v; }
+  static inline T CStringArgAsFormatArg (T v, typename std::enable_if<!(std::is_base_of<CStringCanProvideStrOf<XCHAR>, T>::value), CStringCanProvideStrOf<XCHAR>>::type *tt = NULL)
+  {
+    return v;
+  }
+
+  template<typename T>
+  static inline const XCHAR *CStringArgAsFormatArg(const T &v, typename std::enable_if<std::is_base_of<CStringCanProvideStrOf<XCHAR>, T>::value, CStringCanProvideStrOf<XCHAR>>::type *tt = NULL)
+  {
+    const CStringCanProvideStrOf<XCHAR> *t = &v; 
+    return t->get_c_str();
+  }
 
   static inline const XCHAR *CStringArgAsFormatArg(const CStringT<XCHAR,YCHAR> &v) { return v.GetString(); }
   static inline const XCHAR *CStringArgAsFormatArg(const XCHAR *v) { return v; }
@@ -1525,12 +1543,14 @@ extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString,
 
 namespace NanoWin
 {
-  class WStrToStrCloneInPlace : public WStrToStrClone
+  class WStrToStrCloneInPlace : public WStrToStrClone, public CStringCanProvideStrOf<char>
   {
     public:
     WStrToStrCloneInPlace (const wchar_t *src) : WStrToStrClone(src)
     {
     }
+
+    const char *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<char>
 
     operator char* ()
     const // This is not good, but just to make stuff compile where const passed as source
@@ -1557,12 +1577,14 @@ namespace NanoWin
 	#endif
   };
 
-  class StrToWStrCloneInPlace : public StrToWStrClone
+  class StrToWStrCloneInPlace : public StrToWStrClone, public CStringCanProvideStrOf<wchar_t>
   {
     public:
     StrToWStrCloneInPlace (const char *src) : StrToWStrClone(src)
     {
     }
+
+    const wchar_t *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<wchar_t>
 
     operator wchar_t* ()
     const // This is not good, but just to make stuff compile where const passed as source
@@ -1618,7 +1640,7 @@ namespace NanoWin
   };
 
   template<typename XT>
-  class CXTPtrToXTPtrRef
+  class CXTPtrToXTPtrRef : public CStringCanProvideStrOf<XT>
   {
     protected:
 
@@ -1635,10 +1657,12 @@ namespace NanoWin
     {
       return(const_cast<XT*>(this->src));
     }
+
+    const XT *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<XT>
   };
 
   template<typename XT>
-  class CXTPtrToCXTPtrRef
+  class CXTPtrToCXTPtrRef : public CStringCanProvideStrOf<XT>
   {
     protected:
 
@@ -1655,6 +1679,8 @@ namespace NanoWin
     {
       return(this->src);
     }
+
+    const XT *get_c_cstr() const { return(this->c_str()); } // CStringCanProvideStrOf<XT>
   };
 }
 
