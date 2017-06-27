@@ -12,5 +12,9 @@
 
 #if defined LINUX
 
+#define NW_WRAP_GATE(symbol) __wrap_##symbol
+#define NW_WRAP_REAL(symbol) __real_##symbol
+#define NW_WRAP_STUB(symbol) __real_##symbol
+
 #endif // linux
 #endif // ...Included

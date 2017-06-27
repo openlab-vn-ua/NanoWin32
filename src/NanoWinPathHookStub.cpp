@@ -7,8 +7,82 @@
 
 #include "NanoWinPathHookStub.h"
 
-NW_EXTERN_C_BEGIN
+#if defined LINUX
+
+#include "NanoWinPathHookGate.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#define NW_MAKE_STUB(symbol) NW_EXTERN_C int NW_WRAP_STUB(symbol)(...) { return(-1); }
+
+// Special cases for open,open64,openat,openat64
+// ----------------------------------------------
+
+// open
+
+#if !defined(open) // open is not a macro
+NW_MAKE_STUB(open)
+#endif
+
+NW_MAKE_STUB(open64)
+
+// openat
+
+#if !defined(openat) // open is not a macro
+NW_MAKE_STUB(openat)
+#endif
+
+NW_MAKE_STUB(openat64)
+
+// Other functions
+// ----------------------------------------------
+
+#define STUB(func, ...)  NW_MAKE_STUB(func)
+
+STUB(fopen, FILE *, const char *path, const char *mode)
+STUB(fopen64, FILE *, const char *path, const char *mode)
+STUB(freopen, FILE *, const char *path, const char *mode, FILE *stream)
+
+// STUB(open, int, const char *pathname, int flags, mode_t mode) // handled specially
+// STUB(open64, int, const char *pathname, int flags, mode_t mode) // handled specially
+// STUB(openat, int, const char *pathname, int flags, mode_t mode) // handled specially
+// STUB(openat64, int, const char *pathname, int flags, mode_t mode) // handled specially
+// STUB(creat, int const char *pathname, mode_t mode) // hooked via open
+// STUB(creat64, int const char *pathname, mode_t mode) // hooked via open
+
+STUB(access, int, const char *pathname, int mode)
+STUB(stat, int, const char *path, struct stat *buf)
+STUB(lstat, int, const char *path, struct stat *buf)
+STUB(scandir, int, const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *), int (*compar)(const struct dirent **, const struct dirent **))
+STUB(opendir, DIR*, const char *name)
+STUB(__xstat, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+STUB(__lxstat, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+STUB(__xstat64, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+STUB(__lxstat64, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+STUB(chmod, int, const char *path, mode_t mode)
+STUB(chown, int, const char *path, uid_t owner, gid_t group)
+STUB(lchown, int, const char *path, uid_t owner, gid_t group)
+STUB(symlink, int, const char *oldpath, const char *newpath)
+STUB(link, int, const char *oldpath, const char *newpath)
+STUB(mknod, int, const char *pathname, mode_t mode, dev_t dev)
+STUB(unlink, int, const char *pathname)
+STUB(mkfifo, int, const char *pathname, mode_t mode)
+STUB(rename, int, const char *oldpath, const char *newpath)
+STUB(utime, int, const char *filename, const struct utimbuf *times)
+STUB(utimes, int, const char *filename, const struct timeval times[2])
+STUB(mkdir, int, const char *pathname, mode_t mode)
+STUB(rmdir, int, const char *pathname)
+
+// Special
+
+STUB(realpath, char *, const char *path, char *resolved_path)
+STUB(chdir, int, const char *pathname)
+
+// Exotic
+
+STUB(mount, int, const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data)
 
 
-NW_EXTERN_C_END
-
+#endif // linux
