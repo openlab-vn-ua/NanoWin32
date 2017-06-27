@@ -565,6 +565,7 @@ LPSTR CStdioFile::ReadToMbString(_Out_writes_z_(nMax) LPSTR  lpsz, _In_ UINT nMa
     else
     {
       AfxThrowFileException();
+      return NULL; // dummy bug trap, control would never be here since exception will be thrown
     }
   }
   else
