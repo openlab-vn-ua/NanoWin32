@@ -9,7 +9,9 @@
 #include "NanoWinError.h"
 
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
+#include <wchar.h>
 
 typedef struct
 {
@@ -21,6 +23,9 @@ typedef struct
 NW_EXTERN_C_BEGIN
 
 static __thread DWORD LastError = ERROR_SUCCESS;
+
+static char    NanoWinErrorMessageGenericErrorFormatA[] = "Generic error (%u)";
+static wchar_t NanoWinErrorMessageGenericErrorFormatW[] = L"Generic error (%u)";
 
 static NanoWinErrorMessageTableEntry NanoWinErrorMessageTable[]
 {
@@ -186,15 +191,20 @@ extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
 
   NanoWinErrorMessageTableEntry *messageInfo = NanoWinErrorMessageTableFindEntry(dwMessageId);
 
-  if (messageInfo == NULL)
-  {
-    SetLastError(ERROR_RESOURCE_LANG_NOT_FOUND);
+  size_t messageLen = 0;
 
-    return 0;
+  if (messageInfo != NULL)
+  {
+    messageLen = strlen(messageInfo->errorMessageA);
+  }
+  else
+  {
+    // since there is no string or char conversion, we can safely assume that snprintf can't return error
+    messageLen = (size_t)snprintf(NULL,0,NanoWinErrorMessageGenericErrorFormatA,(unsigned int)dwMessageId);
   }
 
-  size_t messageLen   = strlen(messageInfo->errorMessageA);
   size_t requiredSize = messageLen + 1;
+  char  *destPtr      = NULL;
 
   if ((dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) != 0)
   {
@@ -203,36 +213,46 @@ extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
       requiredSize = nSize;
     }
 
-    char *destPtr = (char*)LocalAlloc(LMEM_FIXED,requiredSize);
+    destPtr = (char*)LocalAlloc(LMEM_FIXED,requiredSize);
 
     if (destPtr != NULL)
     {
-      strcpy(destPtr,messageInfo->errorMessageA);
-
       *((char**)lpBuffer) = destPtr;
     }
     else
     {
       SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-
-      return 0;
     }
   }
   else
   {
     if (nSize >= requiredSize)
     {
-      strcpy(lpBuffer,messageInfo->errorMessageA);
+      destPtr = lpBuffer;
     }
     else
     {
       SetLastError(ERROR_INSUFFICIENT_BUFFER);
-
-      return 0;
     }
   }
 
-  return messageLen;
+  if (destPtr != NULL)
+  {
+    if (messageInfo != NULL)
+    {
+      strcpy(destPtr,messageInfo->errorMessageA);
+    }
+    else
+    {
+      snprintf(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatA,(unsigned int)dwMessageId);
+    }
+
+    return messageLen;
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
@@ -268,15 +288,20 @@ extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
 
   NanoWinErrorMessageTableEntry *messageInfo = NanoWinErrorMessageTableFindEntry(dwMessageId);
 
-  if (messageInfo == NULL)
-  {
-    SetLastError(ERROR_RESOURCE_LANG_NOT_FOUND);
+  size_t messageLen;
 
-    return 0;
+  if (messageInfo != NULL)
+  {
+    messageLen = wcslen(messageInfo->errorMessageW);
+  }
+  else
+  {
+    // since there is no string or char conversion, we can safely assume that swprintf can't return error
+    messageLen = (size_t)swprintf(NULL,0,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
   }
 
-  size_t messageLen   = wcslen(messageInfo->errorMessageW);
   size_t requiredSize = messageLen + 1;
+  wchar_t *destPtr    = 0;
 
   if ((dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) != 0)
   {
@@ -285,36 +310,46 @@ extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
       requiredSize = nSize;
     }
 
-    wchar_t *destPtr = (wchar_t*)LocalAlloc(LMEM_FIXED,requiredSize * sizeof(wchar_t));
+    destPtr = (wchar_t*)LocalAlloc(LMEM_FIXED,requiredSize * sizeof(wchar_t));
 
     if (destPtr != NULL)
     {
-      wcscpy(destPtr,messageInfo->errorMessageW);
-
       *((wchar_t**)lpBuffer) = destPtr;
     }
     else
     {
       SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-
-      return 0;
     }
   }
   else
   {
     if (nSize >= requiredSize)
     {
-      wcscpy(lpBuffer,messageInfo->errorMessageW);
+      destPtr = lpBuffer;
     }
     else
     {
       SetLastError(ERROR_INSUFFICIENT_BUFFER);
-
-      return 0;
     }
   }
 
-  return messageLen;
+  if (destPtr != NULL)
+  {
+    if (messageInfo != NULL)
+    {
+      wcscpy(destPtr,messageInfo->errorMessageW);
+    }
+    else
+    {
+      swprintf(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
+    }
+
+    return messageLen;
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 NW_EXTERN_C_END
