@@ -12,9 +12,14 @@
 
 #if defined LINUX
 
+#include <stdarg.h>
+
 // Error constants
 // -----------------------------------------------------------------------
 // Ordered by error code value, values match values in Win32 API
+// Note, that NanoWinError.cpp contains message text table for each 
+// constant (is used in FormatMessage implementation), so if you add
+// new constant definition, you should add entry to that table too
 
 #define ERROR_SUCCESS                  (0x0)     //     0 // OK, no error
 
@@ -39,6 +44,8 @@
 
 #define ERROR_INVALID_FLAGS            (0x3EC)   //  1004 // Invalid flags
 #define ERROR_NO_UNICODE_TRANSLATION   (0x459)   //  1113 // No mapping for the Unicode character exists in the target multi-byte code page
+
+#define ERROR_RESOURCE_LANG_NOT_FOUND  (0x717)   //  1815 // The specified resource language ID cannot be found in the image file
 
 // Additional constants
 
@@ -83,7 +90,33 @@ inline  void  SetLastErrorEx(DWORD dwErrCode, DWORD dwType)  { NanoWinSetLastErr
 #define SetLastErrorEx(x,y)  ((void)(NanoWinSetLastErrorEx((x),(y))))
 #endif
 
+#define FORMAT_MESSAGE_ALLOCATE_BUFFER  0x00000100 
+#define FORMAT_MESSAGE_FROM_SYSTEM      0x00001000
+#define FORMAT_MESSAGE_IGNORE_INSERTS   0x00000200
+
+extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
+                                   _In_opt_ LPCVOID lpSource,
+                                   _In_     DWORD   dwMessageId,
+                                   _In_     DWORD   dwLanguageId,
+                                   _Out_    LPSTR   lpBuffer,
+                                   _In_     DWORD   nSize,
+                                   _In_opt_ va_list *Arguments);
+
+extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
+                                   _In_opt_ LPCVOID lpSource,
+                                   _In_     DWORD   dwMessageId,
+                                   _In_     DWORD   dwLanguageId,
+                                   _Out_    LPWSTR  lpBuffer,
+                                   _In_     DWORD   nSize,
+                                   _In_opt_ va_list *Arguments);
+
 NW_EXTERN_C_END
+
+#if defined(UNICODE) || defined(_UNICODE)
+ #define FormatMessage FormatMessageW
+#else
+ #define FormatMessage FormatMessageA
+#endif
 
 #endif // linux
 #endif // ...Included
