@@ -243,4 +243,7 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
+  <ImportGroup Label="PropertyImports">
+    <Import Project="$(MSBuildProjectFile).*.props" />
+  </ImportGroup>
 </Project>
