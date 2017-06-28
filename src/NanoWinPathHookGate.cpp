@@ -28,122 +28,48 @@
 
 #include <stdarg.h>
 
+// Translation function
+// ==================================================================
+
+// The function should translate srcpath if need
+// translation result should be returned to *poutpath (initially *poutpath is null
+//static errno_t translate_path(char **poutpath, const char *srcpath, char *buffer, size_t buffersz)
+//{
+//}
+
+// The gates tools
+// ==================================================================
+
+// Middle level macros
+
+// Write arbitrary text to log, use NW_FUNC_LOG(printf(...)) [would do nothing with log_exp on release]
 #define NW_FUNC_LOG(log_exp)      log_exp
 
-#define NW_PROC_LOG(sfunc,sparam,ssrc,sres)  NW_FUNC_LOG(printf("XLT %s (%s='%s'<'%s')\n", (sfunc), (sparam), (sres), (ssrc)));
+// Write func param translation from src to res [all "s" parameters are "strings"]
+#define NW_PROC_LOG(sfunc,sparam,ssrc,sres,ierr)  NW_FUNC_LOG(printf("XLT %s (%s='%s'<'%s') %d %s\n", (sfunc), (sparam), ((sres) == NULL ? "NULL" : (sres)), ((ssrc) == NULL ? "NULL" : (ssrc)), (int) ierr, (ierr == 0 ? "OK" : "FAIL")));
 
-#define NW_PROC_FNAME(n)          const char *n##_x = n;
-#define NW_PROC_FNAME_LOG(f,n)    NW_PROC_LOG(f,#n,n,n##_x)
-#define NW_PROC_FNAME_CSTR(n)     (n##_x)
-#define NW_PROC_FNAME_OK(n)       ((&(n##_x)) != NULL) // (true)
-#define NW_PROC_FNAME_ERRNO(n)    (NW_PROC_FNAME_OK(n) ? 0 : EINVAL)
+// Vars
+#define NW_PROC_PARAM_VSTR(n)     n##_x                                     // translated param var name
+//#define NW_PROC_PARAM_VBUF(n)   n##_b                                     // translated param var name for buffer
+
+// Action
+#define NW_PROC_PARAM_CORE(n)     const char *NW_PROC_PARAM_VSTR(n) = n;    // declare translated var and do translation
+
+// Result
+#define NW_PROC_PARAM_CSTR(n)     (NW_PROC_PARAM_VSTR(n))                   // translation result
+#define NW_PROC_PARAM_OK(n)       ((&(NW_PROC_PARAM_VSTR(n))) != NULL)      // (true) if translation was ok
+#define NW_PROC_PARAM_ERRNO(n)    (NW_PROC_PARAM_OK(n) ? 0 : EINVAL)        // errno of translation or 0 if no error
+
+// Aux
+#define NW_PROC_PARAM_LOG(f,n)    NW_PROC_LOG(f,#n,n,NW_PROC_PARAM_CSTR(n), NW_PROC_PARAM_ERRNO(n)) // write translation result to log
+
 
 // The gates
 // ==================================================================
 
-// Special cases for open,open64,openat,openat64
-// ----------------------------------------------
-
-// open
-
-#if !defined(open) // open is not a macro
-
-NW_EXTERN_C int NW_WRAP_REAL(open) (const char *file, int oflag, ...); // + mode_t mode
-NW_EXTERN_C int NW_WRAP_GATE(open) (const char *file, int oflag, ...)  // + mode_t mode
-{
-  mode_t mode;
-
-  if (((oflag & O_CREAT) != 0) || ((oflag & O_TMPFILE) != 0))
-  {
-    va_list arg;
-    va_start(arg, oflag);
-    mode = va_arg(arg, mode_t);
-    va_end(arg);
-  }
-
-  NW_PROC_FNAME(file);
-  NW_PROC_FNAME_LOG("open", file);
-
-  if (!NW_PROC_FNAME_OK(file)) { errno = NW_PROC_FNAME_ERRNO(file); return(-1); }
-
-  return(NW_WRAP_REAL(open)(NW_PROC_FNAME_CSTR(file), oflag, mode));
-}
-
-#endif
-
-NW_EXTERN_C int NW_WRAP_REAL(open64) (const char *file, int oflag, ...); // + mode_t mode
-NW_EXTERN_C int NW_WRAP_GATE(open64) (const char *file, int oflag, ...)  // + mode_t mode
-{
-  mode_t mode;
-
-  if (((oflag & O_CREAT) != 0) || ((oflag & O_TMPFILE) != 0))
-  {
-    va_list arg;
-    va_start(arg, oflag);
-    mode = va_arg(arg, mode_t);
-    va_end(arg);
-  }
-
-  NW_PROC_FNAME(file);
-  NW_PROC_FNAME_LOG("open64", file);
-
-  if (!NW_PROC_FNAME_OK(file)) { errno = NW_PROC_FNAME_ERRNO(file); return(-1); }
-
-  return(NW_WRAP_REAL(open64)(NW_PROC_FNAME_CSTR(file), oflag, mode));
-}
-
-// openat
-
-#if !defined(openat) // open is not a macro
-
-NW_EXTERN_C int NW_WRAP_REAL(openat) (int fd, const char *file, int oflag, ...); // + mode_t mode
-NW_EXTERN_C int NW_WRAP_GATE(openat) (int fd, const char *file, int oflag, ...)  // + mode_t mode
-{
-  mode_t mode;
-
-  if (((oflag & O_CREAT) != 0) || ((oflag & O_TMPFILE) != 0))
-  {
-    va_list arg;
-    va_start(arg, oflag);
-    mode = va_arg(arg, mode_t);
-    va_end(arg);
-  }
-
-  NW_PROC_FNAME(file);
-  NW_PROC_FNAME_LOG("openat", file);
-
-  if (!NW_PROC_FNAME_OK(file)) { errno = NW_PROC_FNAME_ERRNO(file); return(-1); }
-
-  return(NW_WRAP_REAL(openat)(fd, NW_PROC_FNAME_CSTR(file), oflag, mode));
-}
-
-#endif
-
-NW_EXTERN_C int NW_WRAP_REAL(openat64) (int fd, const char *file, int oflag, ...); // + mode_t mode
-NW_EXTERN_C int NW_WRAP_GATE(openat64) (int fd, const char *file, int oflag, ...)  // + mode_t mode
-{
-  mode_t mode;
-
-  if (((oflag & O_CREAT) != 0) || ((oflag & O_TMPFILE) != 0))
-  {
-    va_list arg;
-    va_start(arg, oflag);
-    mode = va_arg(arg, mode_t);
-    va_end(arg);
-  }
-
-  NW_PROC_FNAME(file);
-  NW_PROC_FNAME_LOG("openat64", file);
-
-  if (!NW_PROC_FNAME_OK(file)) { errno = NW_PROC_FNAME_ERRNO(file); return(-1); }
-
-  return(NW_WRAP_REAL(openat64)(fd, NW_PROC_FNAME_CSTR(file), oflag, mode));
-}
-
-// Other functions
-// ----------------------------------------------
-
 NW_EXTERN_C_BEGIN
+
+// Top level macros
 
 #define GATE(func, ret_t, ... ) \
   ret_t NW_WRAP_REAL(func)(__VA_ARGS__); \
@@ -156,16 +82,59 @@ NW_EXTERN_C_BEGIN
 #define FOREWARD(func) NW_WRAP_REAL(func)
 
 #define XLATE(path, reterr) \
-        NW_PROC_FNAME(path); \
-        NW_PROC_FNAME_LOG(FNAME, path); \
-        if (!NW_PROC_FNAME_OK(path)) { errno = NW_PROC_FNAME_ERRNO(path); return(reterr); }
+        NW_PROC_PARAM_CORE(path); \
+        NW_PROC_PARAM_LOG(FNAME, path); \
+        if (!NW_PROC_PARAM_OK(path)) { errno = NW_PROC_PARAM_ERRNO(path); return(reterr); }
 
-#define XLATED(path) NW_PROC_FNAME_CSTR(path)
+#define XLATED(path) NW_PROC_PARAM_CSTR(path)
 
-// GATE(open, int, const char *pathname, int flags, mode_t mode) // handled specially
-// GATE(open64, int, const char *pathname, int flags, mode_t mode) // handled specially
-// GATE(openat, int, const char *pathname, int flags, mode_t mode) // handled specially
-// GATE(openat64, int, const char *pathname, int flags, mode_t mode) // handled specially
+// open handled specially, since last param "mode_t mode" is optional
+
+#define FUNC_FILL_OPTIONAL_PARAM(prevparam, varname, vartype) \
+  { \
+    va_list arg; \
+    va_start(arg, prevparam); \
+    varname = va_arg(arg, vartype); \
+    va_end(arg); \
+  } 
+
+#define OPEN_NEED_MODE_PARAM(oflag) (((oflag & O_CREAT) != 0) || ((oflag & O_TMPFILE) != 0))
+
+GATE(open, int, const char *pathname, int flags, ...)
+{
+  mode_t mode = 0;
+  if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
+  XLATE(pathname, -1);
+  return FOREWARD(open)(XLATED(pathname), flags, mode);
+}
+GEND()
+
+GATE(open64, int, const char *pathname, int flags, ...)
+{
+  mode_t mode = 0;
+  if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
+  XLATE(pathname, -1);
+  return FOREWARD(open64)(XLATED(pathname), flags, mode);
+}
+GEND()
+
+GATE(openat, int, int fd, const char *pathname, int flags, ...)
+{
+  mode_t mode = 0;
+  if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
+  XLATE(pathname, -1);
+  return FOREWARD(openat)(fd, XLATED(pathname), flags, mode);
+}
+GEND()
+
+GATE(openat64, int, int fd, const char *pathname, int flags, ...)
+{
+  mode_t mode = 0;
+  if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
+  XLATE(pathname, -1);
+  return FOREWARD(openat64)(fd, XLATED(pathname), flags, mode);
+}
+GEND()
 
 GATE(creat, int, const char *pathname, mode_t mode) // may produce double hook via open
 {
