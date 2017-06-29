@@ -7,15 +7,26 @@
 #include "NanoWinPrivateProfileTestTools.h"
 #include "NanoWinStrConvert.h"
 
+#ifdef __linux
+char    TestINIFileName[]  = "test.ini"; // foreward slash replace test as well
+wchar_t TestINIFileNameW[] = L"тест.ini"; // foreward slash replace test as well
+#else
 char    TestINIFileName[]  = "d:\\test.ini";
 wchar_t TestINIFileNameW[] = L"d:\\тест.ini";
+#endif
 
 bool TestINIFileCreateBinary(const char *src)
  {
-  bool  ok =false;
+  bool  ok = false;
   FILE *f  = fopen(TestINIFileName,"wb");
 
-  if (f != NULL)
+  if (f == NULL)
+   {
+      // int e = errno;
+      // printf("fopen(%s)=NULL,errno:%d\n", TestINIFileName, e);
+      ok = false;
+   }
+  else
    {
     ok = fputs(src,f) > 0;
 
