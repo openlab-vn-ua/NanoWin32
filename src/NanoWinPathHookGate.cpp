@@ -19,8 +19,7 @@
 
 #include <errno.h>
 
-#include <stdio.h> // printf
-
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -31,37 +30,98 @@
 // Translation function
 // ==================================================================
 
+#include <string.h>
+#include "NanoWinMsSafeString.h"
+
+#ifndef EOK
+#define EOK (0)
+#endif
+
 // The function should translate srcpath if need
-// translation result should be returned to *poutpath (initially *poutpath is null
-//static errno_t translate_path(char **poutpath, const char *srcpath, char *buffer, size_t buffersz)
-//{
-//}
+// translation result should be returned to *poutpath (initially *poutpath is equal srcpath)
+// translated path may use buffer[buffersz] to put new (updated) path into
+// return 0 on ok or errno value in case of fail
+static errno_t translate_path(const char **poutpath, const char *srcpath, char *buffer, size_t buffersz)
+{
+  // translate backslashes to foreward slashes
+  #define REP_FROM_C '\\'
+  #define REP_TO_C   '/'
+
+  if ((srcpath != NULL) && (srcpath[0] != 0))
+  {
+    // path not void
+    const char *cptr = strchr(srcpath, REP_FROM_C);
+    if (cptr != NULL)
+    {
+      // we have something to replace
+      errno_t result = EOK;
+
+      if (result == EOK)
+      {
+        result = strcpy_s(buffer, buffersz, srcpath);
+      }
+
+      if (result == EOK)
+      {
+        const char *rptr = (strchr(buffer, REP_FROM_C));
+        while(rptr != NULL)
+        {
+          *(const_cast<char*>(rptr)) = REP_TO_C;
+          rptr++;
+          rptr = strchr(rptr, REP_FROM_C);
+        }
+      }
+
+      if (result == EOK)
+      {
+        *poutpath = buffer; // now points to translated path
+      }
+
+      return(result);
+    }
+  }
+
+  return(0);
+
+  #undef REP_TO_C
+  #undef REP_FROM_C
+}
 
 // The gates tools
 // ==================================================================
 
+#include "NanoWinFileSys.h"
+
 // Middle level macros
 
 // Write arbitrary text to log, use NW_FUNC_LOG(printf(...)) [would do nothing with log_exp on release]
-#define NW_FUNC_LOG(log_exp)      log_exp
+#define NW_FUNC_LOG(log_exp)      // log_exp
 
 // Write func param translation from src to res [all "s" parameters are "strings"]
 #define NW_PROC_LOG(sfunc,sparam,ssrc,sres,ierr)  NW_FUNC_LOG(printf("XLT %s (%s='%s'<'%s') %d %s\n", (sfunc), (sparam), ((sres) == NULL ? "NULL" : (sres)), ((ssrc) == NULL ? "NULL" : (ssrc)), (int) ierr, (ierr == 0 ? "OK" : "FAIL")));
 
 // Vars
 #define NW_PROC_PARAM_VSTR(n)     n##_x                                     // translated param var name
-//#define NW_PROC_PARAM_VBUF(n)   n##_b                                     // translated param var name for buffer
+#define NW_PROC_PARAM_VBUF(n)     n##_b                                     // translated param var name for buffer
+#define NW_PROC_PARAM_VERR(n)     n##_e                                     // translated param var name for action errno
 
 // Action
-#define NW_PROC_PARAM_CORE(n)     const char *NW_PROC_PARAM_VSTR(n) = n;    // declare translated var and do translation
+// Declare translated var(s) and do translation
+#define NW_PROC_PARAM_CORE(n) \
+       const char *NW_PROC_PARAM_VSTR(n) = (n); \
+       char        NW_PROC_PARAM_VBUF(n)[PATH_MAX]; \
+       errno_t     NW_PROC_PARAM_VERR(n) = 0; \
+	   NW_PROC_PARAM_VERR(n) = translate_path(&NW_PROC_PARAM_VSTR(n), (n), NW_PROC_PARAM_VBUF(n), _countof(NW_PROC_PARAM_VBUF(n)));
 
 // Result
 #define NW_PROC_PARAM_CSTR(n)     (NW_PROC_PARAM_VSTR(n))                   // translation result
-#define NW_PROC_PARAM_OK(n)       ((&(NW_PROC_PARAM_VSTR(n))) != NULL)      // (true) if translation was ok
-#define NW_PROC_PARAM_ERRNO(n)    (NW_PROC_PARAM_OK(n) ? 0 : EINVAL)        // errno of translation or 0 if no error
+#define NW_PROC_PARAM_OK(n)       (NW_PROC_PARAM_VERR(n) == 0)              // (true) if translation was ok
+#define NW_PROC_PARAM_ERRNO(n)    (NW_PROC_PARAM_VERR(n))                   // errno of translation or 0 if no error
 
 // Aux
 #define NW_PROC_PARAM_LOG(f,n)    NW_PROC_LOG(f,#n,n,NW_PROC_PARAM_CSTR(n), NW_PROC_PARAM_ERRNO(n)) // write translation result to log
+
+#define NW_FUNC_VAR_USED(a)       do { if (&(a) != NULL) { } } while(0) // just to skip warning
 
 
 // The gates
@@ -74,7 +134,7 @@ NW_EXTERN_C_BEGIN
 #define GATE(func, ret_t, ret_err, ... ) \
   ret_t NW_WRAP_REAL(func)(__VA_ARGS__); \
   ret_t NW_WRAP_GATE(func)(__VA_ARGS__) \
-  { static const char *FNAME = #func; \
+  { static const char *FNAME = #func; NW_FUNC_VAR_USED(FNAME); \
     static ret_t FFAIL = ret_err;
 
 #define GEND() \
