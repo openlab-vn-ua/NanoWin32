@@ -9,6 +9,8 @@
 
 #if defined LINUX
 
+// THIS MODULE PERFORM FILE SYSTEM HOOKS TO ALLOW PATH SEP TO BE '/' OR '\' [WORKS UNDER LINUX ONLY]
+
 // Add following line to link to make this stuff work:
 // --wrap open --wrap open64 ...
 // Or, via g++
