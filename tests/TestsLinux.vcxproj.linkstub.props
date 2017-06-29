@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<!--
+// -Wl,-wrap,open -Wl,-wrap,open64 -Wl,-wrap,openat -Wl,-wrap,openat64 -Wl,-wrap,creat -Wl,-wrap,creat64 -Wl,-wrap,access -Wl,-wrap,stat -Wl,-wrap,lstat
+// -Wl,-wrap,scandir -Wl,-wrap,opendir -Wl,-wrap,__xstat -Wl,-wrap,__lxstat -Wl,-wrap,__xstat64 -Wl,-wrap,__lxstat64 -Wl,-wrap,chmod -Wl,-wrap,chown -Wl,-wrap,lchown
+// -Wl,-wrap,symlink -Wl,-wrap,link -Wl,-wrap,mknod -Wl,-wrap,unlink -Wl,-wrap,mkfifo -Wl,-wrap,rename -Wl,-wrap,utime -Wl,-wrap,utimes -Wl,-wrap,mkdir -Wl,-wrap,rmdir
+// -Wl,-wrap,realpath -Wl,-wrap,chdir -Wl,-wrap,mount -Wl,-wrap,fopen -Wl,-wrap,fopen64 -Wl,-wrap,freopen
+-->
+  <PropertyGroup Label="UserMacros">
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,open -Wl,-wrap,open64 -Wl,-wrap,openat -Wl,-wrap,openat64 -Wl,-wrap,creat -Wl,-wrap,creat64 -Wl,-wrap,access -Wl,-wrap,stat -Wl,-wrap,lstat</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,scandir -Wl,-wrap,opendir -Wl,-wrap,__xstat -Wl,-wrap,__lxstat -Wl,-wrap,__xstat64 -Wl,-wrap,__lxstat64 -Wl,-wrap,chmod -Wl,-wrap,chown -Wl,-wrap,lchown</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,symlink -Wl,-wrap,link -Wl,-wrap,mknod -Wl,-wrap,unlink -Wl,-wrap,mkfifo -Wl,-wrap,rename -Wl,-wrap,utime -Wl,-wrap,utimes -Wl,-wrap,mkdir -Wl,-wrap,rmdir</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,realpath -Wl,-wrap,chdir -Wl,-wrap,mount -Wl,-wrap,fopen -Wl,-wrap,fopen64 -Wl,-wrap,freopen</LinkAdditionalOptionsLinuxStub>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions) $(LinkAdditionalOptionsLinuxStub)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
