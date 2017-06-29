@@ -115,6 +115,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\NanoWinBmpTests.cpp" />
     <ClCompile Include="src\NanoWinEnvTests.cpp" />
+    <ClCompile Include="src\NanoWinErrorTests.cpp" />
     <ClCompile Include="src\NanoWinEventsTests.cpp" />
     <ClCompile Include="src\NanoWinFileFindTests.cpp" />
     <ClCompile Include="src\NanoWinFileSysTests.cpp" />
