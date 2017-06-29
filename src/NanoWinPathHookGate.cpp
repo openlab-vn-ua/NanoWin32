@@ -32,12 +32,7 @@
 // Translation function
 // ==================================================================
 
-#include <string.h>
-#include "NanoWinMsSafeString.h"
-
-#ifndef EOK
-#define EOK (0)
-#endif
+#include "NanoWinPathHook.h"
 
 // The function should translate srcpath if need
 // translation result should be returned to *poutpath (initially *poutpath is equal srcpath)
@@ -45,53 +40,22 @@
 // return 0 on ok or errno value in case of fail
 static errno_t translate_path(const char **poutpath, const char *srcpath, char *buffer, size_t buffersz)
 {
-  // translate backslashes to foreward slashes
-  #define REP_FROM_C '\\'
-  #define REP_TO_C   '/'
-
-  if ((srcpath != NULL) && (srcpath[0] != 0))
+  NanoWin::PathHook *xlt = NanoWin::PathHookIn;
+  if (xlt != NULL)
   {
-    // path not void
-    const char *cptr = strchr(srcpath, REP_FROM_C);
-    if (cptr != NULL)
-    {
-      // we have something to replace
-      errno_t result = EOK;
-
-      if (result == EOK)
-      {
-        result = strcpy_s(buffer, buffersz, srcpath);
-      }
-
-      if (result == EOK)
-      {
-        const char *rptr = (strchr(buffer, REP_FROM_C));
-        while(rptr != NULL)
-        {
-          *(const_cast<char*>(rptr)) = REP_TO_C;
-          rptr++;
-          rptr = strchr(rptr, REP_FROM_C);
-        }
-      }
-
-      if (result == EOK)
-      {
-        *poutpath = buffer; // now points to translated path
-      }
-
-      return(result);
-    }
+    return(xlt->doTranslatePath(poutpath, srcpath, buffer, buffersz));
   }
-
-  return(0);
-
-  #undef REP_TO_C
-  #undef REP_FROM_C
+  else
+  {
+    *poutpath = srcpath; // just in case
+    return(0);
+  }
 }
 
 // The gates tools
 // ==================================================================
 
+#include "NanoWinMsSafeString.h" // _countof(x)
 #include "NanoWinFileSys.h"
 
 // Middle level macros

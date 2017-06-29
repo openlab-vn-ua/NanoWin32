@@ -20,60 +20,37 @@
 
 namespace NanoWin {
 
-#define PathHookPathSizeDefLimit            (_MAX_PATH) // No limit still means some reasonable limit :)
-
-class PathHookException
-{
-  public:
-  virtual const char *message() const { return("Path conversion error"); }
-};
-
 class PathHook
 {
   public:
 
-  // Converts path in-place (by replacing path content)
-  // maxLength specify maximum size of path in characters path[pathmaxsz]
-  // You may ignore pathmaxsz in case you are not changing path length or you shortening it
-  // You may pass PathHookPathSizeNoLimit to the func to provide system-default reasonable limit
-  // return 0 if ok, errno in case of fail
-  virtual errno_t     ConvertPath(char *path, size_t pathmaxsz = PathHookPathSizeDefLimit)
+  // The function should translate srcpath if need
+  // translation result should be returned to *poutpath (initially *poutpath is equal srcpath)
+  // translated path may use buffer[buffersz] to put new (updated) path into
+  // return 0 on ok or errno value in case of fail
+  virtual errno_t doTranslatePath(const char **poutpath, const char *srcpath, char *buffer, size_t buffersz)
   {
+	*poutpath = srcpath; // just in case
     return(0);
-  }
-
-  // Returns path converted as std::string
-  // Default implementation calls ConvertPath
-  // May throw exception PathHookException in case conversion is impossible
-  virtual std::string GetConvertedPath(const char *path)
-  {
-    std::string outpath(path);
-	outpath.reserve(PathHookPathSizeDefLimit); // actually, this will reserve 1 more byte
-	errno_t result = this->ConvertPath(const_cast<char*>(outpath.c_str()), outpath.capacity());
-	if (result != 0) { throw PathHookException(); } // Fire exit
-    return(outpath);
   }
 };
 
-extern PathHook *PathHookIn;
-extern PathHook *PathHookOut;
+extern PathHook *PathHookIn;  // Translate incoming  to function path to
+extern PathHook *PathHookOut; // Translate returning from function path // reserved, not used actaully (yet)
+
+// Practical implemenation
+// (made ALT_PATH_SEP to be PATH_SEP)
+// This makes Linux support path sep for both '/' and '\' like Win32 API does
+
+class PathHookAlignSlashes : public PathHook
+{
+  public:
+
+  // override
+  virtual errno_t doTranslatePath(const char **poutpath, const char *srcpath, char *buffer, size_t buffersz);
+};
 
 } // namespace NanoWin
-
-#define PathHookInSetHook(phook)            (NanoWin::PathHookIn = phook), 0) // EOK
-#define PathHookInGetHook()                 const_cast<const PathHook*>(NanoWin::PathHookIn)
-#define PathHookOutSetHook(phook)           (NanoWin::PathHookOut = phook), 0) // EOK
-#define PathHookOutGetHook()                const_cast<const PathHook*>(NanoWin::PathHookOut)
-
-// Use these macroses in functions that require
-#define PathHookInGetConvertedPath(path)    ((NanoWin::PathHookIn == NULL)  ? std::string(path) : NanoWin::PathHookIn->GetConvertedPath())
-#define PathHookInTmpConvertedPath(path)    ((NanoWin::PathHookIn == NULL)  ? (path) : NanoWin::PathHookIn->GetConvertedPath().c_str())
-#define PathHookInConvertPath(path,pathsz)  ((NanoWin::PathHookIn == NULL)  ? (0) : NanoWin::PathHookIn->ConvertPath(path,pathsz))
-
-// Use these macroses in functions that returns path
-#define PathHookOutGetConvertedPath(path)   ((NanoWin::PathHookOut == NULL) ? std::string(path) : NanoWin::PathHookOut->GetConvertedPath())
-#define PathHookOutTmpConvertedPath(path)   ((NanoWin::PathHookOut == NULL) ? (path) : NanoWin::PathHookOut->GetConvertedPath().c_str())
-#define PathHookOutConvertPath(path,pathsz) ((NanoWin::PathHookOut == NULL) ? (0) : NanoWin::PathHookOut->ConvertPath(path,pathsz))
 
 #endif // linux
 #endif // ...Included
