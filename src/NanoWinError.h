@@ -94,6 +94,13 @@ inline  void  SetLastErrorEx(DWORD dwErrCode, DWORD dwType)  { NanoWinSetLastErr
 #define FORMAT_MESSAGE_FROM_SYSTEM      0x00001000
 #define FORMAT_MESSAGE_IGNORE_INSERTS   0x00000200
 
+// FormatMessage implementation has the following limitations:
+// 1. FORMAT_MESSAGE_ARGUMENT_ARRAY, FORMAT_MESSAGE_FROM_HMODULE, FORMAT_MESSAGE_FROM_STRING flags
+//    are not supported
+// 2. FORMAT_MESSAGE_FROM_SYSTEM bit in dwFlags must be set
+// 3. lpSource parameter is ignored (since neither FORMAT_MESSAGE_FROM_HMODULE, nor FORMAT_MESSAGE_FROM_STRING are supported)
+// 4. dwLanguageId must be equal to MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT)
+// 5. Arguments parameter is ignored
 extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
                                    _In_opt_ LPCVOID lpSource,
                                    _In_     DWORD   dwMessageId,
