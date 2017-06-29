@@ -15,39 +15,19 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+// Note: Stub functions exists only for linkage they never actually called
+
 #define NW_MAKE_STUB(symbol) NW_EXTERN_C int NW_WRAP_STUB(symbol)(...) { return(-1); }
-
-// Special cases for open,open64,openat,openat64
-// ----------------------------------------------
-
-// open
-
-#if !defined(open) // open is not a macro
-NW_MAKE_STUB(open)
-#endif
-
-NW_MAKE_STUB(open64)
-
-// openat
-
-#if !defined(openat) // open is not a macro
-NW_MAKE_STUB(openat)
-#endif
-
-NW_MAKE_STUB(openat64)
-
-// Other functions
-// ----------------------------------------------
 
 #define STUB(func, ...)  NW_MAKE_STUB(func)
 
-// STUB(open, int, const char *pathname, int flags, mode_t mode) // handled specially
-// STUB(open64, int, const char *pathname, int flags, mode_t mode) // handled specially
-// STUB(openat, int, const char *pathname, int flags, mode_t mode) // handled specially
-// STUB(openat64, int, const char *pathname, int flags, mode_t mode) // handled specially
+STUB(open, int, const char *pathname, int flags, mode_t mode)
+STUB(open64, int, const char *pathname, int flags, mode_t mode)
+STUB(openat, int, const char *pathname, int flags, mode_t mode)
+STUB(openat64, int, const char *pathname, int flags, mode_t mode)
 
-STUB(creat, int, const char *pathname, mode_t mode) // hooked via open
-STUB(creat64, int, const char *pathname, mode_t mode) // hooked via open
+STUB(creat, int, const char *pathname, mode_t mode)
+STUB(creat64, int, const char *pathname, mode_t mode)
 
 STUB(access, int, const char *pathname, int mode)
 STUB(stat, int, const char *path, struct stat *buf)
