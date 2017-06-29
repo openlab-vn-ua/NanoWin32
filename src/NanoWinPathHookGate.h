@@ -16,5 +16,9 @@
 #define NW_WRAP_REAL(symbol) __real_##symbol
 #define NW_WRAP_STUB(symbol) __real_##symbol
 
+// open questions:
+// dirname  (use NanoWinGetFileDirName)
+// basename (use NanoWinGetFileBaseName)
+
 #endif // linux
 #endif // ...Included
