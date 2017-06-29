@@ -634,4 +634,36 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringAddSymbolTest)
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", str.GetString());
 }
 
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCW2ATest)
+{
+  NW_CHECK_EQUAL_STRCMP("hello",(const char*)CW2A(L"hello"));
+}
+
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WTest)
+{
+  NW_CHECK_EQUAL_MEMCMP(L"hello", (const wchar_t*)CA2W("hello"), 6 * sizeof(wchar_t));
+}
+
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCW2AFormatTest)
+{
+  CString str;
+
+  str.Format("%s", (const char*)CW2A(L"hello"));
+  NW_CHECK_EQUAL_STRCMP("hello", str.GetString());
+
+  str.Format("%d%s%d", 123, (const char*)CW2A(L"abc"), 456);
+  NW_CHECK_EQUAL_STRCMP("123abc456", str.GetString());
+}
+#ifndef __GNUC__
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WFormatTest)
+{
+  CStringW str;
+
+  str.Format(L"%s", (const wchar_t*)CA2W("hello"));
+  NW_CHECK_EQUAL_MEMCMP(L"hello", str.GetString(), 6 * sizeof(wchar_t));
+
+  str.Format(L"%d%s%d", 123, (const wchar_t*)CA2W("abc"), 456);
+  NW_CHECK_EQUAL_MEMCMP(L"123abc456", str.GetString(), 10 * sizeof(wchar_t));
+}
+#endif
 NW_END_TEST_GROUP()
