@@ -18,6 +18,10 @@
 #include "NanoWinMFCAfxStr.h"
 #include "NanoWinMFCAfxCol.h"
 
+typedef LONG_PTR LPARAM;
+typedef UINT_PTR WPARAM;
+typedef LONG_PTR LRESULT;
+
 class NanoWinTextStr
 {
   public :
@@ -36,6 +40,8 @@ class  CWnd
 {
   public:
 
+  CWnd ();
+
   void SetWindowTextA (LPCSTR    lpszString);
   void SetWindowTextW (LPCWSTR   lpszString);
   void GetWindowTextA (CStringA &rString) const;
@@ -49,8 +55,17 @@ class  CWnd
   void GetWindowText (CStringW &rString) const { GetWindowTextW(rString); }
   #endif
 
+  BOOL EnableWindow  (BOOL bEnable = TRUE);
+
+  CWnd* GetDlgItem   (int nID) const;
+
+  protected : 
+
+  virtual BOOL OnNotify (WPARAM wParam, LPARAM lParam, LRESULT *pResult);
+
   private :
 
+  bool           isEnabled;
   NanoWinTextStr windowText;
 };
 
@@ -67,6 +82,8 @@ class CListCtrl
 
   BOOL    SetItemText(int nItem, int nSubItem, LPCTSTR lpszText);
   CString GetItemText(int nItem, int nSubItem) const;
+
+  int     GetHotItem();
 
   private :
 
@@ -87,24 +104,34 @@ class CListBox  : public CWnd
 {
   public:
 
-  int  GetCount   () const;
-  void GetText    (int nIndex, CString& rString) const;
-  int  AddString  (LPCTSTR lpszItem);
+  int  GetCount    () const;
+  void GetText     (int nIndex, CString& rString) const;
+  int  AddString   (LPCTSTR lpszItem);
+
+  void ResetContent();
 
   private :
 
   std::vector<CString> listStorage;
 };
 
+#define CB_ERR (-1)
+
 class CComboBox : public CWnd
 {
   public:
 
+  CComboBox ();
+
   int AddString(LPCTSTR lpszItem);
+
+  int SetCurSel(int nSelect);
+  int GetCurSel() const;
 
   private :
 
   std::vector<CString> listStorage;
+  int                  currSelection;
 };
 
 class CImageList : public CObject
@@ -114,4 +141,3 @@ class CImageList : public CObject
 #endif // LINUX
 
 #endif
-

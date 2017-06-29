@@ -83,6 +83,11 @@ void NanoWinTextStr::GetText (CStringW &rString) const
 
 #endif
 
+CWnd::CWnd()
+{
+  isEnabled = true;
+}
+
 void CWnd::SetWindowTextA(LPCSTR    lpszString)
 {
   windowText.SetText(lpszString);
@@ -111,6 +116,25 @@ void CWnd::GetWindowTextW(CStringW &rString) const
   NanoWinNUILog(L"CWnd::GetWindowTextW(%s)",rString.GetString());
 }
 
+BOOL CWnd::EnableWindow(BOOL bEnable)
+{
+  BOOL oldState = isEnabled;
+
+  isEnabled = bEnable;
+
+  return oldState;
+}
+
+BOOL CWnd::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
+{
+  return FALSE;
+}
+
+CWnd* CWnd::GetDlgItem(int /*nID*/) const
+{
+  return NULL;
+}
+
 BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCTSTR lpszText)
 {
   itemStorage[IntPair(nItem,nSubItem)] = CString(lpszText);
@@ -132,6 +156,11 @@ CString CListCtrl::GetItemText(int nItem, int nSubItem) const
   {
     return CString();
   }
+}
+
+int CListCtrl::GetHotItem()
+{
+  return 0;
 }
 
 int  CListBox::GetCount() const
@@ -162,6 +191,17 @@ int  CListBox::AddString (LPCTSTR lpszItem)
   return index;
 }
 
+
+void CListBox::ResetContent()
+{
+  listStorage.clear();
+}
+
+CComboBox::CComboBox()
+{
+  currSelection = CB_ERR;
+}
+
 int  CComboBox::AddString (LPCTSTR lpszItem)
 {
   int index = (int)listStorage.size();
@@ -171,4 +211,30 @@ int  CComboBox::AddString (LPCTSTR lpszItem)
   NanoWinNUILog(_T("CComboBox::AddString(index: %d, text: %s)"),index,lpszItem);
 
   return index;
+}
+
+int CComboBox::SetCurSel(int nSelect)
+{
+  if (nSelect != CB_ERR)
+  {
+    if (nSelect >= 0 && nSelect < listStorage.size())
+    {
+      currSelection = nSelect;
+    }
+    else
+    {
+      currSelection = CB_ERR;
+    }
+  }
+  else
+  {
+    currSelection = CB_ERR;
+  }
+
+  return currSelection;
+}
+
+int CComboBox::GetCurSel() const
+{
+  return currSelection;
 }
