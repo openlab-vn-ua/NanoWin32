@@ -919,4 +919,10 @@ extern int      wsystem  (const wchar_t *lpCommand)
   }
 }
 
+// Wide char version of vsnprintf (returns number of chars need to but in buffer in case count is too low, instead of -1)
+extern int      vsnwprintf (wchar_t *buffer, size_t count, const wchar_t *format, va_list argptr)
+{
+  return(-1); // TODO: Implement me
+}
+
 NW_EXTERN_C_END

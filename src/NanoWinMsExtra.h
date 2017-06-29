@@ -236,8 +236,12 @@ NW_EXTERN_C_BEGIN
 // if lpCommand is not null runs specified command and returns its exit code (returns -1 in case failed to run and sets errno)
 extern int      wsystem  (const wchar_t *lpCommand);
 
+// Wide char version of vsnprintf (returns number of chars need to but in buffer in case count is too low, instead of -1)
+extern int      vsnwprintf (wchar_t *buffer, size_t count, const wchar_t *format, va_list argptr);
+
 #ifndef NW_NO_MS_ISO_ALIASES // MS aliases for "obsolete" func
 #define _wsystem             wsystem
+#define _vsnwprintf          vsnwprintf
 #endif
 
 NW_EXTERN_C_END
