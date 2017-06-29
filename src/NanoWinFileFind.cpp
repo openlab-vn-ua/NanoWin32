@@ -18,6 +18,7 @@
 #include "NanoWinStrConvert.h"
 #include "NanoWinMsSafeString.h"
 #include "NanoWinFileFind.h"
+#include "NanoWinFileSys.h"
 
 #include "NanoWinError.h"
 
@@ -38,8 +39,6 @@ typedef struct
     WIN32_FIND_DATAW *wideCharData;
   };
 } NanoWinFileFindData;
-
-#define NanoWinFindFileDirSeparatorChar ('/')
 
 NW_EXTERN_C_BEGIN
 
@@ -171,7 +170,7 @@ static bool NanoWinJoinDirAndFileName(char *fullFileName, size_t fullFileNameMax
   if (fullFileNameLen < fullFileNameMaxSize)
   {
     memcpy(fullFileName, dirName, dirNameLen);
-    fullFileName[dirNameLen] = NanoWinFindFileDirSeparatorChar;
+    fullFileName[dirNameLen] = NW_DIRECTORY_SEPARATOR_CHAR;
     memcpy(&fullFileName[dirNameLen + 1], fileName, fileNameLen);
     fullFileName[fullFileNameLen] = '\0';
 
