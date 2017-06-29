@@ -71,20 +71,21 @@ NW_EXTERN_C_BEGIN
 
 // Top level macros
 
-#define GATE(func, ret_t, ... ) \
+#define GATE(func, ret_t, ret_err, ... ) \
   ret_t NW_WRAP_REAL(func)(__VA_ARGS__); \
   ret_t NW_WRAP_GATE(func)(__VA_ARGS__) \
-  { static const char *FNAME = #func;
+  { static const char *FNAME = #func; \
+    static ret_t FFAIL = ret_err;
 
 #define GEND() \
   }
 
 #define FOREWARD(func) NW_WRAP_REAL(func)
 
-#define XLATE(path, reterr) \
+#define XLATE(path) \
         NW_PROC_PARAM_CORE(path); \
         NW_PROC_PARAM_LOG(FNAME, path); \
-        if (!NW_PROC_PARAM_OK(path)) { errno = NW_PROC_PARAM_ERRNO(path); return(reterr); }
+        if (!NW_PROC_PARAM_OK(path)) { errno = NW_PROC_PARAM_ERRNO(path); return(FFAIL); }
 
 #define XLATED(path) NW_PROC_PARAM_CSTR(path)
 
@@ -100,258 +101,258 @@ NW_EXTERN_C_BEGIN
 
 #define OPEN_NEED_MODE_PARAM(oflag) (((oflag & O_CREAT) != 0) || ((oflag & O_TMPFILE) != 0))
 
-GATE(open, int, const char *pathname, int flags, ...)
+GATE(open, int, -1, const char *pathname, int flags, ...)
 {
   mode_t mode = 0;
   if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(open)(XLATED(pathname), flags, mode);
 }
 GEND()
 
-GATE(open64, int, const char *pathname, int flags, ...)
+GATE(open64, int, -1, const char *pathname, int flags, ...)
 {
   mode_t mode = 0;
   if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(open64)(XLATED(pathname), flags, mode);
 }
 GEND()
 
-GATE(openat, int, int fd, const char *pathname, int flags, ...)
+GATE(openat, int, -1, int fd, const char *pathname, int flags, ...)
 {
   mode_t mode = 0;
   if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(openat)(fd, XLATED(pathname), flags, mode);
 }
 GEND()
 
-GATE(openat64, int, int fd, const char *pathname, int flags, ...)
+GATE(openat64, int, -1, int fd, const char *pathname, int flags, ...)
 {
   mode_t mode = 0;
   if (OPEN_NEED_MODE_PARAM(flags)) { FUNC_FILL_OPTIONAL_PARAM(flags, mode, mode_t); }
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(openat64)(fd, XLATED(pathname), flags, mode);
 }
 GEND()
 
-GATE(creat, int, const char *pathname, mode_t mode) // may produce double hook via open
+GATE(creat, int, -1, const char *pathname, mode_t mode) // may produce double hook via open
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(creat)(XLATED(pathname), mode);
 }
 GEND()
 
-GATE(creat64, int, const char *pathname, mode_t mode) // may produce double hook via open64
+GATE(creat64, int, -1, const char *pathname, mode_t mode) // may produce double hook via open64
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(creat64)(XLATED(pathname), mode);
 }
 GEND()
 
-GATE(access, int, const char *pathname, int mode)
+GATE(access, int, -1, const char *pathname, int mode)
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(access)(XLATED(pathname), mode);
 }
 GEND()
 
-GATE(stat, int, const char *path, struct stat *buf)
+GATE(stat, int, -1, const char *path, struct stat *buf)
 {
-  XLATE(path, -1);
+  XLATE(path);
   return FOREWARD(stat)(XLATED(path), buf );
 }
 GEND()
 
-GATE(lstat, int, const char *path, struct stat *buf)
+GATE(lstat, int, -1, const char *path, struct stat *buf)
 {
-  XLATE(path, -1);
+  XLATE(path);
   return FOREWARD(lstat)(XLATED(path), buf );
 }
 GEND()
 
-GATE(scandir, int, const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *), int (*compar)(const struct dirent **, const struct dirent **))
+GATE(scandir, int, -1, const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *), int (*compar)(const struct dirent **, const struct dirent **))
 {
-  XLATE(dirp, -1);
+  XLATE(dirp);
   return FOREWARD(scandir)(XLATED(dirp), namelist, filter, compar );
 }
 GEND()
 
-GATE(opendir, DIR*, const char *name)
+GATE(opendir, DIR*, NULL, const char *name)
 {
-  XLATE(name, NULL);
+  XLATE(name);
   return FOREWARD(opendir)(XLATED(name));
 }
 GEND()
 
-GATE(__xstat, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+GATE(__xstat, int, -1, int __ver, __const char *__filename, struct stat *__stat_buf)
 {
-  XLATE(__filename, -1);
+  XLATE(__filename);
   return FOREWARD(__xstat)( __ver, XLATED(__filename), __stat_buf);
 }
 GEND()
 
-GATE(__lxstat, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+GATE(__lxstat, int, -1, int __ver, __const char *__filename, struct stat *__stat_buf)
 {
-  XLATE(__filename, -1);
+  XLATE(__filename);
   return FOREWARD(__lxstat)( __ver, XLATED(__filename), __stat_buf);
 }
 GEND()
 
-GATE(__xstat64, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+GATE(__xstat64, int, -1, int __ver, __const char *__filename, struct stat *__stat_buf)
 {
-  XLATE(__filename, -1);
+  XLATE(__filename);
   return FOREWARD(__xstat64)( __ver, XLATED(__filename), __stat_buf);
 }
 GEND()
 
-GATE(__lxstat64, int, int __ver, __const char *__filename, struct stat *__stat_buf)
+GATE(__lxstat64, int, -1, int __ver, __const char *__filename, struct stat *__stat_buf)
 {
-  XLATE(__filename, -1);
+  XLATE(__filename);
   return FOREWARD(__lxstat64)( __ver, XLATED(__filename), __stat_buf);
 }
 GEND()
 
-GATE(chmod, int, const char *path, mode_t mode)
+GATE(chmod, int, -1, const char *path, mode_t mode)
 {
-  XLATE(path, -1);
-    return FOREWARD(chmod)(XLATED(path), mode);
+  XLATE(path);
+  return FOREWARD(chmod)(XLATED(path), mode);
 }
 GEND()
 
-GATE(chown, int, const char *path, uid_t owner, gid_t group)
+GATE(chown, int, -1, const char *path, uid_t owner, gid_t group)
 {
-  XLATE(path, -1);
+  XLATE(path);
   return FOREWARD(chown)(XLATED(path), owner, group);
 }
 GEND()
 
-GATE(lchown, int, const char *path, uid_t owner, gid_t group)
+GATE(lchown, int, -1, const char *path, uid_t owner, gid_t group)
 {
-  XLATE(path, -1);
+  XLATE(path);
   return FOREWARD(lchown)(XLATED(path), owner, group);
 }
 GEND()
 
-GATE(symlink, int, const char *oldpath, const char *newpath)
+GATE(symlink, int, -1, const char *oldpath, const char *newpath)
 {
-  XLATE(oldpath, -1);
-  XLATE(newpath, -1);
+  XLATE(oldpath);
+  XLATE(newpath);
   return FOREWARD(symlink)(XLATED(oldpath), XLATED(newpath));
 }
 GEND()
 
-GATE(link, int, const char *oldpath, const char *newpath)
+GATE(link, int, -1, const char *oldpath, const char *newpath)
 {
-  XLATE(oldpath, -1);
-  XLATE(newpath, -1);
+  XLATE(oldpath);
+  XLATE(newpath);
   return FOREWARD(link)(XLATED(oldpath), XLATED(newpath));
 }
 GEND()
 
-GATE(mknod, int, const char *pathname, mode_t mode, dev_t dev)
+GATE(mknod, int, -1, const char *pathname, mode_t mode, dev_t dev)
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(mknod)(XLATED(pathname), mode, dev);
 }
 GEND()
 
-GATE(unlink, int, const char *pathname)
+GATE(unlink, int, -1, const char *pathname)
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(unlink)(XLATED(pathname));
 }
 GEND()
 
-GATE(mkfifo, int, const char *pathname, mode_t mode)
+GATE(mkfifo, int, -1, const char *pathname, mode_t mode)
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(mkfifo)(XLATED(pathname), mode);
 }
 GEND()
 
-GATE(rename, int, const char *oldpath, const char *newpath)
+GATE(rename, int, -1, const char *oldpath, const char *newpath)
 {
-  XLATE(oldpath, -1);
-  XLATE(newpath, -1);
+  XLATE(oldpath);
+  XLATE(newpath);
   return FOREWARD(rename)(XLATED(oldpath), XLATED(newpath));
 }
 GEND()
 
-GATE(utime, int, const char *filename, const struct utimbuf *times)
+GATE(utime, int, -1, const char *filename, const struct utimbuf *times)
 {
-  XLATE(filename, -1);
+  XLATE(filename);
   return FOREWARD(utime)(XLATED(filename), times);
 }
 GEND()
 
-GATE(utimes, int, const char *filename, const struct timeval times[2])
+GATE(utimes, int, -1, const char *filename, const struct timeval times[2])
 {
-  XLATE(filename, -1);
+  XLATE(filename);
   return FOREWARD(utimes)(XLATED(filename), times);
 }
 GEND()
 
-GATE(mkdir, int, const char *pathname, mode_t mode)
+GATE(mkdir, int, -1, const char *pathname, mode_t mode)
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(mkdir)(XLATED(pathname), mode);
 }
 GEND()
 
-GATE(rmdir, int, const char *pathname)
+GATE(rmdir, int, -1, const char *pathname)
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(rmdir)(XLATED(pathname));
 }
 GEND()
 
 // Special
 
-GATE(realpath, char *, const char *path, char *resolved_path)
+GATE(realpath, char *, NULL, const char *path, char *resolved_path)
 {
-  XLATE(path, NULL);
+  XLATE(path);
   return FOREWARD(realpath)(XLATED(path), resolved_path);
 }
 GEND()
 
-GATE(chdir, int, const char *pathname)
+GATE(chdir, int, -1, const char *pathname)
 {
-  XLATE(pathname, -1);
+  XLATE(pathname);
   return FOREWARD(chdir)(XLATED(pathname));
 }
 GEND()
 
 // Exotic
 
-GATE(mount, int, const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data)
+GATE(mount, int, -1, const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data)
 {
-  XLATE(source, -1);
-  XLATE(target, -1);
+  XLATE(source);
+  XLATE(target);
   return FOREWARD(mount)(XLATED(source), XLATED(target), filesystemtype, mountflags, data);
 }
 GEND()
 
 // Top level
 
-GATE(fopen, FILE *, const char *path, const char *mode) // may produce double hooks
+GATE(fopen, FILE *, NULL, const char *path, const char *mode) // may produce double hooks
 {
-  XLATE(path, NULL);
+  XLATE(path);
   return FOREWARD(fopen)(XLATED(path), mode);
 }
 GEND()
 
-GATE(fopen64, FILE *, const char *path, const char *mode) // may produce double hooks
+GATE(fopen64, FILE *, NULL, const char *path, const char *mode) // may produce double hooks
 {
-  XLATE(path, NULL);
+  XLATE(path);
   return FOREWARD(fopen64)(XLATED(path), mode);
 }
 GEND()
 
-GATE(freopen, FILE *, const char *path, const char *mode, FILE *stream) // may produce double hooks
+GATE(freopen, FILE *, NULL, const char *path, const char *mode, FILE *stream) // may produce double hooks
 {
-  XLATE(path, NULL);
+  XLATE(path);
   return FOREWARD(freopen)(XLATED(path), mode, stream);
 }
 GEND()
