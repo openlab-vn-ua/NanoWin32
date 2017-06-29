@@ -46,7 +46,7 @@ void NanoWinTextStr::SetText(LPCSTR    lpszString)
 
 void NanoWinTextStr::SetText(LPCWSTR   lpszString)
 {
-  str.SetString(lpsString);
+  str.SetString(lpszString);
 }
 
 void NanoWinTextStr::GetText(CStringA &rString) const
