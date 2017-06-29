@@ -65,7 +65,7 @@ static NanoWinErrorMessageTableEntry *NanoWinErrorMessageTableFindEntry(DWORD er
     }
   }
 
-  return found ? &NanoWinErrorMessageTable[index] : NULL;
+  return found ? &NanoWinErrorMessageTable[index - 1] : NULL;
 }
 
 extern  DWORD NanoWinGetLastError(void)
