@@ -277,19 +277,6 @@ extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
   }
 }
 
-static int swprintf_ex(wchar_t *buffer, size_t count, const wchar_t *format, ...)
-{
-  va_list args;
-
-  va_start(args,format);
-
-  int result = vsnwprintf(buffer,count,format,args);
-
-  va_end(args);
-
-  return result;
-}
-
 extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
                                    _In_opt_ LPCVOID lpSource,
                                    _In_     DWORD   dwMessageId,
@@ -331,7 +318,7 @@ extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
   }
   else
   {
-    int tempLen = swprintf_ex(NULL,0,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
+    int tempLen = snwprintf(NULL,0,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
 
     if (tempLen >= 0)
     {
@@ -386,7 +373,7 @@ extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
     }
     else
     {
-      int tempLen = swprintf_ex(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
+      int tempLen = snwprintf(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
 
       if (tempLen >= 0)
       {
