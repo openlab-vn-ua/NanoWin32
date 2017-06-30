@@ -1515,3 +1515,66 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_wsplitpath_s_Test)
 }
 
 NW_END_TEST_GROUP()
+
+static int vsnwprintf_test_helper(wchar_t *buffer, size_t count, const wchar_t *format,...)
+{
+  va_list args;
+
+  va_start(args,format);
+
+  int result = vsnwprintf(buffer,count,format,args);
+
+  va_end(args);
+
+  return result;
+}
+
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMSExtraVSNWPrintFTestGroup)
+
+NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFLargeBufferTest)
+{
+  constexpr size_t BUFFER_SIZE = 256;
+  wchar_t          buffer[BUFFER_SIZE];
+  int              char_count;
+
+  char_count = vsnwprintf_test_helper(buffer,sizeof(buffer),L"TEST");
+
+  const wchar_t *expected_str = L"TEST";
+
+  NW_CHECK_EQUAL_INTS(4,char_count);
+  NW_CHECK_EQUAL_MEMCMP(expected_str,buffer,wcslen(expected_str)+1);
+
+  char_count = vsnwprintf_test_helper(buffer,sizeof(buffer),L"%d",34);
+
+  expected_str = L"34";
+
+  NW_CHECK_EQUAL_INTS(2,char_count);
+  NW_CHECK_EQUAL_MEMCMP(expected_str,buffer,wcslen(expected_str)+1);
+}
+
+NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFNoBufferTest)
+{
+  NW_CHECK_EQUAL_INTS(4,vsnwprintf_test_helper(NULL,0,L"TEST"));
+  NW_CHECK_EQUAL_INTS(2,vsnwprintf_test_helper(NULL,0,L"%d",34));
+}
+
+NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFLargeStringsTest)
+{
+  constexpr size_t BUFFER_SIZE = 1024;
+  wchar_t          format[BUFFER_SIZE];
+
+  for (size_t i = 0; i < BUFFER_SIZE; i++)
+  {
+    format[i] = L'Z';
+  }
+
+  format[BUFFER_SIZE - 1] = L'\0';
+
+  int char_count;
+
+  char_count = vsnwprintf_test_helper(NULL,0,format);
+
+  NW_CHECK_EQUAL_INTS(BUFFER_SIZE - 1,char_count);
+}
+
+NW_END_TEST_GROUP()
