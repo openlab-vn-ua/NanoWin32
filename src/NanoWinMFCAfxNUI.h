@@ -58,6 +58,7 @@ class  CWnd
   BOOL EnableWindow  (BOOL bEnable = TRUE);
 
   CWnd* GetDlgItem   (int nID) const;
+  BOOL  UpdateData   (BOOL bSaveAndValidate = TRUE);
 
   protected : 
 

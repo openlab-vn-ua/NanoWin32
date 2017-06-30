@@ -130,6 +130,11 @@ BOOL CWnd::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
   return FALSE;
 }
 
+BOOL CWnd::UpdateData(BOOL bSaveAndValidate = TRUE)
+ {
+  return FALSE;
+ }
+
 CWnd* CWnd::GetDlgItem(int /*nID*/) const
 {
   return NULL;
