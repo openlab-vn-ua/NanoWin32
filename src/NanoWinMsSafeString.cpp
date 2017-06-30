@@ -680,7 +680,7 @@ extern int     vswprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *form
 {
   #define FN "vwsprintf_s"
   #define ITEM wchar_t
-  #define VSNPRINTF vswprintf
+  #define VSNPRINTF vswprintf // strictly speaking vswprintf is not analog of vsnprintf, since vswprintf returns -1 on buffer overflow, but code down here handles that (just another error reported)
   // <body> // invaliant for sprintf_s and wsprintf_s
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
   #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); sprintf_handle_errcode(errcode); return(-1); }
