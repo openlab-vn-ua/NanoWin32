@@ -115,29 +115,36 @@ NW_EXTERN_C_END
 #if 0 // Reserved
 #if defined(LINUX)
 #define NW_PATH_LIST_SEPARATOR_CHAR      ':'
+#define NW_PATH_LIST_SEPARATOR_WCHAR     L':'
 #define NW_PATH_LIST_SEPARATOR_STR       ":"
 #else // Win native
 #define NW_PATH_LIST_SEPARATOR_CHAR      ';'
+#define NW_PATH_LIST_SEPARATOR_WCHAR     L';'
 #define NW_PATH_LIST_SEPARATOR_STR       ";"
 #endif
 #endif
 
 #if defined(LINUX)
 #define NW_DIRECTORY_SEPARATOR_CHAR      '/'
+#define NW_DIRECTORY_SEPARATOR_WCHAR     L'/'
 #define NW_DIRECTORY_SEPARATOR_STR       "/"
-#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '\\' // Not directly allowed by API, but can be supported via hook
-#define NW_DIRECTORY_SEPARATOR_ALT_STR   "\\" // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '\\'  // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_ALT_WCHAR L'\\' // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_ALT_STR   "\\"  // Not directly allowed by API, but can be supported via hook
 #else // Win native
 #define NW_DIRECTORY_SEPARATOR_CHAR      '\\'
+#define NW_DIRECTORY_SEPARATOR_WCHAR     L'\\'
 #define NW_DIRECTORY_SEPARATOR_STR       "\\"
-#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '/' // Allowed in API
-#define NW_DIRECTORY_SEPARATOR_ALT_STR   "/" // Allowed in API
+#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '/'  // Allowed in API
+#define NW_DIRECTORY_SEPARATOR_ALT_WCHAR L'/' // Allowed in API
+#define NW_DIRECTORY_SEPARATOR_ALT_STR   "/"  // Allowed in API
 #endif
 
 #define NW_DIRECTORY_NAME_PARENT         ".."
 #define NW_DIRECTORY_NAME_CURRENT        "."
 
-#define NW_FILE_EXT_SEPARATOR_CHAR       '.' // separator between fname (AKA stem) and ext (AKA extension)
+#define NW_FILE_EXT_SEPARATOR_CHAR       '.'  // separator between fname (AKA stem) and ext (AKA extension)
+#define NW_FILE_EXT_SEPARATOR_WCHAR      L'.' // separator between fname (AKA stem) and ext (AKA extension)
 
 #endif // linux
 #endif // ...Included
