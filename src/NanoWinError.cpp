@@ -6,6 +6,7 @@
 // Error suuport functions and constants
 
 #include "NanoWinOther.h"
+#include "NanoWinMsExtra.h"
 #include "NanoWinError.h"
 
 #include <errno.h>
@@ -199,8 +200,18 @@ extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
   }
   else
   {
-    // since there is no string or char conversion, we can safely assume that snprintf can't return error
-    messageLen = (size_t)snprintf(NULL,0,NanoWinErrorMessageGenericErrorFormatA,(unsigned int)dwMessageId);
+    int tempLen = (size_t)snprintf(NULL,0,NanoWinErrorMessageGenericErrorFormatA,(unsigned int)dwMessageId);
+
+    if (tempLen >= 0)
+    {
+      messageLen = (size_t)tempLen;
+    }
+    else
+    {
+      SetLastError(ERROR_INVALID_PARAMETER);
+
+      return 0;
+    }
   }
 
   size_t requiredSize = messageLen + 1;
@@ -244,7 +255,18 @@ extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
     }
     else
     {
-      snprintf(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatA,(unsigned int)dwMessageId);
+      int tempLen = snprintf(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatA,(unsigned int)dwMessageId);
+
+      if (tempLen >= 0)
+      {
+        messageLen = (size_t)tempLen;
+      }
+      else
+      {
+        SetLastError(ERROR_INVALID_PARAMETER);
+
+        messageLen = 0;
+      }
     }
 
     return messageLen;
@@ -253,6 +275,19 @@ extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
   {
     return 0;
   }
+}
+
+static int swprintf_ex(wchar_t *buffer, size_t count, const wchar_t *format, ...)
+{
+  va_list args;
+
+  va_start(args,format);
+
+  int result = vsnwprintf(buffer,count,format,args);
+
+  va_end(args);
+
+  return result;
 }
 
 extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
@@ -296,8 +331,18 @@ extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
   }
   else
   {
-    // since there is no string or char conversion, we can safely assume that swprintf can't return error
-    messageLen = (size_t)swprintf(NULL,0,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
+    int tempLen = swprintf_ex(NULL,0,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
+
+    if (tempLen >= 0)
+    {
+      messageLen = (size_t)tempLen;
+    }
+    else
+    {
+      SetLastError(ERROR_INVALID_PARAMETER);
+
+      return 0;
+    }
   }
 
   size_t requiredSize = messageLen + 1;
@@ -341,7 +386,18 @@ extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
     }
     else
     {
-      swprintf(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
+      int tempLen = swprintf_ex(destPtr,requiredSize,NanoWinErrorMessageGenericErrorFormatW,(unsigned int)dwMessageId);
+
+      if (tempLen >= 0)
+      {
+        messageLen = (size_t)tempLen;
+      }
+      else
+      {
+        SetLastError(ERROR_INVALID_PARAMETER);
+
+        messageLen = 0;
+      }
     }
 
     return messageLen;
