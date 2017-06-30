@@ -396,7 +396,9 @@ GEND()
 // Also, we have to update path in place because actual function may return pointer to data inside the argument
 // Moreover, not we are not updating errno, as function contract does not permit that
 
-GATE(dirname, char *, ".", char *path)
+static char dirname_FAIL[] = ".";
+
+GATE(dirname, char *, dirname_FAIL, char *path)
 {
   if (path == NULL)
   {
@@ -449,7 +451,9 @@ NW_EXTERN_C_BEGIN
 
 #if defined(basename)
 
-GATE(basename, char *, ".", char *path)
+static char basename_FAIL[] = ".";
+
+GATE(basename, char *, basename_FAIL, char *path)
 {
   if (path == NULL)
   {
