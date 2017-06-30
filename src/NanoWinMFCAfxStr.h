@@ -85,7 +85,7 @@ class NanoWinStringUtils
 
   static int vsnprintf_overload(wchar_t *buffer, size_t count, const wchar_t *format, va_list argptr)
   {
-    return vswprintf(buffer,count,format,argptr);
+    return vsnwprintf(buffer,count,format,argptr);
   }
 
   static int vsprintf_s_overload(char *buffer, size_t numberOfElements, const char *format, va_list argptr)
