@@ -130,7 +130,7 @@ BOOL CWnd::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
   return FALSE;
 }
 
-BOOL CWnd::UpdateData(BOOL bSaveAndValidate = TRUE)
+BOOL CWnd::UpdateData(BOOL /*bSaveAndValidate*/)
  {
   return FALSE;
  }
@@ -222,7 +222,7 @@ int CComboBox::SetCurSel(int nSelect)
 {
   if (nSelect != CB_ERR)
   {
-    if (nSelect >= 0 && nSelect < listStorage.size())
+    if (nSelect >= 0 && nSelect < (int)listStorage.size())
     {
       currSelection = nSelect;
     }
