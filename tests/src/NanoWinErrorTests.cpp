@@ -98,13 +98,13 @@ NW_TEST(NanoWinErrorTestGroup, FormatMessageWTest)
                              ERROR_RESOURCE_LANG_NOT_FOUND,
                              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                              buff,
-                             sizeof(buff),
+                             sizeof(buff) / sizeof(wchar_t),
                              NULL);
 
   NW_CHECK_TRUE(res != 0);
   NW_CHECK_EQUAL_MEMCMP(L"The specified resource language ID cannot be found in the image file", buff, res * sizeof(wchar_t));
 }
-#ifndef __GNUC__
+
 NW_TEST(NanoWinErrorTestGroup, FormatMessageWUnexistErrorTest)
 {
   wchar_t buff[128];
@@ -114,7 +114,7 @@ NW_TEST(NanoWinErrorTestGroup, FormatMessageWUnexistErrorTest)
                              10000,
                              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                              buff,
-                             sizeof(buff),
+                             sizeof(buff) / sizeof(wchar_t),
                              NULL);
 
   NW_CHECK_TRUE(res != 0);
@@ -130,12 +130,12 @@ NW_TEST(NanoWinErrorTestGroup, FormatMessageWUnexistErrSmallBuffTest)
                              10000,
                              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                              buff,
-                             sizeof(buff),
+                             sizeof(buff) / sizeof(wchar_t),
                              NULL);
 
   NW_CHECK_TRUE(res == 0);
 }
-#endif
+
 NW_TEST(NanoWinErrorTestGroup, FormatMessageWSmallBuffTest)
 {
   wchar_t buff[8];
@@ -145,7 +145,7 @@ NW_TEST(NanoWinErrorTestGroup, FormatMessageWSmallBuffTest)
                              ERROR_INSUFFICIENT_BUFFER,
                              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                              buff,
-                             sizeof(buff),
+                             sizeof(buff) / sizeof(wchar_t),
                              NULL);
 
   NW_CHECK_TRUE(res == 0);
