@@ -173,7 +173,7 @@ namespace
 
       va_start(args,format);
 
-      int result = vswprintf(str,size,format,args);
+      int result = vswprintf(str,size,format,args); // strictly speaking vswprintf is not analog of vsnprintf, since vswprintf returns -1 on buffer overflow, but this not critical here
 
       va_end(args);
 
