@@ -238,7 +238,11 @@ class CFileFind : public CObject
 
         m_search_root.SetString(absNameW.c_str());
 
-        if (!CStringEndsWithChar(m_search_root, DIR_SEPARATOR_CHAR))
+        if (CStringEndsWithChar(m_search_root, DIR_SEPARATOR_CHAR) || CStringEndsWithChar(m_search_root, DIR_SEPARATOR_ALT_CHAR))
+        {
+          // has slash already
+        }
+        else
         {
           m_search_root.AppendChar(DIR_SEPARATOR_CHAR);
         }
@@ -266,7 +270,11 @@ class CFileFind : public CObject
     {
       m_search_root.SetString(absName);
 
-      if (!CStringEndsWithChar(m_search_root, DIR_SEPARATOR_CHAR))
+      if (CStringEndsWithChar(m_search_root, DIR_SEPARATOR_CHAR) || CStringEndsWithChar(m_search_root, DIR_SEPARATOR_ALT_CHAR))
+      {
+        // has slash already
+      }
+      else
       {
         m_search_root.AppendChar(DIR_SEPARATOR_CHAR);
       }
@@ -282,13 +290,9 @@ class CFileFind : public CObject
 
   private :
 
-  static const TCHAR WILDCARD_ALL_FILES[];
-
-  #ifdef UNICODE
-  static const wchar_t DIR_SEPARATOR_CHAR = L'/';
-  #else
-  static const char    DIR_SEPARATOR_CHAR = '/';
-  #endif
+  static const TCHAR   WILDCARD_ALL_FILES[];
+  static const TCHAR   DIR_SEPARATOR_CHAR     = NW_DIRECTORY_SEPARATOR_CHAR;
+  static const TCHAR   DIR_SEPARATOR_ALT_CHAR = NW_DIRECTORY_SEPARATOR_ALT_CHAR;
 };
 
 // MFC Files

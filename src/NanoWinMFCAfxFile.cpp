@@ -19,11 +19,7 @@
 // CFileFind
 // --------------
 
-#ifdef UNICODE
-const TCHAR CFileFind::WILDCARD_ALL_FILES[] = L"*.*";
-#else
-const TCHAR CFileFind::WILDCARD_ALL_FILES[] = "*.*";
-#endif
+const TCHAR CFileFind::WILDCARD_ALL_FILES[] = _T("*.*");
 
 // CFile tools
 // --------------
