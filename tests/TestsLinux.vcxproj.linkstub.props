@@ -10,7 +10,12 @@
     <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,open -Wl,-wrap,open64 -Wl,-wrap,openat -Wl,-wrap,openat64 -Wl,-wrap,creat -Wl,-wrap,creat64 -Wl,-wrap,access -Wl,-wrap,stat -Wl,-wrap,lstat</LinkAdditionalOptionsLinuxStub>
     <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,scandir -Wl,-wrap,opendir -Wl,-wrap,__xstat -Wl,-wrap,__lxstat -Wl,-wrap,__xstat64 -Wl,-wrap,__lxstat64 -Wl,-wrap,chmod -Wl,-wrap,chown -Wl,-wrap,lchown</LinkAdditionalOptionsLinuxStub>
     <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,symlink -Wl,-wrap,link -Wl,-wrap,mknod -Wl,-wrap,unlink -Wl,-wrap,mkfifo -Wl,-wrap,rename -Wl,-wrap,utime -Wl,-wrap,utimes -Wl,-wrap,mkdir -Wl,-wrap,rmdir</LinkAdditionalOptionsLinuxStub>
-    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,realpath -Wl,-wrap,chdir -Wl,-wrap,mount -Wl,-wrap,fopen -Wl,-wrap,fopen64 -Wl,-wrap,freopen</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,chdir</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,mount</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,fopen -Wl,-wrap,fopen64 -Wl,-wrap,freopen</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,realpath -Wl,-wrap,dirname -Wl,-wrap,__xpg_basename</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,__xpg_basename</LinkAdditionalOptionsLinuxStub>
+    <LinkAdditionalOptionsLinuxStub>$(LinkAdditionalOptionsLinuxStub) -Wl,-wrap,basename</LinkAdditionalOptionsLinuxStub>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

@@ -54,7 +54,6 @@ STUB(rmdir, int, const char *pathname)
 
 // Special
 
-STUB(realpath, char *, const char *path, char *resolved_path)
 STUB(chdir, int, const char *pathname)
 
 // Exotic
@@ -66,5 +65,15 @@ STUB(mount, int, const char *source, const char *target, const char *filesystemt
 STUB(fopen, FILE *, const char *path, const char *mode) // may produce double hooks
 STUB(fopen64, FILE *, const char *path, const char *mode) // may produce double hooks
 STUB(freopen, FILE *, const char *path, const char *mode, FILE *stream) // may produce double hooks
+
+// Fname translators
+
+STUB(realpath, char *, const char *path, char *resolved_path)
+STUB(dirname, char *, char *path)
+
+// basename hook is a tricky a bit (see NanoWinPathHookGate.cpp for details)
+#include <libgen.h> // basename now is macro that maps to __xpg_basename
+
+STUB(basename, char *, char *path)
 
 #endif // linux

@@ -17,7 +17,12 @@
 // -Wl,-wrap,open -Wl,-wrap,open64 -Wl,-wrap,openat -Wl,-wrap,openat64 -Wl,-wrap,creat -Wl,-wrap,creat64 -Wl,-wrap,access -Wl,-wrap,stat -Wl,-wrap,lstat
 // -Wl,-wrap,scandir -Wl,-wrap,opendir -Wl,-wrap,__xstat -Wl,-wrap,__lxstat -Wl,-wrap,__xstat64 -Wl,-wrap,__lxstat64 -Wl,-wrap,chmod -Wl,-wrap,chown -Wl,-wrap,lchown
 // -Wl,-wrap,symlink -Wl,-wrap,link -Wl,-wrap,mknod -Wl,-wrap,unlink -Wl,-wrap,mkfifo -Wl,-wrap,rename -Wl,-wrap,utime -Wl,-wrap,utimes -Wl,-wrap,mkdir -Wl,-wrap,rmdir
-// -Wl,-wrap,realpath -Wl,-wrap,chdir -Wl,-wrap,mount -Wl,-wrap,fopen -Wl,-wrap,fopen64 -Wl,-wrap,freopen
+// -Wl,-wrap,chdir
+// -Wl,-wrap,mount
+// -Wl,-wrap,fopen -Wl,-wrap,fopen64 -Wl,-wrap,freopen
+// -Wl,-wrap,realpath -Wl,-wrap,dirname
+// -Wl,-wrap,__xpg_basename
+// -Wl,-wrap,basename // this will lead to error if someone try to call basename from string.h
 
 #include <errno.h>
 
@@ -88,7 +93,6 @@ static errno_t translate_path(const char **poutpath, const char *srcpath, char *
 #define NW_PROC_PARAM_LOG(f,n)    NW_PROC_LOG(f,#n,n,NW_PROC_PARAM_CSTR(n), NW_PROC_PARAM_ERRNO(n)) // write translation result to log
 
 #define NW_FUNC_VAR_USED(a)       do { if (&(a) != NULL) { } } while(0) // just to skip warning
-
 
 // The gates
 // ==================================================================
@@ -336,13 +340,6 @@ GEND()
 
 // Special
 
-GATE(realpath, char *, NULL, const char *path, char *resolved_path)
-{
-  XLATE(path);
-  return FOREWARD(realpath)(XLATED(path), resolved_path);
-}
-GEND()
-
 GATE(chdir, int, -1, const char *pathname)
 {
   XLATE(pathname);
@@ -382,6 +379,116 @@ GATE(freopen, FILE *, NULL, const char *path, const char *mode, FILE *stream) //
   return FOREWARD(freopen)(XLATED(path), mode, stream);
 }
 GEND()
+
+// Fname translators
+
+GATE(realpath, char *, NULL, const char *path, char *resolved_path)
+{
+  XLATE(path);
+  return FOREWARD(realpath)(XLATED(path), resolved_path);
+}
+GEND()
+
+// Notes for dirname
+// We have to do path translation in-place
+// (that is, we have to update the path itself, as function contract allow that)
+// We cannot afford "extension" of path length, since there may be not enough room in source string
+// Also, we have to update path in place because actual function may return pointer to data inside the argument
+// Moreover, not we are not updating errno, as function contract does not permit that
+
+GATE(dirname, char *, ".", char *path)
+{
+  if (path == NULL)
+  {
+    return FOREWARD(dirname)(path); // nothing to translate
+  }
+
+  // Keep global errno, this function does not afffect it
+  errno_t errno_saved = errno;
+  NW_PROC_PARAM_CORE(path);
+  errno =  errno_saved;
+
+  if (!NW_PROC_PARAM_OK(path))
+  {
+    NW_PROC_PARAM_LOG(FNAME, path);
+    return(FFAIL);
+  }
+
+  if (NW_PROC_PARAM_CSTR(path) != path)
+  {
+    // There was translation
+    size_t oldlen = strlen(path);
+    size_t newlen = strlen(NW_PROC_PARAM_CSTR(path));
+    if (newlen > oldlen)
+    {
+      // There may not be enough room to copy result back to source
+      NW_PROC_PARAM_VERR(path) = ENOMEM;
+      NW_PROC_PARAM_LOG(FNAME, path);
+      return(FFAIL);
+    }
+
+    strcpy(path, NW_PROC_PARAM_CSTR(path));
+  }
+
+  NW_PROC_PARAM_LOG(FNAME, path);
+  return FOREWARD(dirname)(path); // path already xlated, as it copied back
+}
+GEND()
+
+// basename is a bit tricky part
+// actually glibc defines 2 functions:
+// 1. basename (string.h) weak alias to hidden symbol __basename (we cannot hook __basename for some reason)
+// 2. __xpg_basename (libgen.h)
+// First one does not modify argument (that can be achived for slashes translation only)
+
+NW_EXTERN_C_END
+
+#include <libgen.h> // basename now is macro that maps to __xpg_basename
+
+NW_EXTERN_C_BEGIN
+
+#if defined(basename)
+
+GATE(basename, char *, ".", char *path)
+{
+  if (path == NULL)
+  {
+    return FOREWARD(basename)(path); // nothing to translate
+  }
+
+  // Keep global errno, this function does not afffect it
+  errno_t errno_saved = errno;
+  NW_PROC_PARAM_CORE(path);
+  errno =  errno_saved;
+
+  if (!NW_PROC_PARAM_OK(path))
+  {
+    NW_PROC_PARAM_LOG(FNAME, path);
+    return(FFAIL);
+  }
+
+  if (NW_PROC_PARAM_CSTR(path) != path)
+  {
+    // There was translation
+    size_t oldlen = strlen(path);
+    size_t newlen = strlen(NW_PROC_PARAM_CSTR(path));
+    if (newlen > oldlen)
+    {
+      // There may not be enough room to copy result back to source
+      NW_PROC_PARAM_VERR(path) = ENOMEM;
+      NW_PROC_PARAM_LOG(FNAME, path);
+      return(FFAIL);
+    }
+
+    strcpy(path, NW_PROC_PARAM_CSTR(path));
+  }
+
+  NW_PROC_PARAM_LOG(FNAME, path);
+  return FOREWARD(basename)(path); // path already xlated, as it copied back
+}
+GEND()
+
+#endif
 
 NW_EXTERN_C_END
 

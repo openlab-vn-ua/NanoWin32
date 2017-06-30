@@ -409,4 +409,73 @@ NW_TEST(NanoWinFileSysMoveFileWTestGroup, FileMoveToUnexistingDirTest)
 	NW_CHECK(!result);
 }
 
+#if 0
+
+// this one should lead to link error
+// "undefined reference to "__wrap_basename" if path translation is active
+// (this is done intentionaly, since basename from string.h is not translated)
+
+#include <string.h>
+
+NW_TEST(NanoWinFileSysMoveFileWTestGroup, BasenameStringTest)
+{
+    // This one can have arg as const char *
+    NW_CHECK_EQUAL_STRCMP("myfile.txt", basename("nydir/myfile.txt"));
+}
+
+#endif
+
+#include <libgen.h>
+
+static bool IsPathTranslationActive()
+{
+  #ifdef LINUX
+  char input[] = { '\\', 0 };
+  return(strcmp(dirname(input),"/") == 0); // path was translated
+  #else
+  return(false);
+  #endif
+}
+
+NW_TEST(NanoWinFileSysMoveFileWTestGroup, BasenameTest)
+{
+  #define TEST_STEP(input, expect_dirname, expect_basename) \
+  { \
+    char *input_tmp; \
+    const char *result_dirname; \
+    const char *result_basename; \
+    input_tmp = strdup(input); \
+    result_dirname = dirname(input_tmp); \
+    NW_CHECK_EQUAL_STRCMP(expect_dirname, result_dirname); \
+    free(input_tmp); \
+    input_tmp = strdup(input); \
+    result_basename = basename(input_tmp); \
+    NW_CHECK_EQUAL_STRCMP(expect_basename, result_basename); \
+    free(input_tmp); \
+  }
+
+  // from man page
+
+  TEST_STEP("/usr/lib",    "/usr",    "lib");
+  TEST_STEP("/usr/",       "/",       "usr");
+  TEST_STEP("usr",         ".",       "usr");
+  TEST_STEP("/",           "/",       "/");
+  TEST_STEP(".",           ".",       ".");
+  TEST_STEP("..",          ".",       "..");
+
+  // additional
+
+  TEST_STEP("mypath/myfile.txt", "mypath", "myfile.txt");
+  TEST_STEP("mypath/../myfile.txt", "mypath/..", "myfile.txt");
+
+  if (!IsPathTranslationActive()) { return; }
+
+  // Test translation
+
+  TEST_STEP("mypath\\myfile.txt", "mypath", "myfile.txt");
+  TEST_STEP("mypath\\..\\myfile.txt", "mypath/..", "myfile.txt");
+
+  #undef TEST_STEP
+}
+
 NW_END_TEST_GROUP()
