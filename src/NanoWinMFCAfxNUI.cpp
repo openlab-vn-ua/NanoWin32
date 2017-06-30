@@ -130,6 +130,10 @@ BOOL CWnd::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
   return FALSE;
 }
 
+void CWnd::OnDestroy()
+{
+}
+
 BOOL CWnd::UpdateData(BOOL /*bSaveAndValidate*/)
  {
   return FALSE;
@@ -138,6 +142,11 @@ BOOL CWnd::UpdateData(BOOL /*bSaveAndValidate*/)
 CWnd* CWnd::GetDlgItem(int /*nID*/) const
 {
   return NULL;
+}
+
+void CWnd::DoDataExchange(CDataExchange* /*pDX*/)
+{
+  NanoWinNUILog("CWnd::DoDataExchange");
 }
 
 BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCTSTR lpszText)
@@ -275,4 +284,46 @@ UINT CButton::GetState() const
 void CButton::SetState(BOOL bHighlight)
 {
   highlightState = bHighlight;
+}
+
+CDialog::CDialog(UINT nIDTemplate, CWnd* /*pParentWnd*/)
+{
+  templateId = nIDTemplate;
+
+  NanoWinNUILog("CDialog::CDialog(nIDTemplate: %u)",(unsigned int)templateId);
+}
+
+INT_PTR CDialog::DoModal()
+{
+  NanoWinNUILog("CDialog::DoModal(nIDTemplate: %u)",(unsigned int)templateId);
+
+  OnCancel();
+
+  return IDCANCEL;
+}
+
+BOOL CDialog::OnInitDialog()
+{
+  return TRUE;
+}
+
+void CDialog::OnOK()
+{
+}
+
+void CDialog::OnCancel()
+{
+}
+
+CDialogEx::CDialogEx() : CDialog(0,NULL)
+{
+}
+
+CDialogEx::CDialogEx(UINT nIDTemplate, CWnd *pParent) : CDialog(nIDTemplate,pParent)
+{
+}
+
+CDialogEx::CDialogEx(LPCTSTR lpszTemplateName, CWnd *pParentWnd) : CDialog(0,pParentWnd)
+{
+  NanoWinNUILog(_T("CDialogEx::CDialogEx(template name: %s)"),lpszTemplateName);
 }

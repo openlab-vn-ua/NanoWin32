@@ -28,6 +28,20 @@ typedef LONG_PTR LRESULT;
 typedef HANDLE HCURSOR;
 typedef HANDLE HICON;
 
+// Dialog Box Command IDs
+
+#define IDOK       1
+#define IDCANCEL   2
+#define IDABORT    3
+#define IDRETRY    4
+#define IDIGNORE   5
+#define IDYES      6
+#define IDNO       7
+#define IDCLOSE    8
+#define IDHELP     9
+#define IDTRYAGAIN 10
+#define IDCONTINUE 11
+
 // Helper class for storing strings which supports both UNICODE and multibyte strings
 class NanoWinTextStr
 {
@@ -41,6 +55,15 @@ class NanoWinTextStr
   private :
 
   CString str;
+};
+
+// Type modifier for message handlers
+#ifndef afx_msg
+ #define afx_msg
+#endif
+
+class CDataExchange
+{
 };
 
 class  CWnd
@@ -68,8 +91,12 @@ class  CWnd
   BOOL  UpdateData   (BOOL bSaveAndValidate = TRUE);
 
   protected : 
+  
+  virtual void DoDataExchange(CDataExchange* pDX);
 
   virtual BOOL OnNotify (WPARAM wParam, LPARAM lParam, LRESULT *pResult);
+
+  afx_msg void OnDestroy();
 
   private :
 
@@ -172,6 +199,36 @@ class CButton
 
 class CImageList : public CObject
 {
+};
+
+
+class CDialog : public CWnd
+{
+  public:
+
+  explicit        CDialog(UINT nIDTemplate, CWnd* pParentWnd = NULL);
+
+  virtual INT_PTR DoModal();
+
+  virtual BOOL    OnInitDialog();
+
+  protected :
+
+  virtual void    OnOK();
+  virtual void    OnCancel();
+
+  private :
+
+  UINT templateId;
+};
+
+class CDialogEx : public CDialog
+{
+  public:
+
+  CDialogEx();
+  CDialogEx(UINT nIDTemplate, CWnd *pParent = NULL);
+  CDialogEx(LPCTSTR lpszTemplateName, CWnd *pParentWnd = NULL);
 };
 
 #endif // LINUX
