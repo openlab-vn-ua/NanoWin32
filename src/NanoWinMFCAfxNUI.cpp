@@ -243,3 +243,36 @@ int CComboBox::GetCurSel() const
 {
   return currSelection;
 }
+
+CButton::CButton()
+{
+  checkState     = BST_UNCHECKED;
+  highlightState = FALSE;
+}
+
+void CButton::SetIcon(HICON /*icon*/)
+{
+}
+
+void CButton::SetCheck(int nCheck)
+{
+  if (nCheck == BST_UNCHECKED || nCheck == BST_CHECKED || nCheck == BST_INDETERMINATE)
+  {
+    checkState = nCheck;
+  }
+}
+
+int CButton::GetCheck() const
+{
+  return checkState;
+}
+
+UINT CButton::GetState() const
+{
+  return checkState | (highlightState ? (BST_PUSHED | BST_FOCUS) : 0); // not sure if highlightState must change state mask
+}
+
+void CButton::SetState(BOOL bHighlight)
+{
+  highlightState = bHighlight;
+}

@@ -18,10 +18,17 @@
 #include "NanoWinMFCAfxStr.h"
 #include "NanoWinMFCAfxCol.h"
 
+// Win32 API GUI (types and functions)
+// -----------------------------------------
+
 typedef LONG_PTR LPARAM;
 typedef UINT_PTR WPARAM;
 typedef LONG_PTR LRESULT;
 
+typedef HANDLE HCURSOR;
+typedef HANDLE HICON;
+
+// Helper class for storing strings which supports both UNICODE and multibyte strings
 class NanoWinTextStr
 {
   public :
@@ -133,6 +140,34 @@ class CComboBox : public CWnd
 
   std::vector<CString> listStorage;
   int                  currSelection;
+};
+
+// CButton GetCheck/SetCheck
+#define BST_UNCHECKED      0x0000 // The initial state.
+#define BST_CHECKED        0x0001 // The button control is checked.
+#define BST_INDETERMINATE  0x0002 // The state is indeterminate (only possible when the button control has three states).
+// CButton GetState
+#define BST_PUSHED         0x0004 // The button control is pressed.
+#define BST_FOCUS          0x0008 // The button control has the focus.
+
+class CButton
+{
+  public :
+
+  CButton ();
+
+  void SetIcon(HICON icon);
+
+  void SetCheck(int nCheck);
+  int  GetCheck() const;
+
+  UINT GetState() const;
+  void SetState(BOOL bHighlight);
+
+  private :
+
+  int  checkState;
+  BOOL highlightState;
 };
 
 class CImageList : public CObject
