@@ -327,3 +327,42 @@ CDialogEx::CDialogEx(LPCTSTR lpszTemplateName, CWnd *pParentWnd) : CDialog(0,pPa
 {
   NanoWinNUILog(_T("CDialogEx::CDialogEx(template name: %s)"),lpszTemplateName);
 }
+
+CFileDialog::CFileDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt, LPCTSTR lpszFileName,
+                         DWORD dwFlags, LPCTSTR lpszFilter, CWnd* pParentWnd, DWORD dwSize) : CDialog(0,pParentWnd)
+{
+  ClearFileNameInfo();
+}
+
+INT_PTR CFileDialog::DoModal()
+{
+  NanoWinNUILog("CFileDialog::DoModal");
+
+  ClearFileNameInfo();
+
+  OnCancel();
+
+  return IDCANCEL;
+}
+
+CString CFileDialog::GetPathName() const
+{
+  return CString();
+}
+
+const OPENFILENAME &CFileDialog::GetOFN() const
+{
+  return fileNameInfo;
+}
+
+OPENFILENAME &CFileDialog::GetOFN()
+{
+  return fileNameInfo;
+}
+
+void CFileDialog::ClearFileNameInfo()
+{
+  memset(&fileNameInfo,0,sizeof(fileNameInfo));
+
+  fileNameInfo.lStructSize = sizeof(fileNameInfo);
+}
