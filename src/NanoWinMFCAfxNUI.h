@@ -231,6 +231,38 @@ class CDialogEx : public CDialog
   CDialogEx(LPCTSTR lpszTemplateName, CWnd *pParentWnd = NULL);
 };
 
+#define OFN_OVERWRITEPROMPT  (0x00000002)
+#define OFN_HIDEREADONLY     (0x00000004)
+
+typedef struct tagOFN
+{
+  DWORD  lStructSize;
+  LPTSTR lpstrFile;
+  DWORD  nMaxFile;
+} OPENFILENAME, *LPOPENFILENAME;
+
+class CFileDialog : public CDialog // in MFC CFileDialog inherits CCommonDialog
+{
+  public:
+
+  explicit CFileDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt = NULL, LPCTSTR lpszFileName = NULL,
+                       DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL,
+                       CWnd* pParentWnd = NULL, DWORD dwSize = 8);
+
+  CString             GetPathName() const;
+
+  const OPENFILENAME& GetOFN() const;
+  OPENFILENAME&       GetOFN();
+
+  virtual INT_PTR     DoModal();
+
+  private :
+
+  void                ClearFileNameInfo ();
+
+  OPENFILENAME fileNameInfo;
+};
+
 #endif // LINUX
 
 #endif
