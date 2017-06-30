@@ -919,10 +919,87 @@ extern int      wsystem  (const wchar_t *lpCommand)
   }
 }
 
+
+static int vsnwprintf_calc_result_length(size_t start_size, const wchar_t *format, va_list argptr)
+{
+  constexpr size_t LOCAL_BUFFER_SIZE = 256;
+  constexpr size_t MAX_BUFFER_SIZE = 4 * 1024 * 1024;
+
+  wchar_t  local_buffer[LOCAL_BUFFER_SIZE];
+  va_list  arg_copy;
+  int      result;
+  size_t   buffer_size;
+  wchar_t *buffer;
+
+  result      = -1;
+  buffer      = NULL;
+  buffer_size = start_size;
+
+  if (buffer_size < LOCAL_BUFFER_SIZE)
+  {
+    buffer_size = LOCAL_BUFFER_SIZE;
+
+    va_copy(arg_copy,argptr);
+
+    result = vswprintf(local_buffer,LOCAL_BUFFER_SIZE,format,arg_copy);
+
+    va_end(arg_copy);
+  }
+
+  bool out_of_memory = false;
+
+  while (result < 0 && !out_of_memory)
+  {
+    buffer_size *= 2;
+
+    if (buffer_size < MAX_BUFFER_SIZE)
+    {
+      wchar_t *temp_buffer = (wchar_t*)realloc(buffer,sizeof(wchar_t) * buffer_size);
+
+      if (temp_buffer != NULL)
+      {
+        buffer = temp_buffer;
+
+        va_copy(arg_copy,argptr);
+
+        result = vswprintf(buffer,buffer_size,format,arg_copy);
+
+        va_end(arg_copy);
+      }
+      else
+      {
+        out_of_memory = true;
+      }
+    }
+    else
+    {
+      // prevent allocation of > MAX_BUFFER_SIZE
+      out_of_memory = true;
+    }
+  }
+
+  free(buffer);
+
+  return result;
+}
+
 // Wide char version of vsnprintf (returns number of chars need to but in buffer in case count is too low, instead of -1)
 extern int      vsnwprintf (wchar_t *buffer, size_t count, const wchar_t *format, va_list argptr)
 {
-  return(-1); // TODO: Implement me
+  va_list argCopy;
+
+  va_copy(argCopy,argptr);
+
+  int result = vswprintf(buffer,count,format,argCopy);
+
+  va_end(argCopy);
+
+  if (result < 0)
+  {
+    result = vsnwprintf_calc_result_length(count,format,argptr);
+  }
+
+  return result;
 }
 
 NW_EXTERN_C_END
