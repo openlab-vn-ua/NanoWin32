@@ -1002,4 +1002,14 @@ extern int      vsnwprintf (wchar_t *buffer, size_t count, const wchar_t *format
   return result;
 }
 
+// Wide char version of snprintf (returns number of chars need to but in buffer in case count is too low, instead of -1)
+extern int      snwprintf  (wchar_t *buffer, size_t count, const wchar_t *format, ...)
+{
+  va_list args;
+  va_start(args,format);
+  int result = vsnwprintf(buffer, count, format, args);
+  va_end(args);
+  return result;
+}
+
 NW_EXTERN_C_END
