@@ -59,7 +59,7 @@ class NanoWinTextStr
 
 // Type modifier for message handlers
 #ifndef afx_msg
- #define afx_msg
+#define afx_msg         // intentional placeholder [just a source marker]
 #endif
 
 class CDataExchange
@@ -113,7 +113,7 @@ class CListCtrl
 {
   public:
 
-  BOOL SetColumnWidth(int /*nCol*/, int /*cx*/) { return TRUE; }
+  BOOL SetColumnWidth(int nCol, int cx) { UNREFERENCED_PARAMETER(nCol); UNREFERENCED_PARAMETER(cx); return TRUE; }
 
   BOOL    SetItemText(int nItem, int nSubItem, LPCTSTR lpszText);
   CString GetItemText(int nItem, int nSubItem) const;
