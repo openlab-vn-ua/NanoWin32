@@ -90,6 +90,14 @@ class  CWnd
   CWnd* GetDlgItem   (int nID) const;
   BOOL  UpdateData   (BOOL bSaveAndValidate = TRUE);
 
+  //Note: decendant may have only SetIcon(HICON hIcon)?
+  //HICON SetIcon(HICON hIcon,  BOOL bBigIcon = TRUE); 
+  void SetIcon(HICON hIcon, BOOL bBigIcon = TRUE)
+  {
+    UNREFERENCED_PARAMETER(hIcon);
+    UNREFERENCED_PARAMETER(bBigIcon);
+  }
+
   protected : 
   
   virtual void DoDataExchange(CDataExchange* pDX);
