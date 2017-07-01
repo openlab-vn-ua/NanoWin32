@@ -32,6 +32,8 @@
 #define VERIFY(f)            ((void)(f))
 #endif
 
+#define ASSERT_POINTER(pp,ptype) // TODO: Implement me (pp is **ptype?)
+
 // Basic CObject (subset)
 // --------------------------------------
 
@@ -53,7 +55,8 @@ class CObject
   void operator=(const CObject& objectSrc);       // You cannot copy, unless you do it explicitely // no implementation (so would produce link error)
 };
 
-#define DECLARE_DYNAMIC(c) // Nothing as for now
+#define DECLARE_DYNAMIC(class_name) // Nothing as for now
+#define IMPLEMENT_DYNAMIC(class_name, base_class_name) // Nothing as for now
 
 // Basic CException (subset)
 // --------------------------------------
@@ -277,6 +280,12 @@ class CRect : public RECT
     InflateRect(isize.cx, isize.cy);
   }
 };
+
+
+// Misc usefull macros
+// --------------------------------------
+
+#define UNREFERENCED_PARAMETER(p) if ((&(p)) != NULL) { }
 
 #endif // linux
 #endif // ...Included
