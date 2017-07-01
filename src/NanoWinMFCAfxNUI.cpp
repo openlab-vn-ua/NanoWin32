@@ -177,6 +177,28 @@ int CListCtrl::GetHotItem()
   return 0;
 }
 
+BOOL CListCtrl::DeleteAllItems ()
+{
+  itemStorage.clear();
+  
+  return TRUE;
+}
+
+int CListCtrl::InsertColumn (int nCol, LPCTSTR /*lpszColumnHeading*/, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
+{
+  return nCol;
+}
+
+BOOL CListCtrl::DeleteColumn (int /*nCol*/)
+{
+  return TRUE;
+}
+
+int CListCtrl::InsertItem (int nItem, LPCTSTR /*lpszItem*/)
+{
+  return nItem;
+}
+
 int  CListBox::GetCount() const
 {
   return (int)listStorage.size();

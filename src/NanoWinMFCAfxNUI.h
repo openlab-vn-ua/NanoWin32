@@ -42,6 +42,13 @@ typedef HANDLE HICON;
 #define IDTRYAGAIN 10
 #define IDCONTINUE 11
 
+
+// Constants for CListCtrl
+#define LVCFMT_LEFT   0x0000
+#define LVCFMT_RIGHT  0x0001
+#define LVCFMT_CENTER 0x0002
+
+
 // Helper class for storing strings which supports both UNICODE and multibyte strings
 class NanoWinTextStr
 {
@@ -121,12 +128,18 @@ class CListCtrl
 {
   public:
 
-  BOOL SetColumnWidth(int nCol, int cx) { UNREFERENCED_PARAMETER(nCol); UNREFERENCED_PARAMETER(cx); return TRUE; }
+  BOOL    SetColumnWidth(int nCol, int cx) { UNREFERENCED_PARAMETER(nCol); UNREFERENCED_PARAMETER(cx); return TRUE; }
 
   BOOL    SetItemText(int nItem, int nSubItem, LPCTSTR lpszText);
   CString GetItemText(int nItem, int nSubItem) const;
 
   int     GetHotItem();
+
+  BOOL    DeleteAllItems();
+  BOOL    DeleteColumn(int nCol);
+
+  int     InsertItem  (int nItem, LPCTSTR lpszItem);
+  int     InsertColumn(int nCol, LPCTSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, int nWidth = -1, int nSubItem = -1);
 
   private :
 
