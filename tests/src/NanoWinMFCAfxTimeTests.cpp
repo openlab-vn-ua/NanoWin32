@@ -18,7 +18,7 @@ NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCTimeSimpleTest)
   CTime checkTime = CTime::GetCurrentTime();
 
   CString formatResult = checkTime.Format("%Y %02d");
-  sprintf(buff, "%d %d", structTime->tm_year+1900, structTime->tm_mday);
+  sprintf(buff, "%d %02d", structTime->tm_year+1900, structTime->tm_mday);
 
   NW_CHECK_EQUAL_STRCMP(buff, formatResult.GetString());
 }
