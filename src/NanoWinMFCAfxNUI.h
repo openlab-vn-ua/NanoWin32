@@ -116,6 +116,11 @@ class CListCtrl
   BOOL    DeleteAllItems();
   BOOL    DeleteColumn(int nCol);
 
+  int     GetColumnCount() const // Get the column count.
+  {
+    return(columnHeaders.size());
+  }
+
   int     InsertItem  (int nItem, LPCTSTR lpszItem);
   int     InsertColumn(int nCol, LPCTSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, int nWidth = -1, int nSubItem = -1);
 
