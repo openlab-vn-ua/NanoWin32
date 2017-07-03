@@ -27,8 +27,11 @@ NW_EXTERN_C_BEGIN
 
 extern PVOID SecureZeroMemory (_In_ volatile PVOID dest, _In_ SIZE_T destszb);
 
-extern BOOL  IsBadReadPtr (const void *lp, UINT_PTR ucb); 
-extern BOOL  IsBadWritePtr (const void *lp, UINT_PTR ucb);
+extern BOOL WINAPI IsBadReadPtr    (_In_ const VOID  *lp,   _In_ UINT_PTR ucb); 
+extern BOOL WINAPI IsBadWritePtr   (_In_ LPVOID       lp,   _In_ UINT_PTR ucb);
+extern BOOL WINAPI IsBadStringPtrA (_In_ LPCSTR       lpsz, _In_ UINT_PTR ucchMax);
+extern BOOL WINAPI IsBadStringPtrW (_In_ LPCWSTR      lpsz, _In_ UINT_PTR ucchMax);
+extern BOOL WINAPI IsBadCodePtr    (_In_ FARPROC      lpfn);
 
 // Legacy heap functions (subset)
 
@@ -56,8 +59,18 @@ extern  HLOCAL WINAPI   LocalFree(_In_ HLOCAL hMem);
 #define Sleep(dwMilliseconds)    usleep((dwMilliseconds)*1000)
 extern  DWORD GetTickCount();    // Return value in ms
 
+// Metrics
+
+#define SM_CYSCREEN ('X')
+#define SM_CXSCREEN ('Y')
+
+// Returns system metrics SM_* or 0 if error found (does not update GetLastError())
+extern int WINAPI GetSystemMetrics(_In_ int nIndex);
+
 #if defined(UNICODE) || defined(_UNICODE)
+#define IsBadStringPtr  IsBadStringPtrW
 #else
+#define IsBadStringPtr  IsBadStringPtrA
 #endif
 
 NW_EXTERN_C_END
