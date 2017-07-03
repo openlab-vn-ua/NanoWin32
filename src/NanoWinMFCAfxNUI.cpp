@@ -438,3 +438,7 @@ void CFileDialog::ClearFileNameInfo()
 
   fileNameInfo.lStructSize = sizeof(fileNameInfo);
 }
+
+// MFC App
+
+CWinApp *CWinApp::TheCurrentApp = NULL;
