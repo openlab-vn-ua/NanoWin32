@@ -421,4 +421,6 @@ typedef DWORD LCID;
 #define NW_NOCOPY_CONSTRUCTOR(ClassName) private: ClassName(const ClassName &src) { }
 #define NW_NOASSIGN_OPERATOR(ClassName)  private: void operator= (const ClassName &src) { }
 
+#define NW_UNREFERENCED_PARAMETER(p)     if ((&(p)) != NULL) { }
+
 #endif // ...Included
