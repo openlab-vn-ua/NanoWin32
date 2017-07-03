@@ -143,9 +143,10 @@ class CListCtrl
 
   private :
 
-  typedef std::pair<int,int> IntPair;
+  typedef std::vector<CString> CStringVector;
 
-  std::map<IntPair,CString> itemStorage;
+  CStringVector              columnHeaders;
+  std::vector<CStringVector> items;
 };
 
 class CStatic : public CWnd

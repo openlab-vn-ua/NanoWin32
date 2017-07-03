@@ -151,7 +151,10 @@ void CWnd::DoDataExchange(CDataExchange* /*pDX*/)
 
 BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCTSTR lpszText)
 {
-  itemStorage[IntPair(nItem,nSubItem)] = CString(lpszText);
+  if ((CStringVector::size_type)nItem    >= items.size())         { return FALSE; }
+  if ((CStringVector::size_type)nSubItem >= columnHeaders.size()) { return FALSE; }
+
+  items[nItem][nSubItem] = CString(lpszText);
 
   NanoWinNUILog(_T("CListCtrl::SetItemText(item: %d, subitem: %d, text: %s)"),nItem,nSubItem,lpszText);
 
@@ -160,16 +163,10 @@ BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCTSTR lpszText)
 
 CString CListCtrl::GetItemText(int nItem, int nSubItem) const
 {
-  auto it = itemStorage.find(IntPair(nItem,nSubItem));
+  if ((CStringVector::size_type)nItem    >= items.size())         { return CString(); }
+  if ((CStringVector::size_type)nSubItem >= columnHeaders.size()) { return CString(); }
 
-  if (it != itemStorage.cend())
-  {
-    return it->second;
-  }
-  else
-  {
-    return CString();
-  }
+  return items[nItem][nSubItem];
 }
 
 int CListCtrl::GetHotItem()
@@ -179,23 +176,81 @@ int CListCtrl::GetHotItem()
 
 BOOL CListCtrl::DeleteAllItems ()
 {
-  itemStorage.clear();
+  items.clear();
+
+  NanoWinNUILog(_T("CListCtrl::DeleteAllItems()"));
   
   return TRUE;
 }
 
-int CListCtrl::InsertColumn (int nCol, LPCTSTR /*lpszColumnHeading*/, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
+int CListCtrl::InsertColumn (int nCol, LPCTSTR lpszColumnHeading, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
 {
+  NanoWinNUILog(_T("CListCtrl::InsertColumn(nCol: %d heading: %s)"),nCol,lpszColumnHeading);
+
+  if ((CStringVector::size_type)nCol < columnHeaders.size())
+  {
+    columnHeaders.insert(columnHeaders.begin() + nCol,CString());
+
+    for (auto it = items.begin(); it != items.end(); ++it)
+    {
+      it->insert(it->begin() + nCol,CString());
+    }
+
+    return nCol;
+  }
+  else
+  {
+    columnHeaders.push_back(lpszColumnHeading);
+
+    for (auto it = items.begin(); it != items.end(); ++it)
+    {
+      it->push_back(CString());
+    }
+
+    return columnHeaders.size() - 1;
+  }
+
   return nCol;
 }
 
-BOOL CListCtrl::DeleteColumn (int /*nCol*/)
+BOOL CListCtrl::DeleteColumn (int nCol)
 {
+  NanoWinNUILog(_T("CListCtrl::DeleteColumn(nCol: %d)"),nCol);
+
+  if ((CStringVector::size_type)nCol >= columnHeaders.size()) { return FALSE; }
+
+  columnHeaders.erase(columnHeaders.begin() + nCol);
+
+  for (auto it = items.begin(); it != items.end(); ++it)
+  {
+    it->erase(it->begin() + nCol);
+  }
+
   return TRUE;
 }
 
-int CListCtrl::InsertItem (int nItem, LPCTSTR /*lpszItem*/)
+int CListCtrl::InsertItem (int nItem, LPCTSTR lpszItem)
 {
+  NanoWinNUILog(_T("CListCtrl::InsertItem(nItem: %d, item: %s)"),nItem,lpszItem);
+
+  if ((CStringVector::size_type)nItem < items.size())
+  {
+    items.insert(items.begin() + nItem,CStringVector());
+  }
+  else
+  {
+    items.push_back(CStringVector());
+
+    nItem = items.size();
+  }
+
+  CStringVector &newItem = items[nItem];
+
+  for (CStringVector::size_type i = 0; i < columnHeaders.size(); i++)
+  {
+    newItem.push_back(CString());
+  }
+
   return nItem;
 }
 
