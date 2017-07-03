@@ -9,6 +9,12 @@
 
 #include "NanoWinMFCAfxNUI.h"
 
+#if defined(UNICODE) || defined(_UNICODE)
+ #define NW_STR_FMT "%ls"
+#else
+ #define NW_STR_FMT "%s"
+#endif
+
 static void NanoWinNUILog(const char *format, ...)
 {
   CStringA str;
@@ -99,7 +105,7 @@ void CWnd::SetWindowTextW(LPCWSTR   lpszString)
 {
   windowText.SetText(lpszString);
 
-  NanoWinNUILog(L"CWnd::SetWindowTextW(%s)",lpszString);
+  NanoWinNUILog(L"CWnd::SetWindowTextW(%ls)",lpszString);
 }
 
 void CWnd::GetWindowTextA(CStringA &rString) const
@@ -113,7 +119,7 @@ void CWnd::GetWindowTextW(CStringW &rString) const
 {
   windowText.GetText(rString);
 
-  NanoWinNUILog(L"CWnd::GetWindowTextW(%s)",rString.GetString());
+  NanoWinNUILog(L"CWnd::GetWindowTextW(%ls)",rString.GetString());
 }
 
 BOOL CWnd::EnableWindow(BOOL bEnable)
@@ -156,7 +162,7 @@ BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCTSTR lpszText)
 
   items[nItem][nSubItem] = CString(lpszText);
 
-  NanoWinNUILog(_T("CListCtrl::SetItemText(item: %d, subitem: %d, text: %s)"),nItem,nSubItem,lpszText);
+  NanoWinNUILog(_T("CListCtrl::SetItemText(item: %d, subitem: %d, text: ") NW_STR_FMT _T(")"),nItem,nSubItem,lpszText);
 
   return TRUE;
 }
@@ -185,7 +191,7 @@ BOOL CListCtrl::DeleteAllItems ()
 
 int CListCtrl::InsertColumn (int nCol, LPCTSTR lpszColumnHeading, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
 {
-  NanoWinNUILog(_T("CListCtrl::InsertColumn(nCol: %d heading: %s)"),nCol,lpszColumnHeading);
+  NanoWinNUILog(_T("CListCtrl::InsertColumn(nCol: %d heading: ") NW_STR_FMT _T(")"),nCol,lpszColumnHeading);
 
   if ((CStringVector::size_type)nCol < columnHeaders.size())
   {
@@ -231,7 +237,7 @@ BOOL CListCtrl::DeleteColumn (int nCol)
 
 int CListCtrl::InsertItem (int nItem, LPCTSTR lpszItem)
 {
-  NanoWinNUILog(_T("CListCtrl::InsertItem(nItem: %d, item: %s)"),nItem,lpszItem);
+  NanoWinNUILog(_T("CListCtrl::InsertItem(nItem: %d, item: ") NW_STR_FMT _T(")"),nItem,lpszItem);
 
   if ((CStringVector::size_type)nItem < items.size())
   {
@@ -277,7 +283,7 @@ int  CListBox::AddString (LPCTSTR lpszItem)
 
   listStorage.push_back(lpszItem);
 
-  NanoWinNUILog(_T("CListBox::AddString(index: %d, text: %s)"),index,lpszItem);
+  NanoWinNUILog(_T("CListBox::AddString(index: %d, text: ") NW_STR_FMT _T(")"),index,lpszItem);
 
   return index;
 }
@@ -299,7 +305,7 @@ int  CComboBox::AddString (LPCTSTR lpszItem)
 
   listStorage.push_back(lpszItem);
 
-  NanoWinNUILog(_T("CComboBox::AddString(index: %d, text: %s)"),index,lpszItem);
+  NanoWinNUILog(_T("CComboBox::AddString(index: %d, text: ") NW_STR_FMT _T(")"),index,lpszItem);
 
   return index;
 }
@@ -402,7 +408,7 @@ CDialogEx::CDialogEx(UINT nIDTemplate, CWnd *pParent) : CDialog(nIDTemplate,pPar
 
 CDialogEx::CDialogEx(LPCTSTR lpszTemplateName, CWnd *pParentWnd) : CDialog(0,pParentWnd)
 {
-  NanoWinNUILog(_T("CDialogEx::CDialogEx(template name: %s)"),lpszTemplateName);
+  NanoWinNUILog(_T("CDialogEx::CDialogEx(template name: ") NW_STR_FMT _T(")"),lpszTemplateName);
 }
 
 CFileDialog::CFileDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt, LPCTSTR lpszFileName,
