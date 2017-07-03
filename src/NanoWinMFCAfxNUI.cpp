@@ -169,11 +169,6 @@ CString CListCtrl::GetItemText(int nItem, int nSubItem) const
   return items[nItem][nSubItem];
 }
 
-int CListCtrl::GetHotItem()
-{
-  return 0;
-}
-
 BOOL CListCtrl::DeleteAllItems ()
 {
   items.clear();

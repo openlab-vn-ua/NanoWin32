@@ -133,7 +133,7 @@ class CListCtrl
   BOOL    SetItemText(int nItem, int nSubItem, LPCTSTR lpszText);
   CString GetItemText(int nItem, int nSubItem) const;
 
-  int     GetHotItem();
+  int     GetHotItem() { return(-1); }
 
   BOOL    DeleteAllItems();
   BOOL    DeleteColumn(int nCol);
