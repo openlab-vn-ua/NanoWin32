@@ -106,6 +106,11 @@ typedef uint32_t                       UINT;     // WinDef.h
 typedef uint32_t                       DWORD;    // IntSafe.h
 typedef signed long                    LONG;     // WinNT.h
 typedef unsigned long                  ULONG;    // WinNT.h
+#define NW_PRINTF_FSTR_INT             "d"
+#define NW_PRINTF_FSTR_UINT            "u"
+#define NW_PRINTF_FSTR_DWORD           "u"
+#define NW_PRINTF_FSTR_LONG            "ld"
+#define NW_PRINTF_FSTR_ULONG           "lu"
 #else
 // Native longs are 64 bits, use portable types
 typedef int32_t                        INT;      // WinDef.h
@@ -113,6 +118,11 @@ typedef uint32_t                       UINT;     // WinDef.h
 typedef uint32_t                       DWORD;    // IntSafe.h
 typedef int32_t                        LONG;     // WinNT.h
 typedef uint32_t                       ULONG;    // WinNT.h
+#define NW_PRINTF_FSTR_INT             "d"
+#define NW_PRINTF_FSTR_UINT            "u"
+#define NW_PRINTF_FSTR_DWORD           "u"
+#define NW_PRINTF_FSTR_LONG            "d"
+#define NW_PRINTF_FSTR_ULONG           "u"
 #endif
 
 NW_MAKE_PLP_TYPES_BY(INT);
@@ -124,6 +134,9 @@ NW_MAKE_PLP_TYPES_BY(ULONG);
 typedef int64_t                        LONGLONG;  NW_MAKE_PLP_TYPES_BY(LONGLONG);  // WinNT.h
 typedef uint64_t                       ULONGLONG; NW_MAKE_PLP_TYPES_BY(ULONGLONG); // WinNT.h
 typedef uint64_t                       DWORDLONG; NW_MAKE_PLP_TYPES_BY(DWORDLONG); // IntSafe.h
+
+#define NW_PRINTF_FSTR_LONGLONG        "lld"
+#define NW_PRINTF_FSTR_ULONGLONG       "llu"
 
 // BaseTsd.h
 
@@ -407,5 +420,7 @@ typedef DWORD LCID;
 // Usefull macroses for all platforms
 #define NW_NOCOPY_CONSTRUCTOR(ClassName) private: ClassName(const ClassName &src) { }
 #define NW_NOASSIGN_OPERATOR(ClassName)  private: void operator= (const ClassName &src) { }
+
+#define NW_UNREFERENCED_PARAMETER(p)     if ((&(p)) != NULL) { }
 
 #endif // ...Included

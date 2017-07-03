@@ -17,37 +17,15 @@
 
 #include "NanoWinMFCAfxStr.h"
 #include "NanoWinMFCAfxCol.h"
+#include "NanoWinMFCAfxWin.h"
 
-// Win32 API GUI (types and functions)
+// MFC Controls subset
 // -----------------------------------------
-
-typedef LONG_PTR LPARAM;
-typedef UINT_PTR WPARAM;
-typedef LONG_PTR LRESULT;
-
-typedef HANDLE HCURSOR;
-typedef HANDLE HICON;
-
-// Dialog Box Command IDs
-
-#define IDOK       1
-#define IDCANCEL   2
-#define IDABORT    3
-#define IDRETRY    4
-#define IDIGNORE   5
-#define IDYES      6
-#define IDNO       7
-#define IDCLOSE    8
-#define IDHELP     9
-#define IDTRYAGAIN 10
-#define IDCONTINUE 11
-
 
 // Constants for CListCtrl
 #define LVCFMT_LEFT   0x0000
 #define LVCFMT_RIGHT  0x0001
 #define LVCFMT_CENTER 0x0002
-
 
 // Helper class for storing strings which supports both UNICODE and multibyte strings
 class NanoWinTextStr
@@ -133,10 +111,15 @@ class CListCtrl
   BOOL    SetItemText(int nItem, int nSubItem, LPCTSTR lpszText);
   CString GetItemText(int nItem, int nSubItem) const;
 
-  int     GetHotItem();
+  int     GetHotItem() { return(-1); }
 
   BOOL    DeleteAllItems();
   BOOL    DeleteColumn(int nCol);
+
+  int     GetColumnCount() const // Get the column count.
+  {
+    return(columnHeaders.size());
+  }
 
   int     InsertItem  (int nItem, LPCTSTR lpszItem);
   int     InsertColumn(int nCol, LPCTSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, int nWidth = -1, int nSubItem = -1);
@@ -284,6 +267,120 @@ class CFileDialog : public CDialog // in MFC CFileDialog inherits CCommonDialog
 
   OPENFILENAME fileNameInfo;
 };
+
+// MFC misc items
+// ==================================
+
+#include "NanoWinTCHAR.h"
+#include "NanoWinOther.h"
+
+typedef const RECT *PCRECT;
+typedef const RECT *LPCRECT;
+
+inline BOOL AfxIsValidAddress(const void* lp, UINT nBytes, BOOL bReadWrite = TRUE)
+{
+  if (bReadWrite) { return(!IsBadWritePtr(const_cast<LPVOID>(lp), nBytes)); }
+  else            { return(!IsBadReadPtr(lp, nBytes));  }
+}
+
+inline BOOL AfxIsValidString(LPCSTR lpsz, int nLength = -1)
+{
+  if (lpsz == NULL) { return(FALSE); }
+  return(TRUE);
+}
+
+inline BOOL AfxIsValidString(LPCWSTR lpsz, int nLength = -1)
+{
+  if (lpsz == NULL) { return(FALSE); }
+  return(TRUE);
+}
+
+#if defined(DEBUG) || defined(_DEBUG)
+#define TRACE          (0) && // Prevent evaluation of fail expression, since lasy evaluation policy: TRACE(x) becomes (0) && (x), so x would not evaluated
+#else
+#define TRACE          printf
+#endif // !DEBUG
+
+// Bindings
+
+#define DDX_Text(pDX,id,ctrl)       // TODO: Do nothing
+#define DDX_Control(pDX,id,ctrl)    // TODO: Do nothing
+#define DDX_Check(pDX,id,ctrl)      // TODO: Do nothing
+#define DDX_Radio(pDX,id,ctrl)      // TODO: Do nothing
+
+// Message map
+
+#define DECLARE_MESSAGE_MAP() // TODO: Do nothing
+
+#define BEGIN_MESSAGE_MAP(class_name, base_class_name) static void class_name##_MESSAGE_MAP() {
+
+#define ON_BN_CLICKED(id,handler)    // TODO: Do nothing
+#define ON_STN_CLICKED(id,handler)   // TODO: Do nothing
+#define ON_COMMAND(id,handler)       // TODO: Do nothing
+#define ON_WM_PAINT()                // TODO: Do nothing
+
+#define END_MESSAGE_MAP() }
+
+// MFC Dialog box
+
+inline int AfxMessageBox(const TCHAR *lpszText, int nType, int nIDHelp)
+{
+  UNREFERENCED_PARAMETER(nIDHelp);
+  return(MessageBox(NULL, lpszText, NULL, nType));
+}
+
+// MFC App
+
+class CWinApp
+{
+  private:
+
+  static CWinApp     *TheCurrentApp;
+  static CWinApp     *GetCurrentApp() { return(TheCurrentApp); }
+  static void         SetCurrentApp(CWinApp *pApp) { TheCurrentApp = pApp; };
+
+  friend CWinApp     *AfxGetApp();
+
+  public:
+
+  CWinApp()
+  {
+    SetCurrentApp(this); // Not sure this is correct place to do this
+  }
+
+  virtual BOOL InitInstance() { return(TRUE); }
+  virtual int  Run()          { return(0);    } // Do nothing here
+  virtual BOOL ExitInstance() { return(TRUE); }
+
+  HICON LoadIcon(UINT nIDResource) const { UNREFERENCED_PARAMETER(nIDResource); return(NULL); }
+
+  afx_msg void OnHelp() { } // Empty
+
+  // members
+
+  CWnd  *m_pMainWnd  = NULL;
+  TCHAR *m_lpCmdLine = _T("");
+};
+
+inline CWinApp *AfxGetApp() { return(CWinApp::GetCurrentApp()); }
+
+#define AfxEnableControlContainer() // Empty
+
+// NanoSubset of AfxThreads
+
+#include "NanoWinThreads.h"
+
+typedef PTHREAD_START_ROUTINE AFX_THREADPROC;
+inline void AfxBeginThread(AFX_THREADPROC pfnThreadProc, LPVOID pParam)
+{
+  DWORD threadId;
+  CreateThread(NULL, 0, pfnThreadProc, pParam, 0, &threadId);
+}
+
+inline void AFXAPI AfxEndThread(UINT nExitCode)
+{
+  ExitThread(nExitCode);
+}
 
 #endif // LINUX
 

@@ -20,17 +20,37 @@ extern PVOID SecureZeroMemory (_In_ volatile PVOID dest, _In_ SIZE_T destszb)
   return(memset(dest,0,destszb));
 }
 
-extern BOOL IsBadReadPtr (const void *lp, UINT_PTR ucb) 
+extern BOOL WINAPI IsBadReadPtr    (_In_ const VOID  *lp,   _In_ UINT_PTR ucb)
 { 
   if (ucb <= 0) { return(FALSE); };
   if (lp == NULL) { return(TRUE); }; 
   return(FALSE);
 }
 
-extern BOOL IsBadWritePtr (const void *lp, UINT_PTR ucb)
+extern BOOL WINAPI IsBadWritePtr   (_In_ LPVOID       lp,   _In_ UINT_PTR ucb)
 {
   if (ucb <= 0) { return(FALSE); };
   if (lp == NULL) { return(TRUE); };
+  return(FALSE);
+}
+
+extern BOOL WINAPI IsBadStringPtrA (_In_ LPCSTR       lpsz, _In_ UINT_PTR ucchMax)
+{
+  if (ucchMax <= 0) { return(FALSE); };
+  if (lpsz == NULL) { return(TRUE); };
+  return(FALSE);
+}
+
+extern BOOL WINAPI IsBadStringPtrW (_In_ LPCWSTR      lpsz, _In_ UINT_PTR ucchMax)
+{
+  if (ucchMax <= 0) { return(FALSE); };
+  if (lpsz == NULL) { return(TRUE); };
+  return(FALSE);
+}
+
+extern BOOL WINAPI IsBadCodePtr    (_In_ FARPROC      lpfn)
+{
+  if (lpfn == NULL) { return(TRUE); };
   return(FALSE);
 }
 
@@ -84,6 +104,15 @@ extern  HLOCAL WINAPI   LocalFree(_In_ HLOCAL hMem)
 {
   free(hMem);
   return(NULL);
+}
+
+// Returns system metrics SM_* or 0 if error found (does not update GetLastError())
+extern int WINAPI GetSystemMetrics(_In_ int nIndex)
+{
+  // TODO: Refine me somehow
+  if (nIndex == SM_CXSCREEN) { return(640); }
+  if (nIndex == SM_CYSCREEN) { return(480); }
+  return(0);
 }
 
 NW_EXTERN_C_END
