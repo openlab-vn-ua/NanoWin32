@@ -240,9 +240,9 @@ int CListCtrl::InsertItem (int nItem, LPCTSTR lpszItem)
   }
   else
   {
-    items.push_back(CStringVector());
-
     nItem = items.size();
+
+    items.push_back(CStringVector());
   }
 
   CStringVector &newItem = items[nItem];
