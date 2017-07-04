@@ -1522,7 +1522,11 @@ static int vsnwprintf_test_helper(wchar_t *buffer, size_t count, const wchar_t *
 
   va_start(args,format);
 
-  int result = vsnwprintf(buffer,count,format,args);
+  #if defined(_MSC_VER)
+  int result = _vsnwprintf(buffer,count,format,args);
+  #else
+  int result = vsnwprintf(buffer, count, format, args);
+  #endif
 
   va_end(args);
 
@@ -1537,27 +1541,52 @@ NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFLargeBufferTest)
   wchar_t          buffer[BUFFER_SIZE];
   int              char_count;
 
-  char_count = vsnwprintf_test_helper(buffer,sizeof(buffer),L"TEST");
+  char_count = vsnwprintf_test_helper(buffer,sizeof(buffer) / sizeof(wchar_t),L"TEST");
 
   const wchar_t *expected_str = L"TEST";
 
   NW_CHECK_EQUAL_INTS(4,char_count);
   NW_CHECK_EQUAL_MEMCMP(expected_str,buffer,wcslen(expected_str)+1);
 
-  char_count = vsnwprintf_test_helper(buffer,sizeof(buffer),L"%d",34);
+  char_count = vsnwprintf_test_helper(buffer,sizeof(buffer) / sizeof(wchar_t),L"%d",34);
 
   expected_str = L"34";
 
   NW_CHECK_EQUAL_INTS(2,char_count);
   NW_CHECK_EQUAL_MEMCMP(expected_str,buffer,wcslen(expected_str)+1);
 }
+#if !defined(_MSC_VER)
+NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFSmallBufferTest)
+{
+  constexpr size_t BUFFER_SIZE = 2;
+  wchar_t          buffer[BUFFER_SIZE];
+  int              char_count;
 
+  char_count = vsnwprintf_test_helper(buffer, sizeof(buffer) / sizeof(wchar_t), L"TEST");
+
+  NW_CHECK_EQUAL_INTS(4, char_count);
+}
+#endif
 NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFNoBufferTest)
 {
   NW_CHECK_EQUAL_INTS(4,vsnwprintf_test_helper(NULL,0,L"TEST"));
   NW_CHECK_EQUAL_INTS(2,vsnwprintf_test_helper(NULL,0,L"%d",34));
 }
 
+NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFFormatNoBufferTest)
+{
+  NW_CHECK_EQUAL_INTS(5, vsnwprintf_test_helper(NULL, 0, L"%05d", 34));
+  NW_CHECK_EQUAL_INTS(8, vsnwprintf_test_helper(NULL, 0, L"%f", 4.56));
+  NW_CHECK_EQUAL_INTS(4, vsnwprintf_test_helper(NULL, 0, L"%.2f", 4.56789));
+  NW_CHECK_EQUAL_INTS(2, vsnwprintf_test_helper(NULL, 0, L"%ld", 34L));
+}
+#ifndef __GNUC__
+NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFFormatNoBufferStrTest)
+{
+  NW_CHECK_EQUAL_INTS(10, vsnwprintf_test_helper(NULL, 0, L"%10s", "abcde"));
+  NW_CHECK_EQUAL_INTS(10, vsnwprintf_test_helper(NULL, 0, L"%ld %.1f %s", 34L, 1.234, L"def"));
+}
+#endif
 NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFLargeStringsTest)
 {
   constexpr size_t BUFFER_SIZE = 1024;
