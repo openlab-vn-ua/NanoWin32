@@ -98,6 +98,7 @@
     <ClCompile Include="..\src\NanoWinMFCAfxWin.cpp" />
     <ClCompile Include="..\src\NanoWinModule.cpp" />
     <ClCompile Include="..\src\NanoWinMsExtra.cpp" />
+    <ClCompile Include="..\src\NanoWinMsPrintf.cpp" />
     <ClCompile Include="..\src\NanoWinMsSafeScanf.cpp" />
     <ClCompile Include="..\src\NanoWinMsSafeString.cpp" />
     <ClCompile Include="..\src\NanoWinOther.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="..\src\NanoWinMFCAfxTime.h" />
     <ClInclude Include="..\src\NanoWinModule.h" />
     <ClInclude Include="..\src\NanoWinMsExtra.h" />
+    <ClInclude Include="..\src\NanoWinMsPrintf.h" />
     <ClInclude Include="..\src\NanoWinMsSafeScanf.h" />
     <ClInclude Include="..\src\NanoWinMsSafeString.h" />
     <ClInclude Include="..\src\NanoWinOther.h" />
