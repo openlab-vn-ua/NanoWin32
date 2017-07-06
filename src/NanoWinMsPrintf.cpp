@@ -123,11 +123,29 @@ static void process_field(wchar_t **ddst, const wchar_t **ssrc)
   // directly supported here, but since we're not interested in integer fields
   // it doesn't change results of this function
 
-  while (is_format_type_modifier(*src))
+  if (*src == L'w')
   {
-    *dst++ = *src++;
+    src++;
+
+    if (*src == L's' || *src == L'S' || *src == L'c' || *src == L'C')
+    {
+      *dst++ = L'l';
+    }
+    else
+    {
+      *dst++ = L'w'; // unsupported combination, so just leave it "as-is"
+    }
 
     has_type_modifier = true;
+  }
+  else
+  {
+    while (is_format_type_modifier(*src))
+    {
+      *dst++ = *src++;
+
+      has_type_modifier = true;
+    }
   }
 
   if (!has_type_modifier)
