@@ -17,6 +17,8 @@
 #include <wchar.h>
 #include <errno.h>
 
+#include "NanoWinMsPrintf.h"
+
 #if !defined(EOK)
 #define  EOK  (0)
 #endif
