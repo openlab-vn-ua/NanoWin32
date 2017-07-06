@@ -11,61 +11,61 @@ NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMFCAfxStrTestGroup)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceSimpleTCHARTest)
 {
-	CString cString("abc abc abc");
+	CString cString(_T("abc abc abc"));
 
 	int n = cString.Replace('a', 'q');
 
 	NW_CHECK_EQUAL(3, n);
-	NW_CHECK_EQUAL_STRCMP(cString, "qbc qbc qbc");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("qbc qbc qbc"));
 
 	n = cString.Replace('w', 'q');
 
 	NW_CHECK_EQUAL(0, n);
-	NW_CHECK_EQUAL_STRCMP(cString, "qbc qbc qbc");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("qbc qbc qbc"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceSimpleLPCTSTRTest)
 {
-	CString cString("abc abc abc");
+	CString cString(_T("abc abc abc"));
 
-	LPCTSTR strOld = "a";
-	LPCTSTR strNew = "q";
+	LPCTSTR strOld = _T("a");
+	LPCTSTR strNew = _T("q");
 
 	int n = cString.Replace(strOld, strNew);
 
 	NW_CHECK_EQUAL(3, n);
-	NW_CHECK_EQUAL_STRCMP(cString, "qbc qbc qbc");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("qbc qbc qbc"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceNullLPCTSTRTest)
 {
-	CString cString("abc abc abc");
+	CString cString(_T("abc abc abc"));
 
-	LPCTSTR strOld = "ab";
+	LPCTSTR strOld = _T("ab");
 	LPCTSTR strNew = NULL;
 
 	int n = cString.Replace(strOld, strNew);
 
 	NW_CHECK_EQUAL(3, n);
-	NW_CHECK_EQUAL_STRCMP(cString, "c c c");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("c c c"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReplaceDifferentLengthLPCTSTRTest)
 {
-	CString cString("abc abc abc qwe");
+	CString cString(_T("abc abc abc qwe"));
 
-	LPCTSTR strOld = "abc";
-	LPCTSTR strNew = "de";
+	LPCTSTR strOld = _T("abc");
+	LPCTSTR strNew = _T("de");
 
 	int n = cString.Replace(strOld, strNew);
 
 	NW_CHECK_EQUAL(3, n);
-	NW_CHECK_EQUAL_STRCMP(cString, "de de de qwe");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("de de de qwe"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindSimpleTCHARTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 	int n = cString.Find('b');
 
 	NW_CHECK_EQUAL(1, n);
@@ -76,7 +76,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindSimpleTCHARTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindWithStartPosTCHARTest)
 {
-	CString cString("abcdef abcdef");
+	CString cString(_T("abcdef abcdef"));
 
 	int n = cString.Find('b', 4);
 
@@ -89,19 +89,19 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindWithStartPosTCHARTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindSimpleLPCTSTRTest)
 {
-	CString cString("abcdef");
-	LPCTSTR sub = "b";
+	CString cString(_T("abcdef"));
+	LPCTSTR sub = _T("b");
 
 	int n = cString.Find(sub);
 	
 	NW_CHECK_EQUAL(1, n);
 
-	sub = "def";
+	sub = _T("def");
 	n = cString.Find(sub);
 
 	NW_CHECK_EQUAL(3, n);
 
-	sub = "qqq";
+	sub = _T("qqq");
 	n = cString.Find(sub);
 
 	NW_CHECK_EQUAL(-1, n);
@@ -109,14 +109,14 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindSimpleLPCTSTRTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindWithStartPosLPCTSTRTest)
 {
-	CString cString("abcdef abcdef");
-	LPCTSTR sub = "b";
+	CString cString(_T("abcdef abcdef"));
+	LPCTSTR sub = _T("b");
 
 	int n = cString.Find(sub, 4);
 
 	NW_CHECK_EQUAL(8, n);
 
-	sub = "def";
+	sub = _T("def");
 	n = cString.Find(sub, 5);
 
 	NW_CHECK_EQUAL(10, n);
@@ -124,7 +124,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFindWithStartPosLPCTSTRTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReverseFindSimpleTCHARTest)
 {
-	CString cString("abc abc abc");
+	CString cString(_T("abc abc abc"));
 
 	int n = cString.ReverseFind('a');
 
@@ -137,142 +137,142 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringReverseFindSimpleTCHARTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMakeLowerTest)
 {
-	CString cString("aBcDeFZzZ");
+	CString cString(_T("aBcDeFZzZ"));
 
 	cString.MakeLower();
 
-	NW_CHECK_EQUAL_STRCMP(cString, "abcdefzzz");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("abcdefzzz"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMakeUpperTest)
 {
-	CString cString("aBcDeFZzZ");
+	CString cString(_T("aBcDeFZzZ"));
 
 	cString.MakeUpper();
 
-	NW_CHECK_EQUAL_STRCMP(cString, "ABCDEFZZZ");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("ABCDEFZZZ"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMakeReverseTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
 	cString.MakeReverse();
 
-	NW_CHECK_EQUAL_STRCMP(cString, "fedcba");
+	NW_CHECK_EQUAL_STRCMP(cString, _T("fedcba"));
 }
 
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringRightTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
 	CString resStr = cString.Right(3);
 
-	NW_CHECK_EQUAL_STRCMP(resStr, "def");
+	NW_CHECK_EQUAL_STRCMP(resStr, _T("def"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMidTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
 	CString resStr = cString.Mid(2);
 
-	NW_CHECK_EQUAL_STRCMP(resStr, "cdef");
+	NW_CHECK_EQUAL_STRCMP(resStr, _T("cdef"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringMidWithCounterTest)
 {
-	CString cString("abcdefabcdef");
+	CString cString(_T("abcdefabcdef"));
 
 	CString resStr = cString.Mid(2, 5);
 
-	NW_CHECK_EQUAL_STRCMP("cdefa", resStr);
+	NW_CHECK_EQUAL_STRCMP(_T("cdefa"), resStr);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringLeftTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
 	CString resStr = cString.Left(3);
 
-	NW_CHECK_EQUAL_STRCMP("abc", resStr);
+	NW_CHECK_EQUAL_STRCMP(_T("abc"), resStr);
 }
 
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringInsertTCHARTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
 	int n = cString.Insert(3, 'z');
 
 	NW_CHECK_EQUAL(7, n);
-	NW_CHECK_EQUAL_STRCMP("abczdef", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abczdef"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringInsertIndexHigherThanLengthTCHARTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
 	int n = cString.Insert(100, 'z');
 
 	NW_CHECK_EQUAL(7, n);
-	NW_CHECK_EQUAL_STRCMP("abcdefz", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abcdefz"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringInsertLPCTSTRTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
-	int n = cString.Insert(0, "zzz");
+	int n = cString.Insert(0, _T("zzz"));
 
 	NW_CHECK_EQUAL(9, n);
-	NW_CHECK_EQUAL_STRCMP("zzzabcdef", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("zzzabcdef"), cString);
 
-  n = cString.Insert(100, "zzz");
+  n = cString.Insert(100, _T("zzz"));
 
   NW_CHECK_EQUAL(12, n);
-  NW_CHECK_EQUAL_STRCMP("zzzabcdefzzz", cString);
+  NW_CHECK_EQUAL_STRCMP(_T("zzzabcdefzzz"), cString);
 
-  n = cString.Insert(-1, "a");
+  n = cString.Insert(-1, _T("a"));
 
   NW_CHECK_EQUAL(13, n);
-  NW_CHECK_EQUAL_STRCMP("azzzabcdefzzz", cString);
+  NW_CHECK_EQUAL_STRCMP(_T("azzzabcdefzzz"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringDeleteTest)
 {
-	CString cString("abcdefabc");
+	CString cString(_T("abcdefabc"));
 
 	int n = cString.Delete(3, 3);
 
 	NW_CHECK_EQUAL(6, n);
-	NW_CHECK_EQUAL_STRCMP("abcabc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abcabc"), cString);
 
 	n = cString.Delete(3, 100);
 
 	NW_CHECK_EQUAL(3, n);
-	NW_CHECK_EQUAL_STRCMP("abc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abc"), cString);
 
   n = cString.Delete(10, 1);
 
   NW_CHECK_EQUAL(3, n);
-  NW_CHECK_EQUAL_STRCMP("abc", cString);
+  NW_CHECK_EQUAL_STRCMP(_T("abc"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringRemoveTest)
 {
-	CString cString("abcdefabc");
+	CString cString(_T("abcdefabc"));
 
 	int n = cString.Remove('a');
 
 	NW_CHECK_EQUAL(2, n);
-	NW_CHECK_EQUAL_STRCMP("bcdefbc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("bcdefbc"), cString);
 
 	n = cString.Remove('q');
 
 	NW_CHECK_EQUAL(0, n);
-	NW_CHECK_EQUAL_STRCMP("bcdefbc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("bcdefbc"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimLeftTest)
@@ -281,159 +281,159 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimLeftTest)
 
 	cString = "abcdefabc";
 	cString.TrimLeft();
-	NW_CHECK_EQUAL_STRCMP("abcdefabc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abcdefabc"), cString);
 
 	cString = " abcdefabc ";
 	cString.TrimLeft();
-	NW_CHECK_EQUAL_STRCMP("abcdefabc ", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abcdefabc "), cString);
 
-	cString = "  \t \n  abcdefabc ";
+	cString = _T("  \t \n  abcdefabc ");
 	cString.TrimLeft();
-	NW_CHECK_EQUAL_STRCMP("abcdefabc ", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abcdefabc "), cString);
 
-	cString = " zz z \t \n  abcdefabc zz";
+	cString = _T(" zz z \t \n  abcdefabc zz");
 	cString.TrimLeft('z');
-	NW_CHECK_EQUAL_STRCMP(" zz z \t \n  abcdefabc zz", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" zz z \t \n  abcdefabc zz"), cString);
 
-	cString = "zz z \t \n  abcdefabc zz";
+	cString = _T("zz z \t \n  abcdefabc zz");
 	cString.TrimLeft('z');
-	NW_CHECK_EQUAL_STRCMP(" z \t \n  abcdefabc zz", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" z \t \n  abcdefabc zz"), cString);
 
-	cString = "zqd qdz \t \n  abcdefabc zz";
-	cString.TrimLeft("zqdka");
-	NW_CHECK_EQUAL_STRCMP(" qdz \t \n  abcdefabc zz", cString);
+	cString = _T("zqd qdz \t \n  abcdefabc zz");
+	cString.TrimLeft(_T("zqdka"));
+	NW_CHECK_EQUAL_STRCMP(_T(" qdz \t \n  abcdefabc zz"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimRightTest)
 {
 	CString cString;
 	
-	cString = "abcdefabc";
+	cString = _T("abcdefabc");
 	cString.TrimRight();
-	NW_CHECK_EQUAL_STRCMP("abcdefabc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abcdefabc"), cString);
 
-	cString = " abcdefabc ";
+	cString = _T(" abcdefabc ");
 	cString.TrimRight();
-	NW_CHECK_EQUAL_STRCMP(" abcdefabc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" abcdefabc"), cString);
 
-	cString = " abcdefabc \t   \n   ";
+	cString = _T(" abcdefabc \t   \n   ");
 	cString.TrimRight();
-	NW_CHECK_EQUAL_STRCMP(" abcdefabc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" abcdefabc"), cString);
 
-	cString = " abcdefabc \t   \n   ";
+	cString = _T(" abcdefabc \t   \n   ");
 	cString.TrimRight();
-	NW_CHECK_EQUAL_STRCMP(" abcdefabc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" abcdefabc"), cString);
 
-	cString = " abcdefabc \t   \n z  ";
+	cString = _T(" abcdefabc \t   \n z  ");
 	cString.TrimRight('z');
-	NW_CHECK_EQUAL_STRCMP(" abcdefabc \t   \n z  ", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" abcdefabc \t   \n z  "), cString);
 
-	cString = " abcdefabc \t   \n z  zzzz";
+	cString = _T(" abcdefabc \t   \n z  zzzz");
 	cString.TrimRight('z');
-	NW_CHECK_EQUAL_STRCMP(" abcdefabc \t   \n z  ", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" abcdefabc \t   \n z  "), cString);
 
-	cString = " abcdefabc \t   \n z  zqw zwwwq";
-	cString.TrimRight("zqwka");
-	NW_CHECK_EQUAL_STRCMP(" abcdefabc \t   \n z  zqw ", cString);
+	cString = _T(" abcdefabc \t   \n z  zqw zwwwq");
+	cString.TrimRight(_T("zqwka"));
+	NW_CHECK_EQUAL_STRCMP(_T(" abcdefabc \t   \n z  zqw "), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringTrimTest)
 {
 	CString cString;
 
-	cString = "  \t \n abcdefabc  \t \n ";
+	cString = _T("  \t \n abcdefabc  \t \n ");
 	cString.Trim();
-	NW_CHECK_EQUAL_STRCMP("abcdefabc", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("abcdefabc"), cString);
 
-	cString = "zz z  \t abcdefabc  \t z zzzz";
+	cString = _T("zz z  \t abcdefabc  \t z zzzz");
 	cString.Trim('z');
-	NW_CHECK_EQUAL_STRCMP(" z  \t abcdefabc  \t z ", cString);
+	NW_CHECK_EQUAL_STRCMP(_T(" z  \t abcdefabc  \t z "), cString);
 
-	cString = "qqqwzz z  \t abcdefabc  \t z zwwrrzzz";
-	cString.Trim("zqwrac");
-	NW_CHECK_EQUAL_STRCMP(" z  \t abcdefabc  \t z ", cString);
+	cString = _T("qqqwzz z  \t abcdefabc  \t z zwwrrzzz");
+	cString.Trim(_T("zqwrac"));
+	NW_CHECK_EQUAL_STRCMP(_T(" z  \t abcdefabc  \t z "), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
-	int res = cString.Compare("abcdef");
+	int res = cString.Compare(_T("abcdef"));
 	NW_CHECK_EQUAL(0, res);
 
-	res = cString.Compare("A");
+	res = cString.Compare(_T("A"));
 	NW_CHECK(res > 0);
 
-	res = cString.Compare("abcdefabc");
+	res = cString.Compare(_T("abcdefabc"));
 	NW_CHECK(res < 0);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareNoCaseTest)
 {
-	CString cString("abcdef");
+	CString cString(_T("abcdef"));
 
-	int res = cString.CompareNoCase("ABcdEF");
+	int res = cString.CompareNoCase(_T("ABcdEF"));
 	NW_CHECK_EQUAL(0, res);
 
-	res = cString.CompareNoCase("ABcdE");
+	res = cString.CompareNoCase(_T("ABcdE"));
 	NW_CHECK(res > 0);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatSimpleTest)
 {
   CString str;
-  CString str2("abc");
+  CString str2(_T("abc"));
 
-  str.Format("%s", str2);
-  NW_CHECK_EQUAL_STRCMP("abc", str);
+  str.Format(_T("%s"), str2);
+  NW_CHECK_EQUAL_STRCMP(_T("abc"), str);
 
-  str.Format("%d", 123);
-  NW_CHECK_EQUAL_STRCMP("123", str);
+  str.Format(_T("%d"), 123);
+  NW_CHECK_EQUAL_STRCMP(_T("123"), str);
 
-  str.Format("%f", 1.23f);
-  NW_CHECK_EQUAL_STRCMP("1.230000", str);
+  str.Format(_T("%f"), 1.23f);
+  NW_CHECK_EQUAL_STRCMP(_T("1.230000"), str);
 
-  str.Format("%x", 0xFFF);
-  NW_CHECK_EQUAL_STRCMP("fff", str);
+  str.Format(_T("%x"), 0xFFF);
+  NW_CHECK_EQUAL_STRCMP(_T("fff"), str);
 
-  str.Format("%c", 'a');
-  NW_CHECK_EQUAL_STRCMP("a", str);
+  str.Format(_T("%c"), 'a');
+  NW_CHECK_EQUAL_STRCMP(_T("a"), str);
 
-  str.Format("%lu", 123);
-  NW_CHECK_EQUAL_STRCMP("123", str);
+  str.Format(_T("%lu"), 123);
+  NW_CHECK_EQUAL_STRCMP(_T("123"), str);
 
-  str.Format("%hd", 123);
-  NW_CHECK_EQUAL_STRCMP("123", str);
+  str.Format(_T("%hd"), 123);
+  NW_CHECK_EQUAL_STRCMP(_T("123"), str);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatTest)
 {
 	CString str;
 
-	str.Format("%d%s%d%s%d", 2, " * ", 2, " equal ", 4);
+	str.Format(_T("%d%s%d%s%d"), 2, _T(" * "), 2, _T(" equal "), 4);
 
-	NW_CHECK_EQUAL_STRCMP("2 * 2 equal 4", str);
+	NW_CHECK_EQUAL_STRCMP(_T("2 * 2 equal 4"), str);
 
-	str.Format("", 2, 3, 4, 5); // format string is empty, args does not matter
+	str.Format(_T(""), 2, 3, 4, 5); // format string is empty, args does not matter
 
-	NW_CHECK_EQUAL_STRCMP("", str);
+	NW_CHECK_EQUAL_STRCMP(_T(""), str);
 
-  CString str2("abc");
+  CString str2(_T("abc"));
 
-  str.Format("%s", str2);
-  NW_CHECK_EQUAL_STRCMP("abc", str);
+  str.Format(_T("%s"), str2);
+  NW_CHECK_EQUAL_STRCMP(_T("abc"), str);
 
-  str.Format("%s%s", str2, "123");
-  NW_CHECK_EQUAL_STRCMP("abc123", str);
+  str.Format(_T("%s%s"), str2, _T("123"));
+  NW_CHECK_EQUAL_STRCMP(_T("abc123"), str);
 
-  str.Format("%s%d", str2, 123);
-  NW_CHECK_EQUAL_STRCMP("abc123", str)
+  str.Format(_T("%s%d"), str2, 123);
+  NW_CHECK_EQUAL_STRCMP(_T("abc123"), str)
 
-  str.Format("%s %d %4f", str2, 123, 5.67f);
-  NW_CHECK_EQUAL_STRCMP("abc 123 5.670000", str);
+  str.Format(_T("%s %d %4f"), str2, 123, 5.67f);
+  NW_CHECK_EQUAL_STRCMP(_T("abc 123 5.670000"), str);
 
-  str.Format("%s %x", str2, 0xFF123);
-  NW_CHECK_EQUAL_STRCMP("abc ff123", str);
+  str.Format(_T("%s %x"), str2, 0xFF123);
+  NW_CHECK_EQUAL_STRCMP(_T("abc ff123"), str);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
@@ -444,91 +444,91 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringFormatCStringTest)
 	CString two;
 	CString three;
 
-	one   = "one";
-	two   = "two";
-	three = "three";
+	one   = _T("one");
+	two   = _T("two");
+	three = _T("three");
 
-	str.Format("just a [%s] test", one);
-	NW_CHECK_EQUAL_STRCMP("just a [one] test", str);
+	str.Format(_T("just a [%s] test"), one);
+	NW_CHECK_EQUAL_STRCMP(_T("just a [one] test"), str);
 
-	str.Format("just a [%s] test", two);
-	NW_CHECK_EQUAL_STRCMP("just a [two] test", str);
+	str.Format(_T("just a [%s] test"), two);
+	NW_CHECK_EQUAL_STRCMP(_T("just a [two] test"), str);
 
-	str.Format("just a [%s] [%s] test", one, two);
-	NW_CHECK_EQUAL_STRCMP("just a [one] [two] test", str);
+	str.Format(_T("just a [%s] [%s] test"), one, two);
+	NW_CHECK_EQUAL_STRCMP(_T("just a [one] [two] test"), str);
 
-	str.Format("just a [%s] [%s] [%s] test", one, two, three);
-	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] test", str);
+	str.Format(_T("just a [%s] [%s] [%s] test"), one, two, three);
+	NW_CHECK_EQUAL_STRCMP(_T("just a [one] [two] [three] test"), str);
 
-	str.Format("just a [%s] [%s] [%s] %d test", one, two, three, 4);
-	NW_CHECK_EQUAL_STRCMP("just a [one] [two] [three] 4 test", str);
+	str.Format(_T("just a [%s] [%s] [%s] %d test"), one, two, three, 4);
+	NW_CHECK_EQUAL_STRCMP(_T("just a [one] [two] [three] 4 test"), str);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringOperatorAssignTest)
 {
-	CString cString("zzz");
+	CString cString(_T("zzz"));
 
-	cString = "a";
+	cString = _T("a");
 
-	NW_CHECK_EQUAL_STRCMP("a", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("a"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringOperatorPlusAssignTest)
 {
-	CString cString("zzz");
+	CString cString(_T("zzz"));
 
-	cString += "www";
+	cString += _T("www");
 
-	NW_CHECK_EQUAL_STRCMP("zzzwww", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("zzzwww"), cString);
 
-	CString strAdd = "aaa";
+	CString strAdd = _T("aaa");
 
 	cString += strAdd;
 
-	NW_CHECK_EQUAL_STRCMP("zzzwwwaaa", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("zzzwwwaaa"), cString);
 
 	cString += 'b';
 
-	NW_CHECK_EQUAL_STRCMP("zzzwwwaaab", cString);
+	NW_CHECK_EQUAL_STRCMP(_T("zzzwwwaaab"), cString);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringOperatorPlusTest)
 {
-	CString str1("zzz");
-	CString str2("aaa");
+	CString str1(_T("zzz"));
+	CString str2(_T("aaa"));
 
 	CString resStr = str1 + str2;
 
-	NW_CHECK_EQUAL_STRCMP("zzzaaa", resStr);
+	NW_CHECK_EQUAL_STRCMP(_T("zzzaaa"), resStr);
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCompareOperatorsTest)
 {
-	NW_CHECK_TRUE(CString("abc") == CString("abc"));
-	NW_CHECK_TRUE(CString("abc") == "abc");
-	NW_CHECK_FALSE(CString("abc") == CString("abcde"));
-	NW_CHECK_FALSE("abcde" == CString("abc"));
+	NW_CHECK_TRUE(CString(_T("abc")) == CString("abc"));
+	NW_CHECK_TRUE(CString(_T("abc")) == "abc");
+	NW_CHECK_FALSE(CString(_T("abc")) == CString("abcde"));
+	NW_CHECK_FALSE(_T("abcde") == CString("abc"));
 
-	NW_CHECK_TRUE(CString("abc") != CString("abcde"));
-	NW_CHECK_TRUE(CString("abc") != "abcde");
-	NW_CHECK_FALSE(CString("abc") != CString("abc"));
-	NW_CHECK_FALSE("abc" != CString("abc"));
+	NW_CHECK_TRUE(CString(_T("abc")) != CString("abcde"));
+	NW_CHECK_TRUE(CString(_T("abc")) != "abcde");
+	NW_CHECK_FALSE(CString(_T("abc")) != CString("abc"));
+	NW_CHECK_FALSE(_T("abc") != CString("abc"));
 
-	NW_CHECK_TRUE(CString("abc") > CString("ab"));
-	NW_CHECK_TRUE(CString("abc") > "aaa");
-	NW_CHECK_FALSE("aaa" > CString("abc"));
+	NW_CHECK_TRUE(CString(_T("abc")) > CString("ab"));
+	NW_CHECK_TRUE(CString(_T("abc")) > "aaa");
+	NW_CHECK_FALSE(_T("aaa") > CString("abc"));
 
-	NW_CHECK_TRUE(CString("ab") < CString("abc"));
-	NW_CHECK_TRUE(CString("aaa") < "abc");
-	NW_CHECK_FALSE("abc" < CString("aaa"));
+	NW_CHECK_TRUE(CString(_T("ab")) < CString("abc"));
+	NW_CHECK_TRUE(CString(_T("aaa")) < "abc");
+	NW_CHECK_FALSE(_T("abc") < CString("aaa"));
 
-	NW_CHECK_TRUE(CString("abc") >= CString("abc"));
-	NW_CHECK_TRUE(CString("abc") >= "aaa");
-	NW_CHECK_FALSE("abc" >= CString("abcd"));
+	NW_CHECK_TRUE(CString(_T("abc")) >= CString("abc"));
+	NW_CHECK_TRUE(CString(_T("abc")) >= "aaa");
+	NW_CHECK_FALSE(_T("abc") >= CString("abcd"));
 
-	NW_CHECK_TRUE(CString("abc") <= CString("abc"));
-	NW_CHECK_TRUE(CString("aaa") <= "abc");
-	NW_CHECK_FALSE("abcd" <= CString("abc"));
+	NW_CHECK_TRUE(CString(_T("abc")) <= CString("abc"));
+	NW_CHECK_TRUE(CString(_T("aaa")) <= "abc");
+	NW_CHECK_FALSE(_T("abcd") <= CString("abc"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, C2CMacroTest)
@@ -584,11 +584,11 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, ReleaseBufferTest)
 
   TCHAR *buffer = str.GetBufferSetLength(bufferStartSize);
 
-  strcpy(buffer, "2017");
+  _tcscpy(buffer, _T("2017"));
 
   str.ReleaseBuffer();
 
-  NW_CHECK_EQUAL_STRCMP(str.GetString(), "2017");
+  NW_CHECK_EQUAL_STRCMP(str.GetString(), _T("2017"));
 }
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringSetStringTest)
@@ -596,11 +596,11 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringSetStringTest)
   CString str;
   bool exceptionCatched = false;
 
-  str.SetString("abcd", 3);
-  NW_CHECK_EQUAL_STRCMP("abc", str.GetString());
+  str.SetString(_T("abcd"), 3);
+  NW_CHECK_EQUAL_STRCMP(_T("abc"), str.GetString());
 
-  str.SetString("efgh", 10);
-  NW_CHECK_EQUAL_STRCMP("efgh", str.GetString());
+  str.SetString(_T("efgh"), 10);
+  NW_CHECK_EQUAL_STRCMP(_T("efgh"), str.GetString());
 
   /* trying to pass -1 as nLength parameter throws exception in MS implementation,
      NanoWin implementation clears string */
@@ -628,7 +628,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringAddSymbolTest)
   }
 
   NW_CHECK_EQUAL(128, str.GetLength());
-  NW_CHECK_EQUAL_STRCMP("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  NW_CHECK_EQUAL_STRCMP(_T("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", str.GetString());
@@ -646,7 +646,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WTest)
 
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCW2AFormatTest)
 {
-  CString str;
+  CStringA str;
 
   str.Format("%s", (const char*)CW2A(L"hello"));
   NW_CHECK_EQUAL_STRCMP("hello", str.GetString());
@@ -654,7 +654,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCW2AFormatTest)
   str.Format("%d%s%d", 123, (const char*)CW2A(L"abc"), 456);
   NW_CHECK_EQUAL_STRCMP("123abc456", str.GetString());
 }
-#ifndef __GNUC__
+//#ifndef __GNUC__
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WFormatTest)
 {
   CStringW str;
@@ -665,5 +665,5 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WFormatTest)
   str.Format(L"%d%s%d", 123, (const wchar_t*)CA2W("abc"), 456);
   NW_CHECK_EQUAL_MEMCMP(L"123abc456", str.GetString(), 10 * sizeof(wchar_t));
 }
-#endif
+//#endif
 NW_END_TEST_GROUP()

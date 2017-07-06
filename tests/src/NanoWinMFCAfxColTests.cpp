@@ -385,7 +385,7 @@ NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapSetAt)
 	map.GetNextAssoc(pos, key, str);
 
 	NW_CHECK_EQUAL_INTS(0, key);
-	NW_CHECK_EQUAL_STRCMP("0", str);
+	NW_CHECK_EQUAL_STRCMP(_T("0"), str);
 }
 
 NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapGetNextAssoc)
@@ -404,12 +404,12 @@ NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapGetNextAssoc)
 	map.GetNextAssoc(pos, key, str);
 
 	NW_CHECK_EQUAL_INTS(0, key);
-	NW_CHECK_EQUAL_STRCMP("0", str);
+	NW_CHECK_EQUAL_STRCMP(_T("0"), str);
 
 	map.GetNextAssoc(pos, key, str);
 
 	NW_CHECK_EQUAL_INTS(1, key);
-	NW_CHECK_EQUAL_STRCMP("1", str);
+	NW_CHECK_EQUAL_STRCMP(_T("1"), str);
 }
 
 NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapGetStartPosition)
@@ -431,7 +431,7 @@ NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapGetStartPosition)
 	NW_CHECK_TRUE(map.GetStartPosition() != NULL);
 
 	NW_CHECK_EQUAL_INTS(0, key);
-	NW_CHECK_EQUAL_STRCMP("0", str);
+	NW_CHECK_EQUAL_STRCMP(_T("0"), str);
 }
 
 NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapLookup)
@@ -440,16 +440,16 @@ NW_TEST(NanoWinMFCAfxColCMapTestGroup, CMapLookup)
 
 	CString  str;
 
-	map.SetAt(0, "0");
-	map.SetAt(1, "1");
+	map.SetAt(0, _T("0"));
+	map.SetAt(1, _T("1"));
 
 	map.Lookup(0, str);
 
-	NW_CHECK_EQUAL_STRCMP("0", str);
+	NW_CHECK_EQUAL_STRCMP(_T("0"), str);
 
 	map.Lookup(1, str);
 
-	NW_CHECK_EQUAL_STRCMP("1", str);
+	NW_CHECK_EQUAL_STRCMP(_T("1"), str);
 }
 
 NW_END_TEST_GROUP()
@@ -519,7 +519,7 @@ NW_TEST(NanoWinMFCAfxColCStringArrayTestGroup, CStringArrayAdd)
 	lst.Add("aaa");
 
 	NW_CHECK_EQUAL_INTS(1, lst.GetCount());
-	NW_CHECK_EQUAL_STRCMP("aaa", lst.GetAt(0));
+	NW_CHECK_EQUAL_STRCMP(_T("aaa"), lst.GetAt(0));
 }
 
 NW_TEST(NanoWinMFCAfxColCStringArrayTestGroup, CStringGetAt)
@@ -529,8 +529,8 @@ NW_TEST(NanoWinMFCAfxColCStringArrayTestGroup, CStringGetAt)
 	lst.Add("aaa");
 	lst.Add("bbb");
 
-	NW_CHECK_EQUAL_STRCMP("aaa", lst.GetAt(0));
-	NW_CHECK_EQUAL_STRCMP("bbb", lst.GetAt(1));
+	NW_CHECK_EQUAL_STRCMP(_T("aaa"), lst.GetAt(0));
+	NW_CHECK_EQUAL_STRCMP(_T("bbb"), lst.GetAt(1));
 }
 
 NW_TEST(NanoWinMFCAfxColCStringArrayTestGroup, CStringAppend)
@@ -547,9 +547,9 @@ NW_TEST(NanoWinMFCAfxColCStringArrayTestGroup, CStringAppend)
 
 	NW_CHECK_EQUAL_INTS(3, lst1.GetCount());
 
-	NW_CHECK_EQUAL_STRCMP("aaa", lst1.GetAt(0));
-	NW_CHECK_EQUAL_STRCMP("bbb", lst1.GetAt(1));
-	NW_CHECK_EQUAL_STRCMP("ccc", lst1.GetAt(2));
+	NW_CHECK_EQUAL_STRCMP(_T("aaa"), lst1.GetAt(0));
+	NW_CHECK_EQUAL_STRCMP(_T("bbb"), lst1.GetAt(1));
+	NW_CHECK_EQUAL_STRCMP(_T("ccc"), lst1.GetAt(2));
 }
 
 NW_TEST(NanoWinMFCAfxColCStringArrayTestGroup, CStringOperator)
@@ -581,8 +581,8 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrGetCount)
 
 	int arr[2] = { 0, 1 };
 
-	lst.SetAt("first", &arr[0]);
-	lst.SetAt("second", &arr[1]);
+	lst.SetAt(_T("first"), &arr[0]);
+	lst.SetAt(_T("second"), &arr[1]);
 
 	NW_CHECK_EQUAL_INTS(2, lst.GetCount());
 }
@@ -593,8 +593,8 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrRemoveAll)
 
 	int arr[2] = { 0, 1 };
 
-	lst.SetAt("first", &arr[0]);
-	lst.SetAt("second", &arr[1]);
+	lst.SetAt(_T("first"), &arr[0]);
+	lst.SetAt(_T("second"), &arr[1]);
 
 	NW_CHECK_EQUAL_INTS(2, lst.GetCount());
 
@@ -609,9 +609,9 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrGetStartPositio
 
 	int arr[3] = { 1, 2, 3 };
 
-	lst.SetAt("first", &arr[0]);
-	lst.SetAt("second", &arr[1]);
-	lst.SetAt("third", &arr[2]);
+	lst.SetAt(_T("first"), &arr[0]);
+	lst.SetAt(_T("second"), &arr[1]);
+	lst.SetAt(_T("third"), &arr[2]);
 
 	POSITION pos = lst.GetStartPosition();
 
@@ -621,7 +621,7 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrGetStartPositio
 	lst.GetNextAssoc(pos, str, val);
 	
 	NW_CHECK_EQUAL(&arr[0], val);
-	NW_CHECK_EQUAL_STRCMP(str, "first");
+	NW_CHECK_EQUAL_STRCMP(str, _T("first"));
 }
 
 NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrGetStartPositionEmpty)
@@ -641,21 +641,21 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrGetNextAssoc)
 
 	int arr[3] = { 1, 2, 3 };
 
-	lst.SetAt("first", &arr[0]);
-	lst.SetAt("second", &arr[1]);
-	lst.SetAt("third", &arr[2]);
+	lst.SetAt(_T("first"), &arr[0]);
+	lst.SetAt(_T("second"), &arr[1]);
+	lst.SetAt(_T("third"), &arr[2]);
 
 	POSITION pos = lst.GetStartPosition();
 
 	lst.GetNextAssoc(pos, str, val);
 
 	NW_CHECK_EQUAL(&arr[0], val);
-	NW_CHECK_EQUAL_STRCMP(str, "first");
+	NW_CHECK_EQUAL_STRCMP(str, _T("first"));
 
 	lst.GetNextAssoc(pos, str, val);
 
 	NW_CHECK_EQUAL(&arr[1], val);
-	NW_CHECK_EQUAL_STRCMP(str, "second");
+	NW_CHECK_EQUAL_STRCMP(str, _T("second"));
 }
 
 
@@ -666,15 +666,15 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrLookup)
 
 	int arr[2] = { 1, 2 };
 
-	lst.SetAt("first", &arr[0]);
-	lst.SetAt("second", &arr[1]);
+	lst.SetAt(_T("first"), &arr[0]);
+	lst.SetAt(_T("second"), &arr[1]);
 
 	void *result;
 
-	NW_CHECK_TRUE(lst.Lookup("first", result));
+	NW_CHECK_TRUE(lst.Lookup(_T("first"), result));
 	NW_CHECK_EQUAL(&arr[0], result);
 
-	NW_CHECK_FALSE(lst.Lookup("third", result));
+	NW_CHECK_FALSE(lst.Lookup(_T("third"), result));
 }
 
 NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrLookupKey)
@@ -683,15 +683,15 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrLookupKey)
 
 	int arr[2] = { 1, 2 };
 
-	lst.SetAt("first", &arr[0]);
-	lst.SetAt("second", &arr[1]);
+	lst.SetAt(_T("first"), &arr[0]);
+	lst.SetAt(_T("second"), &arr[1]);
 
 	LPCTSTR result;
 
-	NW_CHECK_TRUE(lst.LookupKey("first", result));
-	NW_CHECK_EQUAL_STRCMP("first", result);
+	NW_CHECK_TRUE(lst.LookupKey(_T("first"), result));
+	NW_CHECK_EQUAL_STRCMP(_T("first"), result);
 
-	NW_CHECK_FALSE(lst.LookupKey("third", result));
+	NW_CHECK_FALSE(lst.LookupKey(_T("third"), result));
 }
 
 NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrSetAt)
@@ -700,17 +700,17 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrSetAt)
 
 	int arr[3] = { 1, 2 };
 
-	lst.SetAt("first", &arr[0]);
-	lst.SetAt("second", &arr[1]);
+	lst.SetAt(_T("first"), &arr[0]);
+	lst.SetAt(_T("second"), &arr[1]);
 
 	NW_CHECK_EQUAL_INTS(2, lst.GetCount());
 	
 	void *result;
 
-	NW_CHECK_TRUE(lst.Lookup("first", result));
+	NW_CHECK_TRUE(lst.Lookup(_T("first"), result));
 	NW_CHECK_EQUAL(&arr[0], result);
 
-	NW_CHECK_TRUE(lst.Lookup("second", result));
+	NW_CHECK_TRUE(lst.Lookup(_T("second"), result));
 	NW_CHECK_EQUAL(&arr[1], result);
 }
 

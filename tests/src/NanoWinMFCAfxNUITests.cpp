@@ -14,7 +14,7 @@ NW_TEST(NanoWinMFCAfxNUITestGroup, SetWindowTextATest)
 {
   CWnd cwnd;
   const char *mess = "hello";
-  CString res;
+  CStringA res;
 
   cwnd.SetWindowTextA(mess);
   cwnd.GetWindowTextA(res);
@@ -38,16 +38,16 @@ NW_TEST(NanoWinMFCAfxNUITestGroup, CListCtrlInsertColumnTest)
 {
   CListCtrl list;
 
-  int index1 = list.InsertColumn(0, "Column 1");
+  int index1 = list.InsertColumn(0, _T("Column 1"));
   NW_CHECK_EQUAL(0, index1);
 
-  int index2 = list.InsertColumn(0, "Column 2");
+  int index2 = list.InsertColumn(0, _T("Column 2"));
   NW_CHECK_EQUAL(0, index2);
 
-  int index3 = list.InsertColumn(1, "Column 3");
+  int index3 = list.InsertColumn(1, _T("Column 3"));
   NW_CHECK_EQUAL(1, index3);
 
-  int index4 = list.InsertColumn(10, "Column 4");
+  int index4 = list.InsertColumn(10, _T("Column 4"));
   NW_CHECK_EQUAL(3, index4);
 }
 
@@ -55,13 +55,13 @@ NW_TEST(NanoWinMFCAfxNUITestGroup, CListCtrlGetColumnCountTest)
 {
   CListCtrl list;
 
-  int index1 = list.InsertColumn(0, "Column 1");
+  int index1 = list.InsertColumn(0, _T("Column 1"));
   NW_CHECK_EQUAL(0, index1);
 
-  int index2 = list.InsertColumn(0, "Column 2");
+  int index2 = list.InsertColumn(0, _T("Column 2"));
   NW_CHECK_EQUAL(0, index2);
 
-  int index3 = list.InsertColumn(1, "Column 3");
+  int index3 = list.InsertColumn(1, _T("Column 3"));
   NW_CHECK_EQUAL(1, index3);
 
   int count = list.GetColumnCount();
@@ -77,18 +77,18 @@ NW_TEST(NanoWinMFCAfxNUITestGroup, CListCtrlDeleteColumnTest)
 {
   CListCtrl list;
 
-  int index1 = list.InsertColumn(0, "Column 1");
+  int index1 = list.InsertColumn(0, _T("Column 1"));
   NW_CHECK_EQUAL(0, index1);
 
-  int index2 = list.InsertColumn(1, "Column 2");
+  int index2 = list.InsertColumn(1, _T("Column 2"));
   NW_CHECK_EQUAL(1, index2);
 
-  int index3 = list.InsertColumn(2, "Column 3");
+  int index3 = list.InsertColumn(2, _T("Column 3"));
   NW_CHECK_EQUAL(2, index3);
   
   list.DeleteColumn(1);
 
-  int index4 = list.InsertColumn(10, "Column 4");
+  int index4 = list.InsertColumn(10, _T("Column 4"));
   NW_CHECK_EQUAL(2, index4);
   
 }
@@ -97,18 +97,18 @@ NW_TEST(NanoWinMFCAfxNUITestGroup, CListCtrlInsertItemTest)
 {
   CListCtrl list;
 
-  list.InsertColumn(0, "Column 1");
+  list.InsertColumn(0, _T("Column 1"));
   
-  int index1 = list.InsertItem(0, "Item 1");
+  int index1 = list.InsertItem(0, _T("Item 1"));
   NW_CHECK_EQUAL(0, index1);
   
-  int index2 = list.InsertItem(0, "Item 2");
+  int index2 = list.InsertItem(0, _T("Item 2"));
   NW_CHECK_EQUAL(0, index2);
 
-  int index3 = list.InsertItem(1, "Item 3");
+  int index3 = list.InsertItem(1, _T("Item 3"));
   NW_CHECK_EQUAL(1, index3);
 
-  int index4 = list.InsertItem(10, "Item 4");
+  int index4 = list.InsertItem(10, _T("Item 4"));
   NW_CHECK_EQUAL(3, index4);
 }
 
@@ -116,17 +116,17 @@ NW_TEST(NanoWinMFCAfxNUITestGroup, CListCtrlDeleteAllItemsTest)
 {
   CListCtrl list;
 
-  list.InsertColumn(0, "Column 1");
+  list.InsertColumn(0, _T("Column 1"));
 
-  int index1 = list.InsertItem(0, "Item 1");
+  int index1 = list.InsertItem(0, _T("Item 1"));
   NW_CHECK_EQUAL(0, index1);
 
-  int index2 = list.InsertItem(1, "Item 2");
+  int index2 = list.InsertItem(1, _T("Item 2"));
   NW_CHECK_EQUAL(1, index2);
 
   list.DeleteAllItems();
 
-  int index3 = list.InsertItem(3, "Item 2");
+  int index3 = list.InsertItem(3, _T("Item 2"));
   NW_CHECK_EQUAL(0, index3);
 }
 
@@ -135,16 +135,16 @@ NW_TEST(NanoWinMFCAfxNUITestGroup, CListCtrlSetItemTextTest)
   CListCtrl list;
   CString str;
 
-  list.InsertColumn(0, "Column 1");
+  list.InsertColumn(0, _T("Column 1"));
 
-  int index1 = list.InsertItem(0, "Item 1");
+  int index1 = list.InsertItem(0, _T("Item 1"));
   NW_CHECK_EQUAL(0, index1);
 
-  bool res = list.SetItemText(0, 0, "item text");
+  bool res = list.SetItemText(0, 0, _T("item text"));
   NW_CHECK_TRUE(res);
 
   str = list.GetItemText(0, 0);
-  NW_CHECK_EQUAL_STRCMP("item text", str.GetString());
+  NW_CHECK_EQUAL_STRCMP(_T("item text"), str.GetString());
 }
 
 NW_END_TEST_GROUP()

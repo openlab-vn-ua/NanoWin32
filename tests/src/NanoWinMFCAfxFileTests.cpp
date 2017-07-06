@@ -125,7 +125,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileTest)
 	NW_CHECK_FALSE(res);
 
 	CString resStr = find.GetFileName();
-	NW_CHECK_EQUAL_STRCMP("testFile512.txt", resStr.GetString());
+	NW_CHECK_EQUAL_STRCMP(_T("testFile512.txt"), resStr.GetString());
 }
 
 NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileNameNullTest)
@@ -146,11 +146,11 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindFileNameNullTest)
 
 		CString resStr = find.GetFileName();
 
-		if (strcmp(".", resStr.GetString()) == 0) 
+		if (resStr == _T(".")) 
 		{
 			oneDotFound = true;
 		}
-		else if (strcmp("..", resStr.GetString()) == 0)
+		else if (resStr == _T(".."))
 		{
 			twoDotsFound = true;
 		}
@@ -165,7 +165,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindNextFileTest)
 	CFileFind find;
 	BOOL      res;
 
-	CString resStr("testDir/testFile*");
+	CString resStr(_T("testDir/testFile*"));
 
 	res = find.FindFile(resStr);
 	NW_CHECK_TRUE(res);
@@ -176,13 +176,13 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindNextFileTest)
 	resStr = find.GetFileName();
 
 
-	if (strcmp("testFile512.txt", resStr.GetString()) == 0)
+	if (resStr == _T("testFile512.txt"))
 	{
-		NW_CHECK_EQUAL_STRCMP("testFile512.txt", resStr.GetString());
+		NW_CHECK_EQUAL_STRCMP(_T("testFile512.txt"), resStr.GetString());
 	}
 	else
 	{
-		NW_CHECK_EQUAL_STRCMP("testFile256.txt", resStr.GetString());
+		NW_CHECK_EQUAL_STRCMP(_T("testFile256.txt"), resStr.GetString());
 	}
 
 	res = find.FindNextFile();
@@ -191,13 +191,13 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindNextFileTest)
 	resStr = find.GetFileName();
 
 
-	if (strcmp("testFile512.txt", resStr.GetString()) == 0)
+	if (resStr == _T("testFile512.txt"))
 	{
-		NW_CHECK_EQUAL_STRCMP("testFile512.txt", resStr.GetString());
+		NW_CHECK_EQUAL_STRCMP(_T("testFile512.txt"), resStr.GetString());
 	}
 	else
 	{
-		NW_CHECK_EQUAL_STRCMP("testFile256.txt", resStr.GetString());
+		NW_CHECK_EQUAL_STRCMP(_T("testFile256.txt"), resStr.GetString());
 	}
 }
 
@@ -206,8 +206,8 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindCloseTest)
 	CFileFind find;
 	BOOL      res;
 
-	CString str1("testDir/testFile5*");
-	CString str2("testDir/testFile2*");
+	CString str1(_T("testDir/testFile5*"));
+	CString str2(_T("testDir/testFile2*"));
 
 	res = find.FindFile(str1);
 	NW_CHECK_TRUE(res);
@@ -218,7 +218,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, FindCloseTest)
 	find.Close();
 
 	CString resStr = find.GetFileName();
-	NW_CHECK_EQUAL_STRCMP("", resStr.GetString());
+	NW_CHECK_EQUAL_STRCMP(_T(""), resStr.GetString());
 
 	res = find.FindFile(str2);
 	NW_CHECK_TRUE(res);
@@ -229,8 +229,8 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, IsDirectoryTest)
 	CFileFind find;
 	BOOL      res;
 
-	CString str1("testDir/testFile5*");
-	CString str2("testDir/testSub*");
+	CString str1(_T("testDir/testFile5*"));
+	CString str2(_T("testDir/testSub*"));
 
 	res = find.FindFile(str1);
 	NW_CHECK_TRUE(res);
@@ -240,7 +240,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, IsDirectoryTest)
 
 	CString resStr = find.GetFileName();
 
-	NW_CHECK_EQUAL_STRCMP("testFile512.txt", resStr.GetString());
+	NW_CHECK_EQUAL_STRCMP(_T("testFile512.txt"), resStr.GetString());
 	NW_CHECK_TRUE(find.IsDirectory() == 0);
 
 	find.Close();
@@ -253,7 +253,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, IsDirectoryTest)
 
 	resStr = find.GetFileName();
 
-	NW_CHECK_EQUAL_STRCMP("testSubDir", resStr.GetString());
+	NW_CHECK_EQUAL_STRCMP(_T("testSubDir"), resStr.GetString());
 	NW_CHECK_TRUE(find.IsDirectory() != 0);
 }
 
@@ -262,7 +262,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, IsDotsTest)
 	CFileFind find;
 	BOOL      res;
 
-	CString str("*.*");
+	CString str(_T("*.*"));
 
 	res = find.FindFile(str);
 	NW_CHECK_TRUE(res);
@@ -273,7 +273,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, IsDotsTest)
 
 		CString resStr = find.GetFileName();
 
-		if ((strcmp(".", resStr.GetString()) == 0) || (strcmp("..", resStr.GetString()) == 0))
+		if (resStr == _T(".") || resStr == _T(".."))
 		{
 			NW_CHECK_TRUE(find.IsDots());
 		}
@@ -285,7 +285,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetLengthTest)
 	CFileFind find;
 	BOOL      res;
 
-	CString resStr("testDir/testFile*");
+	CString resStr(_T("testDir/testFile*"));
 
 	res = find.FindFile(resStr);
 	NW_CHECK_TRUE(res);
@@ -296,7 +296,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetLengthTest)
 	resStr = find.GetFileName();
 
 
-	if (strcmp("testFile512.txt", resStr.GetString()) == 0)
+	if (resStr == _T("testFile512.txt"))
 	{
 		NW_CHECK_EQUAL_LONGS(512, find.GetLength());
 	}
@@ -311,7 +311,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetLengthTest)
 	resStr = find.GetFileName();
 
 
-	if (strcmp("testFile512.txt", resStr.GetString()) == 0)
+	if (resStr == _T("testFile512.txt"))
 	{
 		NW_CHECK_EQUAL_LONGS(512, find.GetLength());
 	}
@@ -327,7 +327,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetFilePathTest)
 	BOOL      res;
 	char      fullFileName[MAX_LENGTH];
 
-	CString str("testDir/testFile5*");
+	CString str(_T("testDir/testFile5*"));
 
 	res = find.FindFile(str);
 	NW_CHECK_TRUE(res);
@@ -344,7 +344,7 @@ NW_TEST(NanoWinMFCAfxFileTestGroup, GetFilePathTest)
 	strcat(fullFileName, PATH_DIR_SEPARATOR_STR);
 	strcat(fullFileName, "testFile512.txt");
 
-	NW_CHECK_EQUAL_STRCMP(fullFileName, resStr.GetString());
+	NW_CHECK_EQUAL_STRCMP(CA2T(fullFileName), resStr.GetString());
 }
 
 NW_END_TEST_GROUP()
@@ -434,7 +434,7 @@ NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestReadWrite)
 	const char written_buff[] = "test_string";
 	char       readed_buff[64];
 
-	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeCreate);
+	file.Open(CA2T(homed.getFileA()), CFile::modeReadWrite | CFile::modeCreate);
 	file.Write(written_buff, sizeof(written_buff));
 	file.Close();
 
@@ -449,7 +449,7 @@ NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestReadWrite)
 	fprintf(fd, "%s", written_buff);
 	fclose(fd);
 
-	file.Open(homed.getFileA(), CFile::modeRead | CFile::modeNoTruncate);
+	file.Open(CA2T(homed.getFileA()), CFile::modeRead | CFile::modeNoTruncate);
 	file.Read(readed_buff, sizeof(readed_buff));
 	file.Close();
 
@@ -471,7 +471,7 @@ NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestSeek)
 	fprintf(fd, "%s", written_buff_0);
 	fclose(fd);
 
-	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeNoTruncate);
+	file.Open(CA2T(homed.getFileA()), CFile::modeReadWrite | CFile::modeNoTruncate);
 	file.Seek(0, CFile::end);
 	file.Write(written_buff_1, sizeof(written_buff_1));
 	file.Close();
@@ -487,7 +487,7 @@ NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestSeek)
 	fprintf(fd, "%s", written_buff_0);
 	fclose(fd);
 
-	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeNoTruncate);
+	file.Open(CA2T(homed.getFileA()), CFile::modeReadWrite | CFile::modeNoTruncate);
 	file.Seek(2, CFile::begin);
 	file.Write(written_buff_1, sizeof(written_buff_1));
 	file.Close();
@@ -511,7 +511,7 @@ NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestGetLength)
 	fprintf(fd, "%s", written_buff);
 	fclose(fd);
 	
-	file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeNoTruncate);
+	file.Open(CA2T(homed.getFileA()), CFile::modeReadWrite | CFile::modeNoTruncate);
 	ULONGLONG cfile_len = file.GetLength();
 	file.Close();
 

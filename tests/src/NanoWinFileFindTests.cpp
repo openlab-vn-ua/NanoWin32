@@ -66,7 +66,7 @@ NW_END_SETUP_TEARDOWN
 NW_TEST(NanoWinFileFindTestGroup, FindFileFirstAUnexistTest)
 {
 	
-	WIN32_FIND_DATA state;
+	WIN32_FIND_DATAA state;
 
 	HANDLE result = FindFirstFileA("testDir/unexist.txt", &state);
 
@@ -75,7 +75,7 @@ NW_TEST(NanoWinFileFindTestGroup, FindFileFirstAUnexistTest)
 
 NW_TEST(NanoWinFileFindTestGroup, FindFileFirstATest)
 {
-	WIN32_FIND_DATA state;
+	WIN32_FIND_DATAA state;
 
 	HANDLE searchHandle = FindFirstFileA("testDir/testFile5*", &state);
 
@@ -90,7 +90,7 @@ NW_TEST(NanoWinFileFindTestGroup, FindFileFirstATest)
 NW_TEST(NanoWinFileFindTestGroup, FindFileNextATest)
 {
 
-	WIN32_FIND_DATA state;
+	WIN32_FIND_DATAA state;
 	char            firstFoundFileName   [WIN32_FIND_DATA_FNAME_MAX];
 	char            secondFoundFileName  [WIN32_FIND_DATA_FNAME_MAX];
 
@@ -122,7 +122,7 @@ NW_TEST(NanoWinFileFindTestGroup, FindFileNextATest)
 
 NW_TEST(NanoWinFileFindTestGroup, FindFileNextAFileSizeTest)
 {
-	WIN32_FIND_DATA state;
+	WIN32_FIND_DATAA state;
 	DWORD           fileSizeHigh;
 	DWORD           fileSizeLow;
 

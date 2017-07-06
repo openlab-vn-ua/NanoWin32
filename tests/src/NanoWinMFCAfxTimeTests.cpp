@@ -17,10 +17,10 @@ NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCTimeSimpleTest)
 
   CTime checkTime = CTime::GetCurrentTime();
 
-  CString formatResult = checkTime.Format("%Y %02d");
+  CString formatResult = checkTime.Format(_T("%Y %02d"));
   sprintf(buff, "%d %02d", structTime->tm_year+1900, structTime->tm_mday);
 
-  NW_CHECK_EQUAL_STRCMP(buff, formatResult.GetString());
+  NW_CHECK_EQUAL_STRCMP(CA2T(buff), formatResult.GetString());
 }
 
 NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCTimeTest)
@@ -31,15 +31,15 @@ NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCTimeTest)
 
   CTime checkTime = CTime::GetCurrentTime();
 
-  CString formatResult = checkTime.Format("year %Y, day of month %d, %H:%M"); 
+  CString formatResult = checkTime.Format(_T("year %Y, day of month %d, %H:%M")); 
   sprintf(buff, "year %d, day of month %02d, %02d:%02d", structTime->tm_year + 1900, structTime->tm_mday, structTime->tm_hour, structTime->tm_min);
   
-  NW_CHECK_EQUAL_STRCMP(buff, formatResult.GetString());
+  NW_CHECK_EQUAL_STRCMP(CA2T(buff), formatResult.GetString());
 
-  formatResult = checkTime.Format("%w %j");
+  formatResult = checkTime.Format(_T("%w %j"));
   sprintf(buff, "%d %03d", structTime->tm_wday, structTime->tm_yday + 1);
 
-  NW_CHECK_EQUAL_STRCMP(buff, formatResult.GetString());
+  NW_CHECK_EQUAL_STRCMP(CA2T(buff), formatResult.GetString());
 }
 
 NW_END_TEST_GROUP()
