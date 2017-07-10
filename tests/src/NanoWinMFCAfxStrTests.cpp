@@ -654,7 +654,7 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCW2AFormatTest)
   str.Format("%d%s%d", 123, (const char*)CW2A(L"abc"), 456);
   NW_CHECK_EQUAL_STRCMP("123abc456", str.GetString());
 }
-//#ifndef __GNUC__
+
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WFormatTest)
 {
   CStringW str;
@@ -665,5 +665,20 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WFormatTest)
   str.Format(L"%d%s%d", 123, (const wchar_t*)CA2W("abc"), 456);
   NW_CHECK_EQUAL_MEMCMP(L"123abc456", str.GetString(), 10 * sizeof(wchar_t));
 }
-//#endif
+#ifdef __GNUC__
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringExtractSubStringTest)
+{
+  CStringA str;
+  bool res;
+
+  res = AfxExtractSubString(str, "ab cd ef", 1, ' ');
+
+  NW_CHECK_TRUE(res);
+  NW_CHECK_EQUAL_STRCMP("cd", str.GetString());
+
+  res = AfxExtractSubString(str, "ab cd ef", 10, ' ');
+
+  NW_CHECK_FALSE(res);
+}
+#endif
 NW_END_TEST_GROUP()
