@@ -1536,7 +1536,7 @@ CStringCompareAll(CStringW);
 // ------------------------------------------
 
 extern BOOL AFXAPI AfxExtractSubString(CStringA& rString, LPCSTR lpszFullString, int iSubString, CHAR chSep = '\n');
-extern BOOL AFXAPI AfxExtractSubString(CStringW& rString, LPCWSTR lpszFullString, int iSubString, CHAR chSep = L'\n');
+extern BOOL AFXAPI AfxExtractSubString(CStringW& rString, LPCWSTR lpszFullString, int iSubString, WCHAR chSep = L'\n');
 
 // In-Place converters
 // ------------------------------------------
