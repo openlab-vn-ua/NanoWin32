@@ -400,11 +400,15 @@ class CStdioFile : public CFile
                      CStdioFile   (); // nothrow()
                      CStdioFile   (CAtlTransactionManager* pTM); // nothrow()
                      CStdioFile   (FILE *stream); // nothrow()
-                     CStdioFile   (LPCTSTR lpszFileName, UINT nOpenFlags); // throw CFileException()
-                     CStdioFile   (LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM); // throw CFileException()
+                     CStdioFile   (LPCSTR lpszFileName, UINT nOpenFlags); // throw CFileException()
+                     CStdioFile   (LPCSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM); // throw CFileException()
+                     CStdioFile   (LPCWSTR lpszFileName, UINT nOpenFlags); // throw CFileException()
+                     CStdioFile   (LPCWSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM); // throw CFileException()
 
-  virtual BOOL       Open         (LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL); // nothrow()
-  virtual BOOL       Open         (LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError = NULL);  // nothrow()
+  virtual BOOL       Open         (LPCSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL); // nothrow()
+  virtual BOOL       Open         (LPCSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError = NULL);  // nothrow()
+  virtual BOOL       Open         (LPCWSTR lpszFileName, UINT nOpenFlags, CFileException* pError = NULL); // nothrow()
+  virtual BOOL       Open         (LPCWSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError = NULL);  // nothrow()
 
   virtual void       Close(); // throw CFileException()
   virtual void       Abort(); // Close if open, // nothrow()
@@ -413,19 +417,19 @@ class CStdioFile : public CFile
   // Action methods
   // All may throw CFileException() to signal error condition
 
-  virtual void       WriteString  (LPCTSTR lpsz);
+  virtual void       WriteString  (LPCSTR lpsz);
+  virtual void       WriteString  (LPCWSTR lpsz);
 
-  virtual LPTSTR     ReadString   (_Out_writes_z_(nMax) LPTSTR lpsz, _In_ UINT nMax);
-  virtual BOOL       ReadString   (CString& rString);
+  virtual LPSTR      ReadString   (_Out_writes_z_(nMax) LPSTR lpsz, _In_ UINT nMax);
+  virtual LPWSTR     ReadString   (_Out_writes_z_(nMax) LPWSTR lpsz, _In_ UINT nMax);
+  virtual BOOL       ReadString   (CStringA& rString);
+  virtual BOOL       ReadString   (CStringW& rString);
 
   private:
 
-  #if defined(UNICODE) || defined(_UNICODE)
   LPWSTR             ReadToWideString (_Out_writes_z_(nMax) LPWSTR lpsz, _In_ UINT nMax);
   BOOL               ReadToWideChar   (WCHAR *wch);
-  #else
   LPSTR              ReadToMbString   (_Out_writes_z_(nMax) LPSTR  lpsz, _In_ UINT nMax);
-  #endif
 };
 
 #endif // linux

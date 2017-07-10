@@ -360,26 +360,52 @@ CStdioFile::CStdioFile(FILE *stream)
   m_pStream = stream;
 }
 
-CStdioFile::CStdioFile(LPCTSTR lpszFileName, UINT nOpenFlags)
+CStdioFile::CStdioFile(LPCSTR lpszFileName, UINT nOpenFlags)
   : CFile(lpszFileName,nOpenFlags)
 {
   m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
 }
 
-CStdioFile::CStdioFile(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
+CStdioFile::CStdioFile(LPCWSTR lpszFileName, UINT nOpenFlags)
+  : CFile(lpszFileName,nOpenFlags)
+{
+  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
+}
+
+CStdioFile::CStdioFile(LPCSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
   : CFile(lpszFileName,nOpenFlags, pTM)
 {
   m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
 }
 
-BOOL CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
+CStdioFile::CStdioFile(LPCWSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
+  : CFile(lpszFileName,nOpenFlags, pTM)
+{
+  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
+}
+
+BOOL CStdioFile::Open(LPCSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
 {
   BOOL result = CFile::Open(lpszFileName, nOpenFlags, pError);
   m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
   return result;
 }
 
-BOOL CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
+BOOL CStdioFile::Open(LPCWSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
+{
+  BOOL result = CFile::Open(lpszFileName, nOpenFlags, pError);
+  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
+  return result;
+}
+
+BOOL CStdioFile::Open(LPCSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
+{
+  BOOL result = CFile::Open(lpszFileName, nOpenFlags, pTM, pError);
+  m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
+  return result;
+}
+
+BOOL CStdioFile::Open(LPCWSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
 {
   BOOL result = CFile::Open(lpszFileName, nOpenFlags, pTM, pError);
   m_pStream = NanoWinFileHandleAsStdioFILE(m_hFile);
@@ -405,7 +431,7 @@ void CStdioFile::Flush()
 
 // Action methods
 
-void CStdioFile::WriteString(LPCTSTR lpsz)
+void CStdioFile::WriteString(LPCSTR lpsz)
 {
   if (lpsz == NULL)
   {
@@ -417,33 +443,40 @@ void CStdioFile::WriteString(LPCTSTR lpsz)
     AfxThrowFileException();
   }
 
-  #if defined(UNICODE) || defined(_UNICODE)
+  if (fputs(lpsz,m_pStream) < 0)
   {
-    NanoWin::WStrToStrClone str(lpsz);
-
-    if (str.is_valid())
-    {
-      if (fputs(str.c_str(),m_pStream) < 0)
-      {
-        AfxThrowFileExceptionWithErrno(errno);
-      }
-    }
-    else
-    {
-      AfxThrowFileException();
-    }
+    AfxThrowFileExceptionWithErrno(errno);
   }
-  #else
+}
+
+void CStdioFile::WriteString(LPCWSTR lpsz)
+{
+  if (lpsz == NULL)
   {
-    if (fputs(lpsz,m_pStream) < 0)
+    AfxThrowFileExceptionWithErrno(EINVAL);
+  }
+
+  if (m_pStream == NULL)
+  {
+    AfxThrowFileException();
+  }
+
+  NanoWin::WStrToStrClone str(lpsz);
+
+  if (str.is_valid())
+  {
+    if (fputs(str.c_str(),m_pStream) < 0)
     {
       AfxThrowFileExceptionWithErrno(errno);
     }
   }
-  #endif
+  else
+  {
+    AfxThrowFileException();
+  }
 }
 
-LPTSTR CStdioFile::ReadString(_Out_writes_z_(nMax) LPTSTR lpsz, _In_ UINT nMax)
+LPSTR CStdioFile::ReadString(_Out_writes_z_(nMax) LPSTR lpsz, _In_ UINT nMax)
 {
   if (lpsz == NULL)
   {
@@ -460,18 +493,29 @@ LPTSTR CStdioFile::ReadString(_Out_writes_z_(nMax) LPTSTR lpsz, _In_ UINT nMax)
     AfxThrowFileException();
   }
 
-  #if defined(UNICODE) || defined(_UNICODE)
-  {
-    return ReadToWideString(lpsz,nMax);
-  }
-  #else
-  {
-    return ReadToMbString(lpsz,nMax);
-  }
-  #endif
+  return ReadToMbString(lpsz,nMax);
 }
 
-#if defined(UNICODE) || defined(_UNICODE)
+LPWSTR CStdioFile::ReadString(_Out_writes_z_(nMax) LPWSTR lpsz, _In_ UINT nMax)
+{
+  if (lpsz == NULL)
+  {
+    AfxThrowFileExceptionWithErrno(EINVAL);
+  }
+
+  if (nMax < 1)
+  {
+    AfxThrowFileExceptionWithErrno(EINVAL);
+  }
+
+  if (m_pStream == NULL)
+  {
+    AfxThrowFileException();
+  }
+
+  return ReadToWideString(lpsz,nMax);
+}
+
 BOOL CStdioFile::ReadToWideChar(WCHAR *wch)
 {
   mbstate_t convState;
@@ -577,8 +621,6 @@ LPWSTR CStdioFile::ReadToWideString(_Out_writes_z_(nMax) LPWSTR lpsz, _In_ UINT 
   return offset > 0 ? lpsz : NULL;
 }
 
-#else
-
 LPSTR CStdioFile::ReadToMbString(_Out_writes_z_(nMax) LPSTR  lpsz, _In_ UINT nMax)
 {
   if (fgets(lpsz,nMax,m_pStream) == NULL)
@@ -600,11 +642,10 @@ LPSTR CStdioFile::ReadToMbString(_Out_writes_z_(nMax) LPSTR  lpsz, _In_ UINT nMa
     return lpsz;
   }
 }
-#endif // UNICODE
 
-BOOL CStdioFile::ReadString(CString& rString)
+BOOL CStdioFile::ReadString(CStringA& rString)
 {
-  TCHAR buffer[255 + 1];
+  CHAR buffer[255 + 1];
 
   rString.Empty();
 
@@ -619,7 +660,46 @@ BOOL CStdioFile::ReadString(CString& rString)
     {
       rString.Append(buffer);
 
-      const TCHAR *str       = rString.GetString();
+      const CHAR *str       = rString.GetString();
+      int         strLength = rString.GetLength();
+
+      if (str[strLength - 1] == '\n')
+      {
+        lineReady = true;
+
+        if (strLength > 1 && str[strLength - 2] == '\r')
+        {
+          rString.Truncate(strLength - 2);
+        }
+        else
+        {
+          rString.Truncate(strLength - 1);
+        }
+      }
+    }
+  }
+
+  return !(eof && rString.GetLength() == 0);
+}
+
+BOOL CStdioFile::ReadString(CStringW& rString)
+{
+  WCHAR buffer[255 + 1];
+
+  rString.Empty();
+
+  bool  eof       = false;
+  bool  lineReady = false;
+
+  while (!eof && !lineReady)
+  {
+    eof = ReadString(buffer, sizeof(buffer) / sizeof(WCHAR)) == NULL;
+
+    if (!eof)
+    {
+      rString.Append(buffer);
+
+      const WCHAR *str       = rString.GetString();
       int          strLength = rString.GetLength();
 
       if (str[strLength - 1] == '\n')
