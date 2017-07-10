@@ -518,20 +518,129 @@ NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestGetLength)
 	NW_CHECK(written_buff_len == cfile_len);
 }
 
+#ifdef __GNUC__
+NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestOpenChar)
+{
+  TestDir homed(root, sub_dir[0], file);
+  CFile file;
+  FILE *fd;
+  const char written_buff[] = "test_string";
+  char       readed_buff[64];
+
+  file.Open(homed.getFileW(), CFile::modeReadWrite | CFile::modeCreate);
+  file.Write(written_buff, sizeof(written_buff));
+  file.Close();
+
+  fd = fopen(homed.getFileA(), "r");
+  fscanf(fd, "%s", readed_buff);
+  fclose(fd);
+
+  NW_CHECK_EQUAL_STRCMP(written_buff, readed_buff);
+  
+
+  fd = fopen(homed.getFileA(), "w+");
+  fprintf(fd, "%s", written_buff);
+  fclose(fd);
+
+  file.Open(homed.getFileW(), CFile::modeRead | CFile::modeNoTruncate);
+  file.Read(readed_buff, sizeof(readed_buff));
+  file.Close();
+
+  NW_CHECK_EQUAL_STRCMP(written_buff, readed_buff);
+}
+
+NW_TEST(NanoWinMFCAfxFileTestCFileClass, MFCAfxCFileClassTestOpenWChar)
+{
+  TestDir homed(root, sub_dir[0], file);
+  CFile file;
+  FILE *fd;
+  const char written_buff[] = "test_string";
+  char       readed_buff[64];
+
+  file.Open(homed.getFileA(), CFile::modeReadWrite | CFile::modeCreate);
+  file.Write(written_buff, sizeof(written_buff));
+  file.Close();
+
+  fd = fopen(homed.getFileA(), "r");
+  fscanf(fd, "%s", readed_buff);
+  fclose(fd);
+
+  NW_CHECK_EQUAL_STRCMP(written_buff, readed_buff);
+
+  
+  fd = fopen(homed.getFileA(), "w+");
+  fprintf(fd, "%s", written_buff);
+  fclose(fd);
+
+  file.Open(homed.getFileA(), CFile::modeRead | CFile::modeNoTruncate);
+  file.Read(readed_buff, sizeof(readed_buff));
+  file.Close();
+
+  NW_CHECK_EQUAL_STRCMP(written_buff, readed_buff);
+  
+}
+#endif
+
 NW_END_TEST_GROUP()
 
+#ifdef __GNUC__
+NW_BEGIN_TEST_GROUP(NanoWinMFCAfxCStdioFileTestGroup)
 
+NW_SETUP_METHOD()
+{
+  CreateDirsForCFileClassTest();
+}
 
+NW_TEARDOWN_METHOD()
+{
+  RemoveDirsForCFileClassTest();
+}
 
+NW_END_SETUP_TEARDOWN
 
+NW_TEST(NanoWinMFCAfxCStdioFileTestGroup, MFCAfxCStdioFileReadWriteW)
+{
+  TestDir homed(root, sub_dir[0], file);
+  CStdioFile file;
+  FILE *fd;
+  const wchar_t wbuff[] = L"test_wstring\n";
+  const char    buff[] = "test_string\n";
+  char          readed_buff1[64];
+  char          readed_buff2[64];
 
+  file.Open(homed.getFileW(), CFile::modeReadWrite | CFile::modeCreate);
+  file.WriteString(wbuff);
+  file.WriteString(buff);
+  file.Close();
 
+  fd = fopen(homed.getFileA(), "r");
+  fscanf(fd, "%s", readed_buff1);
+  fscanf(fd, "%s", readed_buff2);
+  fclose(fd);
 
+  NW_CHECK_EQUAL_STRCMP("test_wstring", readed_buff1);
+  NW_CHECK_EQUAL_STRCMP("test_string",  readed_buff2);
+ 
+/*
+  const char buff1[] = "test_wstring\n";
+  const char buff2[] = "test_string\n";
+  wchar_t    readed_wbuff[64];
+  char       readed_buff[64];
 
+  fd = fopen(homed.getFileA(), "w+");
+  fprintf(fd, "%s", buff1);
+  fprintf(fd, "%s", buff2);
+  fclose(fd);
 
+  file.Open(homed.getFileW(), CFile::modeRead | CFile::modeNoTruncate);
+  file.ReadString(readed_wbuff, sizeof(readed_wbuff));
+  file.ReadString(readed_buff,  sizeof(readed_buff));
+  file.Close();
 
+  NW_CHECK_EQUAL_MEMCMP(L"test_wstring", readed_wbuff, 12 * sizeof(wchar_t));
+  NW_CHECK_EQUAL_STRCMP("test_string",  readed_buff);
+*/
+}
 
-
-
-
-
+NW_END_TEST_GROUP()
+#endif
