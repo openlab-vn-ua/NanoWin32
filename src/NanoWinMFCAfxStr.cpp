@@ -29,7 +29,7 @@ static BOOL AfxExtractSubStringTpl(S& rString, const C *lpszFullString, int iSub
   // Now pos is a first char after separator found
 
   int width = 0;
-  while ((lpszFullString[width+pos] != 0) || (lpszFullString[width+pos] != chSep))
+  while ((lpszFullString[width+pos] != 0) && (lpszFullString[width+pos] != chSep))
   {
     width++;
   }
