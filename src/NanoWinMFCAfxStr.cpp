@@ -12,7 +12,8 @@
 const char    *NanoWinStringUtils::empty_str  = "";
 const wchar_t *NanoWinStringUtils::empty_wstr = L"";
 
-extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString, int iSubString, TCHAR chSep)
+template<typename S, typename C>
+static BOOL AfxExtractSubStringTpl(S& rString, const C *lpszFullString, int iSubString, C chSep)
 {
   if (lpszFullString == NULL) { return(FALSE); }
   if (iSubString < 0)         { rString.Empty(); return FALSE; }
@@ -22,7 +23,7 @@ extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString,
   {
     if (lpszFullString[pos] == 0)     { rString.Empty(); return FALSE; } // end of string but field not found yet
     if (lpszFullString[pos] == chSep) { iSubString--; }
-	pos++;
+    pos++;
   }
 
   // Now pos is a first char after separator found
@@ -37,6 +38,15 @@ extern BOOL AFXAPI AfxExtractSubString(CString& rString, LPCTSTR lpszFullString,
   return(TRUE);
 }
 
+extern BOOL AFXAPI AfxExtractSubString(CStringA& rString, LPCSTR lpszFullString, int iSubString, CHAR chSep)
+{
+  return AfxExtractSubStringTpl(rString,lpszFullString,iSubString,chSep);
+}
+
+extern BOOL AFXAPI AfxExtractSubString(CStringW& rString, LPCWSTR lpszFullString, int iSubString, WCHAR chSep)
+{
+  return AfxExtractSubStringTpl(rString,lpszFullString,iSubString,chSep);
+}
 
 NW_EXTERN_C_BEGIN
 
