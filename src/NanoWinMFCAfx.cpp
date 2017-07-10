@@ -52,6 +52,13 @@ const
   }
 }
 
+void CException::Delete()
+{
+  if (autoDelete)
+  {
+    delete this;
+  }
+}
 
 BOOL CMemoryException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const

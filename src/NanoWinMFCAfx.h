@@ -84,13 +84,7 @@ class CException : public CObject
 
   // This function checks to see if the CException object was created on the heap, 
   // and if so, it calls the delete operator on the object.
-  void Delete()
-  {
-    if (autoDelete)
-    {
-      delete this;
-    }
-  }
+  void Delete();
 
   // Abstract since there is no destructor declared here
 
