@@ -19,7 +19,7 @@
 // CFileFind
 // --------------
 
-const TCHAR CFileFind::WILDCARD_ALL_FILES[] = _T("*.*");
+const CHAR CFileFind::WILDCARD_ALL_FILES[] = "*.*";
 
 // CFile tools
 // --------------

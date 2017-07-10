@@ -28,18 +28,40 @@ class    CAtlTransactionManager; // // [Dummy object] Define it somewhere
 class CFileFind : public CObject
 {
   protected:
-  WIN32_FIND_DATA  *m_found_state;
-  WIN32_FIND_DATA  *m_next_state;
+  WIN32_FIND_DATAA *m_found_state;
+  WIN32_FIND_DATAA *m_next_state;
   HANDLE            m_handle;
   BOOL              m_state_filled;
-  CString           m_search_root;
+  CStringA          m_search_root;
+
+  class LPCStrResolver
+  {
+    public :
+
+    LPCStrResolver (int nullPtr) { isWide = false; ptr = NULL; }
+    LPCStrResolver (const char    *str) { isWide = false; ptr = str; }
+    LPCStrResolver (const wchar_t *str) { isWide = true; ptr = str; }
+    LPCStrResolver (const CStringA &str) { isWide = false; ptr = str.GetString(); }
+    LPCStrResolver (const CStringW &str) { isWide = true; ptr = str.GetString(); }
+
+    bool isNull () const { return ptr == NULL; }
+    bool isWideString () const { return isWide; }
+
+    const char *mbStr () const { return (const char*)ptr; }
+    const wchar_t *wStr () const { return (const wchar_t*)ptr; }
+
+    private :
+
+    bool  isWide;
+    const void *ptr;
+  };
 
   static BOOL IsValidHandle(HANDLE handle)
   {
     if ((handle == NULL) || (handle == INVALID_HANDLE_VALUE))
-	{
+    {
       return(FALSE);
-	}
+    }
 
     return(TRUE);
   }
@@ -50,15 +72,15 @@ class CFileFind : public CObject
     {
       // Already closed or not open
     }
-	else
-	{
+    else
+    {
       FindClose(m_handle);
-	}
+    }
 
-   m_handle = NULL;
-   m_state_filled = FALSE;
+    m_handle = NULL;
+    m_state_filled = FALSE;
 
-   m_search_root.Empty();
+    m_search_root.Empty();
   }
 
   public:
@@ -68,8 +90,8 @@ class CFileFind : public CObject
     m_handle = NULL;
     m_state_filled = FALSE;
 
-    m_next_state  = (WIN32_FIND_DATA*)malloc(sizeof(WIN32_FIND_DATA));
-    m_found_state = (WIN32_FIND_DATA*)malloc(sizeof(WIN32_FIND_DATA));
+    m_next_state  = (WIN32_FIND_DATAA*)malloc(sizeof(WIN32_FIND_DATAA));
+    m_found_state = (WIN32_FIND_DATAA*)malloc(sizeof(WIN32_FIND_DATAA));
 
     if (m_next_state == NULL || m_found_state == NULL)
     {
@@ -88,13 +110,38 @@ class CFileFind : public CObject
     CloseContext();
   }
 
-  virtual BOOL FindFile(LPCTSTR pstrName = NULL, DWORD dwUnused = 0)
+  virtual BOOL FindFile()
   {
+    return FindFile(LPCStrResolver(NULL));
+  }
+
+  virtual BOOL FindFile(LPCStrResolver resolver, DWORD dwUnused = 0)
+  {
+    const char *pstrName;
+    std::string wideStrStorage;
+
+    if (resolver.isNull())
+    {
+      pstrName = NULL;
+    }
+    else if (resolver.isWideString())
+    {
+      wideStrStorage = NanoWin::StrConverter::Convert(resolver.wStr());
+
+      pstrName = wideStrStorage.c_str();
+    }
+    else
+    {
+      pstrName = resolver.mbStr();
+    }
+
     CloseContext();
 
-    LPCTSTR fileMask = pstrName != NULL ? pstrName : WILDCARD_ALL_FILES;
+    currFilePath.Empty();
 
-	m_handle = ::FindFirstFile(fileMask, m_next_state);
+    LPCSTR fileMask = pstrName != NULL ? pstrName : WILDCARD_ALL_FILES;
+
+    m_handle = ::FindFirstFileA(fileMask, m_next_state);
 
     if (IsValidHandle(m_handle))
     {
@@ -104,36 +151,38 @@ class CFileFind : public CObject
       }
     }
 
-	if (IsValidHandle(m_handle))
-	{
+    if (IsValidHandle(m_handle))
+    {
       return(TRUE);
-	}
-	else
-	{
+    }
+    else
+    {
       memset(m_next_state, 0, sizeof(*m_next_state)); // just in case
       memset(m_found_state, 0, sizeof(*m_found_state)); // just in case
       return(FALSE);
-	}
+    }
   }
 
   virtual BOOL FindNextFile()
   {
     if (!IsValidHandle(m_handle))
-	{
+    {
       return(FALSE);
-	}
+    }
 
     m_state_filled = TRUE;
 
-    WIN32_FIND_DATA *temp_data;
-    
+    WIN32_FIND_DATAA *temp_data;
+
     temp_data     = m_found_state;
     m_found_state = m_next_state;
     m_next_state  = temp_data;
 
-	BOOL result = ::FindNextFile(m_handle, m_next_state);
+    FillFilePath();
 
-	return(result);
+    BOOL result = ::FindNextFileA(m_handle, m_next_state);
+
+    return(result);
   }
 
   void Close()
@@ -146,11 +195,11 @@ class CFileFind : public CObject
 
   // Returns the file name, including the extension. 
   // c:\myhtml\myfile.txt returns the file name myfile.txt
-  virtual CString GetFileName()
+  virtual const char *GetFileName()
   const
   {
-    if (!m_state_filled) { return CString(); } // TODO: Check should we throw exception?
-	return(CString(m_found_state->cFileName));
+    if (!m_state_filled) { return ""; } // TODO: Check should we throw exception?
+    return(m_found_state->cFileName);
   }
 
   // Returns true if the found file is a directory
@@ -176,26 +225,29 @@ class CFileFind : public CObject
   {
     if (!m_state_filled) { return 0; } // TODO: Check should we throw exception?
     ULONGLONG result = m_found_state->nFileSizeHigh; 
-	result <<= (sizeof(ULONG)*8);
-	result |= m_found_state->nFileSizeLow;
+    result <<= (sizeof(ULONG)*8);
+    result |= m_found_state->nFileSizeLow;
 
     return result;
   }
 
-  virtual CString GetFilePath() const
+  virtual const char *GetFilePath() const
   {
-    if (!m_state_filled) { return CString(); } // TODO: Check should we throw exception?
-
-    CString result(m_search_root);
-
-    result.Append(m_found_state->cFileName);
-
-    return result;
+    return currFilePath.GetString();
   }
 
   private :
 
-  static bool CStringEndsWithChar(const CString &str, TCHAR ch)
+  void FillFilePath()
+  {
+    if (!m_state_filled) { currFilePath.Empty() ; }
+
+    currFilePath = m_search_root;
+
+    currFilePath.Append(m_found_state->cFileName);
+  }
+
+  static bool CStringEndsWithChar(const CStringA &str, CHAR ch)
   {
     int len = str.GetLength();
 
@@ -220,45 +272,6 @@ class CFileFind : public CObject
     return absName;
   }
 
-  #ifdef UNICODE
-  bool BuildSearchRootDir (LPCWSTR pstrName)
-  {
-    bool  ok      = false;
-    char *absName = NULL;
-
-    try
-    {
-      std::string pstrNameMb = NanoWin::StrConverter::Convert(pstrName);
-
-      absName = BuildAbsoluteSearchPath(pstrNameMb.c_str());
-
-      if (absName != NULL)
-      {
-        std::wstring absNameW = NanoWin::StrConverter::Convert(absName);
-
-        m_search_root.SetString(absNameW.c_str());
-
-        if (CStringEndsWithChar(m_search_root, DIR_SEPARATOR_CHAR) || CStringEndsWithChar(m_search_root, DIR_SEPARATOR_ALT_CHAR))
-        {
-          // has slash already
-        }
-        else
-        {
-          m_search_root.AppendChar(DIR_SEPARATOR_CHAR);
-        }
-
-        ok = true;
-      }
-    }
-    catch (...)
-    {
-    }
-
-    free(absName);
-
-    return ok;
-  }
-  #else
   bool BuildSearchRootDir (LPCSTR pstrName)
   {
     bool  ok      = false;
@@ -286,13 +299,14 @@ class CFileFind : public CObject
 
     return ok;
   }
-  #endif
 
   private :
 
-  static const TCHAR   WILDCARD_ALL_FILES[];
-  static const TCHAR   DIR_SEPARATOR_CHAR     = NW_DIRECTORY_SEPARATOR_CHAR;
-  static const TCHAR   DIR_SEPARATOR_ALT_CHAR = NW_DIRECTORY_SEPARATOR_ALT_CHAR;
+  CStringA currFilePath;
+
+  static const CHAR   WILDCARD_ALL_FILES[];
+  static const CHAR   DIR_SEPARATOR_CHAR     = NW_DIRECTORY_SEPARATOR_CHAR;
+  static const CHAR   DIR_SEPARATOR_ALT_CHAR = NW_DIRECTORY_SEPARATOR_ALT_CHAR;
 };
 
 // MFC Files
