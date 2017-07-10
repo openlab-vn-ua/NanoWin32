@@ -13,7 +13,7 @@ NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCTimeSimpleTest)
 {
   time_t timeT = time(NULL);
   char buff[64];
-  struct tm *structTime = gmtime(&timeT);
+  struct tm *structTime = localtime(&timeT);
 
   CTime checkTime = CTime::GetCurrentTime();
 
