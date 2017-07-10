@@ -681,4 +681,19 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringExtractSubStringTest)
   NW_CHECK_FALSE(res);
 }
 
+NW_TEST(NanoWinMFCAfxStrTestGroup, CStringExtractSubStringWTest)
+{
+  CStringW str;
+  bool res;
+
+  res = AfxExtractSubString(str, L"ab cd ef", 1, L' ');
+
+  NW_CHECK_TRUE(res);
+  NW_CHECK_EQUAL_STRCMP(L"cd", str.GetString());
+
+  res = AfxExtractSubString(str, L"ab cd ef", 10, L' ');
+
+  NW_CHECK_FALSE(res);
+}
+
 NW_END_TEST_GROUP()
