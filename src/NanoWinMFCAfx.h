@@ -67,7 +67,8 @@ class CException : public CObject
   public:
 
   // Override this to report errors
-  virtual BOOL GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
 
   // Used to just call non-cost version? // No this hook in this implemenation
   // virtual BOOL GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL);
@@ -99,7 +100,8 @@ class CMemoryException : public CSimpleException
   public:
   virtual ~CMemoryException() { }
 
-  virtual BOOL GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
 };
 
 class CNotSupportedException : public CSimpleException
@@ -107,7 +109,8 @@ class CNotSupportedException : public CSimpleException
   public:
   virtual ~CNotSupportedException() { }
 
-  virtual BOOL GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
 };
 
 class CInvalidArgException : public CSimpleException
@@ -115,7 +118,8 @@ class CInvalidArgException : public CSimpleException
   public:
   virtual ~CInvalidArgException() { }
 
-  virtual BOOL GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
 };
 
 class CFileException : public CSimpleException
@@ -123,7 +127,8 @@ class CFileException : public CSimpleException
   public:
   virtual ~CFileException() { }
 
-  virtual BOOL GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
+  virtual BOOL GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
 };
 
 // Some usefull types

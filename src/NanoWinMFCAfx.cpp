@@ -16,10 +16,10 @@ CObject::~CObject()
 
 #define EXCEPTION_DEF_HELP_CONTEXT (0)
 
-BOOL CException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+BOOL CException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (_tcscpy_s(lpszError, nMaxError, _T("general error")) == 0)
+  if (strcpy_s(lpszError, nMaxError, "general error") == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -34,10 +34,10 @@ const
   }
 }
 
-BOOL CMemoryException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+BOOL CException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (_tcscpy_s(lpszError, nMaxError, _T("not enough memory")) == 0)
+  if (wcscpy_s(lpszError, nMaxError, L"general error") == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -52,10 +52,11 @@ const
   }
 }
 
-BOOL CNotSupportedException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+
+BOOL CMemoryException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (_tcscpy_s(lpszError, nMaxError, _T("not supported")) == 0)
+  if (strcpy_s(lpszError, nMaxError, "not enough memory") == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -70,10 +71,10 @@ const
   }
 }
 
-BOOL CInvalidArgException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+BOOL CMemoryException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (_tcscpy_s(lpszError, nMaxError, _T("invalid argument")) == 0)
+  if (wcscpy_s(lpszError, nMaxError, L"not enough memory") == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -88,10 +89,101 @@ const
   }
 }
 
-BOOL CFileException::GetErrorMessage(LPTSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+BOOL CNotSupportedException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (_tcscpy_s(lpszError, nMaxError, _T("file error")) == 0)
+  if (strcpy_s(lpszError, nMaxError, "not supported") == 0)
+  {
+    if (pnHelpContext != NULL)
+    {
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
+    }
+
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+BOOL CNotSupportedException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+const
+{
+  if (wcscpy_s(lpszError, nMaxError, L"not supported") == 0)
+  {
+    if (pnHelpContext != NULL)
+    {
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
+    }
+
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+BOOL CInvalidArgException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+const
+{
+  if (strcpy_s(lpszError, nMaxError, "invalid argument") == 0)
+  {
+    if (pnHelpContext != NULL)
+    {
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
+    }
+
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+BOOL CInvalidArgException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+const
+{
+  if (wcscpy_s(lpszError, nMaxError, L"invalid argument") == 0)
+  {
+    if (pnHelpContext != NULL)
+    {
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
+    }
+
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+
+BOOL CFileException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+const
+{
+  if (strcpy_s(lpszError, nMaxError, "file error") == 0)
+  {
+    if (pnHelpContext != NULL)
+    {
+      *pnHelpContext = EXCEPTION_DEF_HELP_CONTEXT;
+    }
+
+    return TRUE;
+  }
+  else
+  {
+    return FALSE;
+  }
+}
+
+BOOL CFileException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
+const
+{
+  if (wcscpy_s(lpszError, nMaxError, L"file error") == 0)
   {
     if (pnHelpContext != NULL)
     {
