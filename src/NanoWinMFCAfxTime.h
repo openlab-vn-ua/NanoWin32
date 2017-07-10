@@ -24,7 +24,8 @@ class CTime
 
   static CTime WINAPI GetCurrentTime () throw();
 
-  CString Format(_In_z_ LPCTSTR pszFormat) const;
+  CStringA Format(_In_z_ LPCSTR pszFormat) const;
+  CStringW Format(_In_z_ LPCWSTR pszFormat) const;
 
   private :
 

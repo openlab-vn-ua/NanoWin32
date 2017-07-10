@@ -21,32 +21,27 @@ CTime CTime::GetCurrentTime() throw()
   return currTime;
 }
 
-CString CTime::Format(_In_z_ LPCTSTR pszFormat) const
+template<typename S, typename C, int initialBufferSize>
+S CTimeFormatHelperFunc (time_t timeValue, const C *pszFormat, size_t (formatFunc) (C*,size_t,const C*, const struct tm*))
 {
-  #if defined(UNICODE) || defined(_UNICODE)
-  #define format_func wcsftime
-  #else
-  #define format_func strftime
-  #endif
-  constexpr int initialBufferSize = 255 + 1;
-  CString   formattedTime;
+  S         formattedTime;
   struct tm brokenTime;
-  TCHAR     initialBuffer[initialBufferSize];
+  C         initialBuffer[initialBufferSize];
 
   if (localtime_r(&timeValue, &brokenTime) == &brokenTime)
   {
-    if (format_func(initialBuffer, initialBufferSize, pszFormat, &brokenTime) == 0)
+    if (formatFunc(initialBuffer, initialBufferSize, pszFormat, &brokenTime) == 0)
     {
-      size_t requiredSize = format_func(NULL,0,pszFormat,&brokenTime) + 1;
+      size_t requiredSize = formatFunc(NULL,0,pszFormat,&brokenTime) + 1;
 
-      TCHAR *buffer = (TCHAR*)malloc(sizeof(TCHAR) * requiredSize);
+      C *buffer = (C*)malloc(sizeof(C) * requiredSize);
 
       if (buffer == NULL)
       {
         throw new CMemoryException();
       }
 
-      format_func(buffer,requiredSize,pszFormat,&brokenTime);
+      formatFunc(buffer,requiredSize,pszFormat,&brokenTime);
 
       try
       {
@@ -68,4 +63,14 @@ CString CTime::Format(_In_z_ LPCTSTR pszFormat) const
   }
 
   return formattedTime;
+}
+
+CStringA CTime::Format(_In_z_ LPCSTR pszFormat) const
+{
+ return CTimeFormatHelperFunc<CStringA,CHAR,255 + 1>(timeValue,pszFormat,strftime);
+}
+
+CStringW CTime::Format(_In_z_ LPCWSTR pszFormat) const
+{
+ return CTimeFormatHelperFunc<CStringW,WCHAR,255 + 1>(timeValue,pszFormat,wcsftime);
 }
