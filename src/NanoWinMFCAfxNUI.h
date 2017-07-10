@@ -39,7 +39,7 @@ class NanoWinTextStr
 
   private :
 
-  CString str;
+  CStringA str;
 };
 
 // Type modifier for message handlers
@@ -108,7 +108,8 @@ class CListCtrl
 
   BOOL    SetColumnWidth(int nCol, int cx) { UNREFERENCED_PARAMETER(nCol); UNREFERENCED_PARAMETER(cx); return TRUE; }
 
-  BOOL    SetItemText(int nItem, int nSubItem, LPCTSTR lpszText);
+  BOOL    SetItemText(int nItem, int nSubItem, LPCSTR lpszText);
+  BOOL    SetItemText(int nItem, int nSubItem, LPCWSTR lpszText);
   CString GetItemText(int nItem, int nSubItem) const;
 
   int     GetHotItem() { return(-1); }
@@ -121,12 +122,14 @@ class CListCtrl
     return(columnHeaders.size());
   }
 
-  int     InsertItem  (int nItem, LPCTSTR lpszItem);
-  int     InsertColumn(int nCol, LPCTSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, int nWidth = -1, int nSubItem = -1);
+  int     InsertItem  (int nItem, LPCSTR lpszItem);
+  int     InsertItem  (int nItem, LPCWSTR lpszItem);
+  int     InsertColumn(int nCol, LPCSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, int nWidth = -1, int nSubItem = -1);
+  int     InsertColumn(int nCol, LPCWSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, int nWidth = -1, int nSubItem = -1);
 
   private :
 
-  typedef std::vector<CString> CStringVector;
+  typedef std::vector<CStringA> CStringVector;
 
   CStringVector              columnHeaders;
   std::vector<CStringVector> items;
@@ -145,14 +148,16 @@ class CListBox  : public CWnd
   public:
 
   int  GetCount    () const;
-  void GetText     (int nIndex, CString& rString) const;
-  int  AddString   (LPCTSTR lpszItem);
+  void GetText     (int nIndex, CStringA& rString) const;
+  void GetText     (int nIndex, CStringW& rString) const;
+  int  AddString   (LPCSTR lpszItem);
+  int  AddString   (LPCWSTR lpszItem);
 
   void ResetContent();
 
   private :
 
-  std::vector<CString> listStorage;
+  std::vector<CStringA> listStorage;
 };
 
 #define CB_ERR (-1)
@@ -163,15 +168,16 @@ class CComboBox : public CWnd
 
   CComboBox ();
 
-  int AddString(LPCTSTR lpszItem);
+  int AddString(LPCSTR lpszItem);
+  int AddString(LPCWSTR lpszItem);
 
   int SetCurSel(int nSelect);
   int GetCurSel() const;
 
   private :
 
-  std::vector<CString> listStorage;
-  int                  currSelection;
+  std::vector<CStringA> listStorage;
+  int                   currSelection;
 };
 
 // CButton GetCheck/SetCheck

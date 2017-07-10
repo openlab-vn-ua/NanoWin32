@@ -43,30 +43,6 @@ static void NanoWinNUILog(const wchar_t *format, ...)
   printf("NUILog: %s\n",CW2A(str.GetString()).c_str());
 }
 
-#if defined(UNICODE) || defined(_UNICODE)
-
-void NanoWinTextStr::SetText(LPCSTR    lpszString)
-{
-  str.SetString(CA2W(lpszString));
-}
-
-void NanoWinTextStr::SetText(LPCWSTR   lpszString)
-{
-  str.SetString(lpszString);
-}
-
-void NanoWinTextStr::GetText(CStringA &rString) const
-{
-  rString.SetString(CW2A(str.GetString()));
-}
-
-void NanoWinTextStr::GetText (CStringW &rString) const
-{
-  rString = str;
-}
-
-#else
-
 void NanoWinTextStr::SetText(LPCSTR    lpszString)
 {
   str.SetString(lpszString);
@@ -86,8 +62,6 @@ void NanoWinTextStr::GetText (CStringW &rString) const
 {
   rString.SetString(CA2W(str.GetString()));
 }
-
-#endif
 
 CWnd::CWnd()
 {
@@ -155,12 +129,24 @@ void CWnd::DoDataExchange(CDataExchange* /*pDX*/)
   NanoWinNUILog("CWnd::DoDataExchange");
 }
 
-BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCTSTR lpszText)
+BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCSTR lpszText)
 {
   if ((CStringVector::size_type)nItem    >= items.size())         { return FALSE; }
   if ((CStringVector::size_type)nSubItem >= columnHeaders.size()) { return FALSE; }
 
-  items[nItem][nSubItem] = CString(lpszText);
+  items[nItem][nSubItem] = CStringA(lpszText);
+
+  NanoWinNUILog(_T("CListCtrl::SetItemText(item: %d, subitem: %d, text: ") NW_STR_FMT _T(")"),nItem,nSubItem,lpszText);
+
+  return TRUE;
+}
+
+BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCWSTR lpszText)
+{
+  if ((CStringVector::size_type)nItem    >= items.size())         { return FALSE; }
+  if ((CStringVector::size_type)nSubItem >= columnHeaders.size()) { return FALSE; }
+
+  items[nItem][nSubItem] = lpszText;
 
   NanoWinNUILog(_T("CListCtrl::SetItemText(item: %d, subitem: %d, text: ") NW_STR_FMT _T(")"),nItem,nSubItem,lpszText);
 
@@ -184,17 +170,17 @@ BOOL CListCtrl::DeleteAllItems ()
   return TRUE;
 }
 
-int CListCtrl::InsertColumn (int nCol, LPCTSTR lpszColumnHeading, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
+int CListCtrl::InsertColumn (int nCol, LPCSTR lpszColumnHeading, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
 {
   NanoWinNUILog(_T("CListCtrl::InsertColumn(nCol: %d heading: ") NW_STR_FMT _T(")"),nCol,lpszColumnHeading);
 
   if ((CStringVector::size_type)nCol < columnHeaders.size())
   {
-    columnHeaders.insert(columnHeaders.begin() + nCol,CString());
+    columnHeaders.insert(columnHeaders.begin() + nCol,lpszColumnHeading);
 
     for (auto it = items.begin(); it != items.end(); ++it)
     {
-      it->insert(it->begin() + nCol,CString());
+      it->insert(it->begin() + nCol,CStringA());
     }
 
     return nCol;
@@ -205,7 +191,7 @@ int CListCtrl::InsertColumn (int nCol, LPCTSTR lpszColumnHeading, int /*nFormat*
 
     for (auto it = items.begin(); it != items.end(); ++it)
     {
-      it->push_back(CString());
+      it->push_back(CStringA());
     }
 
     return columnHeaders.size() - 1;
@@ -213,6 +199,37 @@ int CListCtrl::InsertColumn (int nCol, LPCTSTR lpszColumnHeading, int /*nFormat*
 
   return nCol;
 }
+
+int CListCtrl::InsertColumn (int nCol, LPCWSTR lpszColumnHeading, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
+{
+  NanoWinNUILog(_T("CListCtrl::InsertColumn(nCol: %d heading: ") NW_STR_FMT _T(")"),nCol,lpszColumnHeading);
+
+  if ((CStringVector::size_type)nCol < columnHeaders.size())
+  {
+    columnHeaders.insert(columnHeaders.begin() + nCol,CW2A(lpszColumnHeading));
+
+    for (auto it = items.begin(); it != items.end(); ++it)
+    {
+      it->insert(it->begin() + nCol,CStringA());
+    }
+
+    return nCol;
+  }
+  else
+  {
+    columnHeaders.push_back(CW2A(lpszColumnHeading));
+
+    for (auto it = items.begin(); it != items.end(); ++it)
+    {
+      it->push_back(CStringA());
+    }
+
+    return columnHeaders.size() - 1;
+  }
+
+  return nCol;
+}
+
 
 BOOL CListCtrl::DeleteColumn (int nCol)
 {
@@ -230,7 +247,7 @@ BOOL CListCtrl::DeleteColumn (int nCol)
   return TRUE;
 }
 
-int CListCtrl::InsertItem (int nItem, LPCTSTR lpszItem)
+int CListCtrl::InsertItem (int nItem, LPCSTR lpszItem)
 {
   NanoWinNUILog(_T("CListCtrl::InsertItem(nItem: %d, item: ") NW_STR_FMT _T(")"),nItem,lpszItem);
 
@@ -249,18 +266,44 @@ int CListCtrl::InsertItem (int nItem, LPCTSTR lpszItem)
 
   for (CStringVector::size_type i = 0; i < columnHeaders.size(); i++)
   {
-    newItem.push_back(CString());
+    newItem.push_back(CStringA());
   }
 
   return nItem;
 }
+
+int CListCtrl::InsertItem (int nItem, LPCWSTR lpszItem)
+{
+  NanoWinNUILog(_T("CListCtrl::InsertItem(nItem: %d, item: ") NW_STR_FMT _T(")"),nItem,lpszItem);
+
+  if ((CStringVector::size_type)nItem < items.size())
+  {
+    items.insert(items.begin() + nItem,CStringVector());
+  }
+  else
+  {
+    nItem = items.size();
+
+    items.push_back(CStringVector());
+  }
+
+  CStringVector &newItem = items[nItem];
+
+  for (CStringVector::size_type i = 0; i < columnHeaders.size(); i++)
+  {
+    newItem.push_back(CStringA());
+  }
+
+  return nItem;
+}
+
 
 int  CListBox::GetCount() const
 {
   return (int)listStorage.size();
 }
 
-void CListBox::GetText (int nIndex, CString& rString) const
+void CListBox::GetText (int nIndex, CStringA& rString) const
 {
   if (nIndex >= 0 && nIndex < GetCount())
   {
@@ -272,7 +315,19 @@ void CListBox::GetText (int nIndex, CString& rString) const
   }
 }
 
-int  CListBox::AddString (LPCTSTR lpszItem)
+void CListBox::GetText (int nIndex, CStringW& rString) const
+{
+  if (nIndex >= 0 && nIndex < GetCount())
+  {
+    rString = CStringW(listStorage[nIndex]);
+  }
+  else
+  {
+    rString.Empty();
+  }
+}
+
+int  CListBox::AddString (LPCSTR lpszItem)
 {
   int index = (int)listStorage.size();
 
@@ -283,6 +338,16 @@ int  CListBox::AddString (LPCTSTR lpszItem)
   return index;
 }
 
+int  CListBox::AddString (LPCWSTR lpszItem)
+{
+  int index = (int)listStorage.size();
+
+  listStorage.push_back(CW2A(lpszItem));
+
+  NanoWinNUILog(_T("CListBox::AddString(index: %d, text: ") NW_STR_FMT _T(")"),index,lpszItem);
+
+  return index;
+}
 
 void CListBox::ResetContent()
 {
@@ -294,11 +359,22 @@ CComboBox::CComboBox()
   currSelection = CB_ERR;
 }
 
-int  CComboBox::AddString (LPCTSTR lpszItem)
+int  CComboBox::AddString (LPCSTR lpszItem)
 {
   int index = (int)listStorage.size();
 
   listStorage.push_back(lpszItem);
+
+  NanoWinNUILog(_T("CComboBox::AddString(index: %d, text: ") NW_STR_FMT _T(")"),index,lpszItem);
+
+  return index;
+}
+
+int  CComboBox::AddString (LPCWSTR lpszItem)
+{
+  int index = (int)listStorage.size();
+
+  listStorage.push_back(CW2A(lpszItem));
 
   NanoWinNUILog(_T("CComboBox::AddString(index: %d, text: ") NW_STR_FMT _T(")"),index,lpszItem);
 
