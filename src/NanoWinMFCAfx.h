@@ -66,6 +66,9 @@ class CException : public CObject
   // Abstract
   public:
 
+  CException () { autoDelete = true; }
+  explicit CException (BOOL bAutoDelete) { autoDelete = bAutoDelete; }
+
   // Override this to report errors
   virtual BOOL GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
   virtual BOOL GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext = NULL) const;
@@ -81,9 +84,19 @@ class CException : public CObject
 
   // This function checks to see if the CException object was created on the heap, 
   // and if so, it calls the delete operator on the object.
-  void Delete(); // TODO: Implement me
+  void Delete()
+  {
+    if (autoDelete)
+    {
+      delete this;
+    }
+  }
 
   // Abstract since there is no destructor declared here
+
+  private :
+
+  bool autoDelete;
 };
 
 class CSimpleException : public CException
