@@ -482,8 +482,14 @@ CDialogEx::CDialogEx(LPCTSTR lpszTemplateName, CWnd *pParentWnd) : CDialog(0,pPa
   NanoWinNUILog(_T("CDialogEx::CDialogEx(template name: ") NW_STR_FMT _T(")"),lpszTemplateName);
 }
 
-CFileDialog::CFileDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt, LPCTSTR lpszFileName,
-                         DWORD dwFlags, LPCTSTR lpszFilter, CWnd* pParentWnd, DWORD dwSize) : CDialog(0,pParentWnd)
+CFileDialog::CFileDialog(BOOL bOpenFileDialog, LPCSTR lpszDefExt, LPCSTR lpszFileName,
+                         DWORD dwFlags, LPCSTR lpszFilter, CWnd* pParentWnd, DWORD dwSize) : CDialog(0,pParentWnd)
+{
+  ClearFileNameInfo();
+}
+
+CFileDialog::CFileDialog(BOOL bOpenFileDialog, LPCWSTR lpszDefExt, LPCWSTR lpszFileName,
+                         DWORD dwFlags, LPCWSTR lpszFilter, CWnd* pParentWnd, DWORD dwSize) : CDialog(0,pParentWnd)
 {
   ClearFileNameInfo();
 }
@@ -499,9 +505,9 @@ INT_PTR CFileDialog::DoModal()
   return IDCANCEL;
 }
 
-CString CFileDialog::GetPathName() const
+const char *CFileDialog::GetPathName() const
 {
-  return CString();
+  return "";
 }
 
 const OPENFILENAME &CFileDialog::GetOFN() const
@@ -519,6 +525,7 @@ void CFileDialog::ClearFileNameInfo()
   memset(&fileNameInfo,0,sizeof(fileNameInfo));
 
   fileNameInfo.lStructSize = sizeof(fileNameInfo);
+  fileNameInfo.lpstrFile   = "";
 }
 
 // MFC App

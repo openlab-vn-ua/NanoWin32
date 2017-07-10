@@ -247,20 +247,23 @@ class CDialogEx : public CDialog
 
 typedef struct tagOFN
 {
-  DWORD  lStructSize;
-  LPTSTR lpstrFile;
-  DWORD  nMaxFile;
+  DWORD       lStructSize;
+  const char *lpstrFile;
+  DWORD       nMaxFile;
 } OPENFILENAME, *LPOPENFILENAME;
 
 class CFileDialog : public CDialog // in MFC CFileDialog inherits CCommonDialog
 {
   public:
 
-  explicit CFileDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt = NULL, LPCTSTR lpszFileName = NULL,
-                       DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL,
+  explicit CFileDialog(BOOL bOpenFileDialog, LPCSTR lpszDefExt = NULL, LPCSTR lpszFileName = NULL,
+                       DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCSTR lpszFilter = NULL,
+                       CWnd* pParentWnd = NULL, DWORD dwSize = 8);
+  explicit CFileDialog(BOOL bOpenFileDialog, LPCWSTR lpszDefExt = NULL, LPCWSTR lpszFileName = NULL,
+                       DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCWSTR lpszFilter = NULL,
                        CWnd* pParentWnd = NULL, DWORD dwSize = 8);
 
-  CString             GetPathName() const;
+  const char*         GetPathName() const;
 
   const OPENFILENAME& GetOFN() const;
   OPENFILENAME&       GetOFN();
