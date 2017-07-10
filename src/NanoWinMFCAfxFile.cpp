@@ -75,7 +75,7 @@ CFile::CFile(HANDLE hFile)
   m_bCloseOnDelete = FALSE; // Do not close me if open externaly
 }
 
-CFile::CFile(LPCTSTR lpszFileName, UINT nOpenFlags)
+CFile::CFile(LPCSTR lpszFileName, UINT nOpenFlags)
 {
   InitAsClosed();
 
@@ -87,7 +87,25 @@ CFile::CFile(LPCTSTR lpszFileName, UINT nOpenFlags)
   }
 }
 
-CFile::CFile(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
+CFile::CFile(LPCWSTR lpszFileName, UINT nOpenFlags)
+{
+  InitAsClosed();
+
+  CFileException errorInfo;
+
+  if (!Open(lpszFileName, nOpenFlags, &errorInfo))
+  {
+    AfxThrowFileException(&errorInfo);
+  }
+}
+
+CFile::CFile(LPCSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
+       : CFile(lpszFileName, nOpenFlags)
+{
+  m_pTM = pTM;
+}
+
+CFile::CFile(LPCWSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM)
        : CFile(lpszFileName, nOpenFlags)
 {
   m_pTM = pTM;
@@ -101,13 +119,26 @@ CFile::~CFile()
   }
 }
 
-BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
+BOOL CFile::Open(LPCSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
 {
   m_pTM = pTM;
   return(Open(lpszFileName, nOpenFlags, pError));
 }
 
-BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
+BOOL CFile::Open(LPCWSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM, CFileException* pError)
+{
+  m_pTM = pTM;
+  return(Open(lpszFileName, nOpenFlags, pError));
+}
+
+BOOL CFile::Open(LPCWSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
+{
+  ASSERT(lpszFileName != NULL);
+
+  return Open(CW2A(lpszFileName),nOpenFlags,pError);
+}
+ 
+BOOL CFile::Open(LPCSTR lpszFileName, UINT nOpenFlags, CFileException* pError)
 {
   ASSERT(lpszFileName != NULL);
   ASSERT(m_hFile == INVALID_HANDLE_VALUE);
