@@ -19,7 +19,7 @@ static auto NanoWinMsPrintfNativeVWPrintf  = &vwprintf;
 static auto NanoWinMsPrintfNativeVFWPrintf = &vfwprintf;
 
 #include <wctype.h>
-#include <NanoWinMsPrintf.h>
+#include "NanoWinMsPrintf.h"
 
 namespace
 {
