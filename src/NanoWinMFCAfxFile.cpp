@@ -554,6 +554,8 @@ BOOL CStdioFile::ReadToWideChar(WCHAR *wch)
       else if (n == static_cast<size_t>(-2))
       {
         // need next char(s) to complete conversion
+
+       memset(&convState,0,sizeof(convState));
       }
       else
       {
