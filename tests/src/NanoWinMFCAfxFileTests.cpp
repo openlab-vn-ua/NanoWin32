@@ -621,7 +621,6 @@ NW_TEST(NanoWinMFCAfxCStdioFileTestGroup, MFCAfxCStdioFileReadWriteW)
   NW_CHECK_EQUAL_STRCMP("test_wstring", readed_buff1);
   NW_CHECK_EQUAL_STRCMP("test_string",  readed_buff2);
  
-/*
   const char buff1[] = "test_wstring\n";
   const char buff2[] = "test_string\n";
   wchar_t    readed_wbuff[64];
@@ -637,9 +636,8 @@ NW_TEST(NanoWinMFCAfxCStdioFileTestGroup, MFCAfxCStdioFileReadWriteW)
   file.ReadString(readed_buff,  sizeof(readed_buff));
   file.Close();
 
-  NW_CHECK_EQUAL_MEMCMP(L"test_wstring", readed_wbuff, 12 * sizeof(wchar_t));
-  NW_CHECK_EQUAL_STRCMP("test_string",  readed_buff);
-*/
+  NW_CHECK_EQUAL_STRCMP(L"test_wstring\n", readed_wbuff);
+  NW_CHECK_EQUAL_STRCMP("test_string\n",  readed_buff);
 }
 
 NW_END_TEST_GROUP()
