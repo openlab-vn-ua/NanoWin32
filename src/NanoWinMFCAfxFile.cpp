@@ -590,7 +590,7 @@ LPWSTR CStdioFile::ReadToWideString(_Out_writes_z_(nMax) LPWSTR lpsz, _In_ UINT 
     {
       wchar_t currChar;
 
-      eofReached = ReadToWideChar(&currChar);
+      eofReached = !ReadToWideChar(&currChar);
 
       if (!eofReached)
       {
