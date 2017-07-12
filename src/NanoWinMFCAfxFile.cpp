@@ -544,7 +544,7 @@ BOOL CStdioFile::ReadToWideChar(WCHAR *wch)
 
       wchar_t tempChar;
 
-      size_t n = mbrtowc(&tempChar,buffer,offset,&convState);
+      size_t n = mbrtowc(&tempChar,&buffer[offset - 1],1,&convState);
 
       if      (n == static_cast<size_t>(-1))
       {
@@ -554,8 +554,6 @@ BOOL CStdioFile::ReadToWideChar(WCHAR *wch)
       else if (n == static_cast<size_t>(-2))
       {
         // need next char(s) to complete conversion
-
-       memset(&convState,0,sizeof(convState));
       }
       else
       {
