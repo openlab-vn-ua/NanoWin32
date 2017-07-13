@@ -25,7 +25,7 @@
 // NW specials
 
 // Empty TCHAR A/W invariant (We take advantage that L"" is empty string both for normal and wide char)
-#define NW_TCHAR_EMPTY_STR ((TCHAR*)(L"")) // TODO: This works only in Little edian system
+#define NW_TCHAR_EMPTY_STR ((TCHAR*)(L"")) // TODO: This works only in Little endian system
 
 // Constants for CListCtrl
 #define LVCFMT_LEFT   0x0000

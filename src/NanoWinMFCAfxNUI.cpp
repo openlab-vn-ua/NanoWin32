@@ -12,15 +12,6 @@
 #define NW_STR_FMT_W "%ls"
 #define NW_STR_FMT_A "%s"
 
-#define NW_STR_A(S) S
-#define NW_STR_W(S) L"" S
-
-#if defined(UNICODE) || defined(_UNICODE)
- #define NW_STR_FMT NW_STR_FMT_W
-#else
- #define NW_STR_FMT NW_STR_FMT_A
-#endif
-
 static void NanoWinNUILog(const char *format, ...)
 {
   CStringA str;
@@ -33,20 +24,6 @@ static void NanoWinNUILog(const char *format, ...)
   va_end(args);
 
   printf("NUILog: %s\n",str.GetString());
-}
-
-static void NanoWinNUILog(const wchar_t *format, ...)
-{
-  CStringW str;
-  va_list  args;
-
-  va_start(args,format);
-
-  str.FormatV(format,args);
-
-  va_end(args);
-
-  printf("NUILog: %s\n",CW2A(str.GetString()).c_str());
 }
 
 void NanoWinTextStr::SetText(LPCSTR    lpszString)
@@ -78,28 +55,28 @@ void CWnd::SetWindowTextA(LPCSTR    lpszString)
 {
   windowText.SetText(lpszString);
 
-  NanoWinNUILog(NW_STR_A("CWnd::SetWindowTextA(" NW_STR_FMT_A ")"),lpszString);
+  NanoWinNUILog("CWnd::SetWindowTextA(" NW_STR_FMT_A ")",lpszString);
 }
 
 void CWnd::SetWindowTextW(LPCWSTR   lpszString)
 {
   windowText.SetText(lpszString);
 
-  NanoWinNUILog(NW_STR_W("CWnd::SetWindowTextW(" NW_STR_FMT_W ")"),lpszString);
+  NanoWinNUILog("CWnd::SetWindowTextW(" NW_STR_FMT_W ")",lpszString);
 }
 
 void CWnd::GetWindowTextA(CStringA &rString) const
 {
   windowText.GetText(rString);
 
-  NanoWinNUILog(NW_STR_A("CWnd::GetWindowTextA(" NW_STR_FMT_A ")"),rString.GetString());
+  NanoWinNUILog("CWnd::GetWindowTextA(" NW_STR_FMT_A ")",rString.GetString());
 }
 
 void CWnd::GetWindowTextW(CStringW &rString) const
 {
   windowText.GetText(rString);
 
-  NanoWinNUILog(NW_STR_W("CWnd::GetWindowTextW(" NW_STR_FMT_W ")"),rString.GetString());
+  NanoWinNUILog("CWnd::GetWindowTextW(" NW_STR_FMT_W ")",rString.GetString());
 }
 
 BOOL CWnd::EnableWindow(BOOL bEnable)
@@ -142,7 +119,7 @@ BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCSTR lpszText)
 
   items[nItem][nSubItem] = CStringA(lpszText);
 
-  NanoWinNUILog(NW_STR_A("CListCtrl::SetItemText[A](item: %d, subitem: %d, text: " NW_STR_FMT_A ")"),nItem,nSubItem,lpszText);
+  NanoWinNUILog("CListCtrl::SetItemText[A](item: %d, subitem: %d, text: " NW_STR_FMT_A ")",nItem,nSubItem,lpszText);
 
   return TRUE;
 }
@@ -154,7 +131,7 @@ BOOL    CListCtrl::SetItemText(int nItem, int nSubItem, LPCWSTR lpszText)
 
   items[nItem][nSubItem] = lpszText;
 
-  NanoWinNUILog(NW_STR_W("CListCtrl::SetItemText[W](item: %d, subitem: %d, text: " NW_STR_FMT_W ")"),nItem,nSubItem,lpszText);
+  NanoWinNUILog("CListCtrl::SetItemText[W](item: %d, subitem: %d, text: " NW_STR_FMT_W ")",nItem,nSubItem,lpszText);
 
   return TRUE;
 }
@@ -171,14 +148,14 @@ BOOL CListCtrl::DeleteAllItems ()
 {
   items.clear();
 
-  NanoWinNUILog(NW_STR_A("CListCtrl::DeleteAllItems()"));
+  NanoWinNUILog("CListCtrl::DeleteAllItems()");
   
   return TRUE;
 }
 
 int CListCtrl::InsertColumn (int nCol, LPCSTR lpszColumnHeading, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
 {
-  NanoWinNUILog(NW_STR_A("CListCtrl::InsertColumn(nCol: %d heading: " NW_STR_FMT_A ")"),nCol,lpszColumnHeading);
+  NanoWinNUILog("CListCtrl::InsertColumn(nCol: %d heading: " NW_STR_FMT_A ")",nCol,lpszColumnHeading);
 
   if ((CStringVector::size_type)nCol < columnHeaders.size())
   {
@@ -208,7 +185,7 @@ int CListCtrl::InsertColumn (int nCol, LPCSTR lpszColumnHeading, int /*nFormat*/
 
 int CListCtrl::InsertColumn (int nCol, LPCWSTR lpszColumnHeading, int /*nFormat*/, int /*nWidth*/, int /*nSubItem*/)
 {
-  NanoWinNUILog(NW_STR_W("CListCtrl::InsertColumn(nCol: %d heading: " NW_STR_FMT_W ")"),nCol,lpszColumnHeading);
+  NanoWinNUILog("CListCtrl::InsertColumn(nCol: %d heading: " NW_STR_FMT_W ")",nCol,lpszColumnHeading);
 
   if ((CStringVector::size_type)nCol < columnHeaders.size())
   {
@@ -239,7 +216,7 @@ int CListCtrl::InsertColumn (int nCol, LPCWSTR lpszColumnHeading, int /*nFormat*
 
 BOOL CListCtrl::DeleteColumn (int nCol)
 {
-  NanoWinNUILog(NW_STR_A("CListCtrl::DeleteColumn(nCol: %d)"),nCol);
+  NanoWinNUILog("CListCtrl::DeleteColumn(nCol: %d)",nCol);
 
   if ((CStringVector::size_type)nCol >= columnHeaders.size()) { return FALSE; }
 
@@ -255,7 +232,7 @@ BOOL CListCtrl::DeleteColumn (int nCol)
 
 int CListCtrl::InsertItem (int nItem, LPCSTR lpszItem)
 {
-  NanoWinNUILog(NW_STR_A("CListCtrl::InsertItem[A](nItem: %d, item: " NW_STR_FMT_A ")"),nItem,lpszItem);
+  NanoWinNUILog("CListCtrl::InsertItem[A](nItem: %d, item: " NW_STR_FMT_A ")",nItem,lpszItem);
 
   if ((CStringVector::size_type)nItem < items.size())
   {
@@ -280,7 +257,7 @@ int CListCtrl::InsertItem (int nItem, LPCSTR lpszItem)
 
 int CListCtrl::InsertItem (int nItem, LPCWSTR lpszItem)
 {
-  NanoWinNUILog(NW_STR_W("CListCtrl::InsertItem[W](nItem: %d, item: " NW_STR_FMT_W ")"),nItem,lpszItem);
+  NanoWinNUILog("CListCtrl::InsertItem[W](nItem: %d, item: " NW_STR_FMT_W ")",nItem,lpszItem);
 
   if ((CStringVector::size_type)nItem < items.size())
   {
@@ -339,7 +316,7 @@ int  CListBox::AddString (LPCSTR lpszItem)
 
   listStorage.push_back(lpszItem);
 
-  NanoWinNUILog(NW_STR_A("CListBox::AddString[A](index: %d, text: " NW_STR_FMT_A ")"),index,lpszItem);
+  NanoWinNUILog("CListBox::AddString[A](index: %d, text: " NW_STR_FMT_A ")",index,lpszItem);
 
   return index;
 }
@@ -350,7 +327,7 @@ int  CListBox::AddString (LPCWSTR lpszItem)
 
   listStorage.push_back(CW2A(lpszItem));
 
-  NanoWinNUILog(NW_STR_W("CListBox::AddString[W](index: %d, text: " NW_STR_FMT_W ")"),index,lpszItem);
+  NanoWinNUILog("CListBox::AddString[W](index: %d, text: " NW_STR_FMT_W ")",index,lpszItem);
 
   return index;
 }
@@ -371,7 +348,7 @@ int  CComboBox::AddString (LPCSTR lpszItem)
 
   listStorage.push_back(lpszItem);
 
-  NanoWinNUILog(NW_STR_A("CComboBox::AddString[A](index: %d, text: " NW_STR_FMT_A ")"),index,lpszItem);
+  NanoWinNUILog("CComboBox::AddString[A](index: %d, text: " NW_STR_FMT_A ")",index,lpszItem);
 
   return index;
 }
@@ -382,7 +359,7 @@ int  CComboBox::AddString (LPCWSTR lpszItem)
 
   listStorage.push_back(CW2A(lpszItem));
 
-  NanoWinNUILog(NW_STR_W("CComboBox::AddString[W](index: %d, text: " NW_STR_FMT_W ")"),index,lpszItem);
+  NanoWinNUILog("CComboBox::AddString[W](index: %d, text: " NW_STR_FMT_W ")",index,lpszItem);
 
   return index;
 }
@@ -450,12 +427,12 @@ CDialog::CDialog(UINT nIDTemplate, CWnd* /*pParentWnd*/)
 {
   templateId = nIDTemplate;
 
-  NanoWinNUILog(NW_STR_A("CDialog::CDialog(nIDTemplate: %u)"),(unsigned int)templateId);
+  NanoWinNUILog("CDialog::CDialog(nIDTemplate: %u)",(unsigned int)templateId);
 }
 
 INT_PTR CDialog::DoModal()
 {
-  NanoWinNUILog(NW_STR_A("CDialog::DoModal(nIDTemplate: %u)"),(unsigned int)templateId);
+  NanoWinNUILog("CDialog::DoModal(nIDTemplate: %u)",(unsigned int)templateId);
 
   this->OnInitDialog();
 
@@ -487,12 +464,12 @@ CDialogEx::CDialogEx(UINT nIDTemplate, CWnd *pParent) : CDialog(nIDTemplate,pPar
 
 CDialogEx::CDialogEx(LPCSTR lpszTemplateName, CWnd *pParentWnd) : CDialog(0,pParentWnd)
 {
-  NanoWinNUILog(NW_STR_A("CDialogEx::CDialogEx[A](template name: " NW_STR_FMT_A ")"),lpszTemplateName);
+  NanoWinNUILog("CDialogEx::CDialogEx[A](template name: " NW_STR_FMT_A ")", lpszTemplateName);
 }
 
 CDialogEx::CDialogEx(LPCWSTR lpszTemplateName, CWnd *pParentWnd) : CDialog(0, pParentWnd)
 {
-	NanoWinNUILog(NW_STR_W("CDialogEx::CDialogEx[W](template name: " NW_STR_FMT_W ")"), lpszTemplateName);
+	NanoWinNUILog("CDialogEx::CDialogEx[W](template name: " NW_STR_FMT_W ")", lpszTemplateName);
 }
 
 CFileDialog::CFileDialog(BOOL bOpenFileDialog) : CDialog(0, NULL)
@@ -514,7 +491,7 @@ CFileDialog::CFileDialog(BOOL bOpenFileDialog, LPCWSTR lpszDefExt, LPCWSTR lpszF
 
 INT_PTR CFileDialog::DoModal()
 {
-  NanoWinNUILog(NW_STR_A("CFileDialog::DoModal()"));
+  NanoWinNUILog("CFileDialog::DoModal()");
 
   ClearFileNameInfo();
 
