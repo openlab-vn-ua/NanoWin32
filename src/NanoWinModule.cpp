@@ -54,7 +54,7 @@ extern HMODULE WINAPI GetModuleHandleW(LPCWSTR_NULLONLY lpModuleName)
 extern HMODULE WINAPI LoadLibraryA(_In_ LPCSTR  lpFileName)
 {
   if (lpFileName == NULL) { SetLastError(NW_DEFAULT_ERROR_AT_FAIL); return(NULL); }
-  int iLoadFlags = 0;
+  int iLoadFlags = RTLD_LAZY;
   HMODULE result = dlopen(lpFileName, iLoadFlags);
   if (result == NULL) { SetLastError(NanoWinErrorByErrnoAtFail(errno)); }
   return(result);
