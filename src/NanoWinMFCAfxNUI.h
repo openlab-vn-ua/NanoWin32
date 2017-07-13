@@ -22,6 +22,11 @@
 // MFC Controls subset
 // -----------------------------------------
 
+// NW specials
+
+// Empty TCHAR A/W invariant (We take advantage that L"" is empty string both for normal and wide char)
+#define NW_TCHAR_EMPTY_STR ((TCHAR*)(L"")) // TODO: This works only in Little edian system
+
 // Constants for CListCtrl
 #define LVCFMT_LEFT   0x0000
 #define LVCFMT_RIGHT  0x0001
@@ -110,7 +115,18 @@ class CListCtrl
 
   BOOL    SetItemText(int nItem, int nSubItem, LPCSTR lpszText);
   BOOL    SetItemText(int nItem, int nSubItem, LPCWSTR lpszText);
-  CString GetItemText(int nItem, int nSubItem) const;
+
+  protected:
+  const
+  char   *GetItemTextStr(int nItem, int nSubItem) const;
+
+  public:
+  inline
+  CString GetItemText(int nItem, int nSubItem)
+  const
+  {
+    return(GetItemTextStr(nItem, nSubItem));
+  }
 
   int     GetHotItem() { return(-1); }
 
@@ -239,7 +255,8 @@ class CDialogEx : public CDialog
 
   CDialogEx();
   CDialogEx(UINT nIDTemplate, CWnd *pParent = NULL);
-  CDialogEx(LPCTSTR lpszTemplateName, CWnd *pParentWnd = NULL);
+  CDialogEx(LPCSTR lpszTemplateName, CWnd *pParentWnd = NULL);
+  CDialogEx(LPCWSTR lpszTemplateName, CWnd *pParentWnd = NULL);
 };
 
 #define OFN_OVERWRITEPROMPT  (0x00000002)
@@ -247,19 +264,19 @@ class CDialogEx : public CDialog
 
 typedef struct tagOFN
 {
-  DWORD       lStructSize;
-  const char *lpstrFile;
-  DWORD       nMaxFile;
+  DWORD        lStructSize;
+  const TCHAR *lpstrFile; // TODO: Implement this in invariant A/W way
+  DWORD        nMaxFile;
 } OPENFILENAME, *LPOPENFILENAME;
 
 class CFileDialog : public CDialog // in MFC CFileDialog inherits CCommonDialog
 {
   public:
-
-  explicit CFileDialog(BOOL bOpenFileDialog, LPCSTR lpszDefExt = NULL, LPCSTR lpszFileName = NULL,
+  explicit CFileDialog(BOOL bOpenFileDialog);
+  explicit CFileDialog(BOOL bOpenFileDialog, LPCSTR lpszDefExt, LPCSTR lpszFileName = NULL,
                        DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCSTR lpszFilter = NULL,
                        CWnd* pParentWnd = NULL, DWORD dwSize = 8);
-  explicit CFileDialog(BOOL bOpenFileDialog, LPCWSTR lpszDefExt = NULL, LPCWSTR lpszFileName = NULL,
+  explicit CFileDialog(BOOL bOpenFileDialog, LPCWSTR lpszDefExt, LPCWSTR lpszFileName = NULL,
                        DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCWSTR lpszFilter = NULL,
                        CWnd* pParentWnd = NULL, DWORD dwSize = 8);
 
@@ -368,7 +385,7 @@ class CWinApp
   // members
 
   CWnd  *m_pMainWnd  = NULL;
-  TCHAR *m_lpCmdLine = _T("");
+  TCHAR *m_lpCmdLine = NW_TCHAR_EMPTY_STR;
 };
 
 inline CWinApp *AfxGetApp() { return(CWinApp::GetCurrentApp()); }
