@@ -118,11 +118,27 @@ struct CStringEmptyStrData<wchar_t>
   static const wchar_t *GetEmptyStr () { return NanoWinStringUtils::empty_wstr; }
 };
 
+#define NW_DEBUG_TSTRING_CONTAINER (1)
+
 template<typename XCHAR>
 struct TStringContainer
 {
+  #ifdef NW_DEBUG_TSTRING_CONTAINER
+  uint32_t magic1;
+  #endif
   size_t capacity;
+  #ifdef NW_DEBUG_TSTRING_CONTAINER
+  uint32_t magic2;
+  #endif
   XCHAR  buffer[0];
+
+  #ifdef NW_DEBUG_TSTRING_CONTAINER
+  #define NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC(container) \
+   assert(container->magic1 == MAGIC1); \
+   assert(container->magic2 == MAGIC2);
+  #else
+  #define NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC(container)
+  #endif
 
   static XCHAR *Allocate (size_t initialCapacity)
   {
@@ -134,6 +150,9 @@ struct TStringContainer
 
       container->capacity = initialCapacity;
 
+      #ifdef NW_DEBUG_TSTRING_CONTAINER
+      SetMagics(container);
+      #endif
       return (XCHAR*)&container->buffer;
     }
     else
@@ -242,7 +261,11 @@ struct TStringContainer
 
   static TStringContainer<XCHAR> *GetContainerPtr(const XCHAR *buffer)
   {
-    return (TStringContainer<XCHAR>*)((char*)buffer - sizeof(TStringContainer<XCHAR>));
+    TStringContainer<XCHAR> *container = (TStringContainer<XCHAR>*)((char*)buffer - sizeof(TStringContainer<XCHAR>));
+
+    NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC(container);
+
+    return container;
   }
 
   static void ReAllocate(XCHAR **buffer, size_t newCapacity)
@@ -293,6 +316,20 @@ struct TStringContainer
   }
 
   static constexpr size_t OPTIMAL_ALLOCATION_BLOCK_SIZE = 32;
+
+
+  #ifdef NW_DEBUG_TSTRING_CONTAINER
+  static void SetMagics(TStringContainer<XCHAR> *container)
+  {
+    container->magic1 = MAGIC1;
+    container->magic2 = MAGIC2;
+  }
+
+  static constexpr uint32_t MAGIC1 = 0x0AB00CD0;
+  static constexpr uint32_t MAGIC2 = 0x11223344;
+  #endif
+
+  #undef NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC
 };
 
 // Class to implement CSimpleStringT subset. [Only null-terminated strings supported]
