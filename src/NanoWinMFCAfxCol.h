@@ -530,6 +530,11 @@ class CStringArray : public CObject
     return storage.GetAt(nIndex);
   }
 
+  CString& GetAt(INT_PTR nIndex) // TODO: HOTFIX: Check me
+  {
+    return storage.GetAt(nIndex);
+  }
+
   INT_PTR Append(const CStringArray& src)
   {
     return storage.Append(src.storage);
@@ -537,9 +542,26 @@ class CStringArray : public CObject
 
   const CString& operator[](INT_PTR nIndex) const
   {
+   return storage[nIndex];
+  }
+
+  CString& operator[](INT_PTR nIndex) // TODO: HOTFIX: Check me
+  {
     return storage[nIndex];
   }
   // CString& operator[](INT_PTR nIndex);
+
+//original
+//void InsertAt(INT_PTR nIndex, CObject* newElement, INT_PTR nCount = 1)
+  void InsertAt(INT_PTR nIndex, CString &newElement, INT_PTR nCount = 1) 
+  {
+	  // TODO: Implement me
+  }
+
+  void RemoveAt(INT_PTR nIndex, INT_PTR nCount = 1)
+  {
+	  // TODO: Implement me
+  }
 
   private :
 
