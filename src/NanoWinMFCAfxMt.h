@@ -113,13 +113,7 @@ class CMutex
 {
   public:
 
-  CMutex(BOOL bInitiallyOwn = FALSE,
-         LPCSTR lpszName = NULL,
-         LPSECURITY_ATTRIBUTES lpsaAttribute = NULL);
-
-  CMutex(BOOL bInitiallyOwn = FALSE,
-         LPCWSTR lpszName = NULL,
-         LPSECURITY_ATTRIBUTES lpsaAttribute = NULL);
+  CMutex(BOOL bInitiallyOwn = FALSE);
 
   virtual ~CMutex ();
 
