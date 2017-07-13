@@ -38,21 +38,22 @@ class CFileFind : public CObject
   {
     public :
 
-    LPCStrResolver (int nullPtr) { isWide = false; ptr = NULL; }
-    LPCStrResolver (const char    *str) { isWide = false; ptr = str; }
-    LPCStrResolver (const wchar_t *str) { isWide = true; ptr = str; }
-    LPCStrResolver (const CStringA &str) { isWide = false; ptr = str.GetString(); }
-    LPCStrResolver (const CStringW &str) { isWide = true; ptr = str.GetString(); }
+    LPCStrResolver ()                    { is_wide = false; ptr = NULL; }
+    LPCStrResolver (intptr_t nullPtr)    { ASSERT(((void*)nullPtr) == NULL); is_wide = false; ptr = NULL; }
+    LPCStrResolver (const char    *str)  { is_wide = false; ptr = str;  }
+    LPCStrResolver (const wchar_t *str)  { is_wide = true;  ptr = str;  }
+    LPCStrResolver (const CStringA &str) { is_wide = false; ptr = str.GetString(); }
+    LPCStrResolver (const CStringW &str) { is_wide = true;  ptr = str.GetString(); }
 
-    bool isNull () const { return ptr == NULL; }
-    bool isWideString () const { return isWide; }
+    bool isNull ()       const { return ptr == NULL; }
+    bool isWideString () const { return is_wide; }
 
-    const char *mbStr () const { return (const char*)ptr; }
-    const wchar_t *wStr () const { return (const wchar_t*)ptr; }
+    const char    *a_str () const { ASSERT(!is_wide); return (const char*)ptr; }
+    const wchar_t *w_str () const { ASSERT(is_wide);  return (const wchar_t*)ptr; }
 
     private :
 
-    bool  isWide;
+    bool        is_wide;
     const void *ptr;
   };
 
@@ -112,11 +113,13 @@ class CFileFind : public CObject
 
   virtual BOOL FindFile()
   {
-    return FindFile(LPCStrResolver(NULL));
+    return FindFile(LPCStrResolver()); // LPCStrResolver(NULL);
   }
 
   virtual BOOL FindFile(LPCStrResolver resolver, DWORD dwUnused = 0)
   {
+    UNREFERENCED_PARAMETER(dwUnused);
+
     const char *pstrName;
     std::string wideStrStorage;
 
@@ -126,13 +129,13 @@ class CFileFind : public CObject
     }
     else if (resolver.isWideString())
     {
-      wideStrStorage = NanoWin::StrConverter::Convert(resolver.wStr());
+      wideStrStorage = NanoWin::StrConverter::Convert(resolver.w_str());
 
       pstrName = wideStrStorage.c_str();
     }
     else
     {
-      pstrName = resolver.mbStr();
+      pstrName = resolver.a_str();
     }
 
     CloseContext();
