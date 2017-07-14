@@ -121,6 +121,8 @@ struct CStringEmptyStrData<wchar_t>
 
 #define NW_DEBUG_TSTRING_CONTAINER (1)
 
+#pragma pack(push,1)
+
 template<typename XCHAR>
 struct TStringContainer
 {
@@ -332,6 +334,8 @@ struct TStringContainer
 
   #undef NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC
 };
+
+#pragma pack(pop)
 
 // Class to implement CSimpleStringT subset. [Only null-terminated strings supported]
 // Note that for MBCS strings, CString still counts, returns, and manipulates strings based on 8-bit characters,
