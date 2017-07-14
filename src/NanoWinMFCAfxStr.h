@@ -18,15 +18,16 @@
 #include <string.h> // strlen
 #include <stdarg.h> // va_arg
 
-#include "NanoWinMsPrintf.h"
 #include "NanoWinMsSafeString.h"
-#include "NanoWinMsExtra.h"
+#include "NanoWinMsExtra.h" // vsnwprintf
 
 #include "NanoWinTCHAR.h"
 #include "NanoWinMFCAfx.h"
 
 #include <wchar.h>
 #include "NanoWinStrConvert.h"
+
+#include "NanoWinMsPrintf.h" // Use MS-compatible printf
 
 class NanoWinStringUtils
 {
