@@ -10,60 +10,11 @@
 
 #if !defined(NanoWinUseNativePrintfFormat)
 
-#include <stdio.h>
-#include <wchar.h>
-#include <errno.h>
-
-static auto NanoWinMsPrintfNativeVSWPrintf = &vswprintf;
-static auto NanoWinMsPrintfNativeVWPrintf  = &vwprintf;
-static auto NanoWinMsPrintfNativeVFWPrintf = &vfwprintf;
-
-#include <wctype.h>
 #include "NanoWinMsPrintf.h"
+#include <wctype.h>
 
-namespace
-{
-  template<typename T, size_t initialSize = 256>
-  class NanoWinPreAllocatedBuffer
-  {
-    public:
-
-    NanoWinPreAllocatedBuffer (size_t size)
-    {
-      if (size <= initialSize)
-      {
-        buffer = preAllocatedBuffer;
-      }
-      else
-      {
-        buffer = new T[size];
-      }
-    }
-
-    ~NanoWinPreAllocatedBuffer()
-    {
-      if (buffer != preAllocatedBuffer)
-      {
-        delete[] buffer;
-      }
-    }
-
-    NanoWinPreAllocatedBuffer (const NanoWinPreAllocatedBuffer &src) = delete;
-    NanoWinPreAllocatedBuffer (NanoWinPreAllocatedBuffer &&src) = delete;
-
-    NanoWinPreAllocatedBuffer& operator = (const NanoWinPreAllocatedBuffer &src) = delete;
-    NanoWinPreAllocatedBuffer& operator = (NanoWinPreAllocatedBuffer &&src) = delete;
-
-    T       *data()       { return buffer; }
-    const T *data() const { return buffer; }
-
-    private:
-
-    T  preAllocatedBuffer[initialSize];
-    T *buffer;
-  };
-}
-
+// Format translation
+// -----------------------------------------
 
 static bool is_format_flag(wchar_t ch)
 {
@@ -187,7 +138,7 @@ static void process_field(wchar_t **ddst, const wchar_t **ssrc)
   *ddst = dst;
 }
 
-NW_EXTERN_C void NanoWinMsPrintfWFormatMs2Unix(wchar_t *destFormat, const wchar_t *srcFormat)
+NW_EXTERN_C void NanoWinMsWPrintfFormatMs2Unix(wchar_t *destFormat, const wchar_t *srcFormat)
 {
   const wchar_t *src = srcFormat;
   wchar_t       *dst = destFormat;
@@ -207,106 +158,15 @@ NW_EXTERN_C void NanoWinMsPrintfWFormatMs2Unix(wchar_t *destFormat, const wchar_
   *dst = L'\0';
 }
 
-NW_EXTERN_C int NanoWinMsSWPrintf(wchar_t *buffer, size_t count, const wchar_t *format, ...)
+// Function redefinition
+// -----------------------------------------
+
+NW_EXTERN_C const wchar_t *NanoWinMsWPrintfFormatMs2UnixCGate  (const wchar_t *srcFormat)
 {
-  va_list argptr;
-
-  va_start(argptr,format);
-
-  int result = NanoWinMsVSWPrintf(buffer,count,format,argptr);
-
-  va_end(argptr);
-
-  return result;
-}
-
-NW_EXTERN_C int NanoWinMsVSWPrintf(wchar_t *buffer, size_t count, const wchar_t *format, va_list argptr)
-{
-  int result;
-
-  try
-  {
-    NanoWinPreAllocatedBuffer<wchar_t> nativeFormat(wcslen(format) + 1);
-
-    NanoWinMsPrintfWFormatMs2Unix(nativeFormat.data(),format);
-
-    result = NanoWinMsPrintfNativeVSWPrintf(buffer,count,nativeFormat.data(),argptr);
-  }
-  catch (...)
-  {
-    result = -1;
-    errno  = ENOMEM;
-  }
-
-  return result;
-}
-
-NW_EXTERN_C int NanoWinMsWPrintf(const wchar_t *format, ...)
-{
-  va_list argptr;
-
-  va_start(argptr,format);
-
-  int result = NanoWinMsVWPrintf(format,argptr);
-
-  va_end(argptr);
-
-  return result;
-}
-
-NW_EXTERN_C int NanoWinMsVWPrintf(const wchar_t *format, va_list argptr)
-{
-  int result;
-
-  try
-  {
-    NanoWinPreAllocatedBuffer<wchar_t> nativeFormat(wcslen(format) + 1);
-
-    NanoWinMsPrintfWFormatMs2Unix(nativeFormat.data(),format);
-
-    result = NanoWinMsPrintfNativeVWPrintf(nativeFormat.data(),argptr);
-  }
-  catch (...)
-  {
-    result = -1;
-    errno  = ENOMEM;
-  }
-
-  return result;
-}
-
-NW_EXTERN_C int NanoWinMsFWPrintf(FILE *stream, const wchar_t *format, ...)
-{
-  va_list argptr;
-
-  va_start(argptr,format);
-
-  int result = NanoWinMsVFWPrintf(stream,format,argptr);
-
-  va_end(argptr);
-
-  return result;
-}
-
-NW_EXTERN_C int NanoWinMsVFWPrintf(FILE *stream, const wchar_t *format, va_list argptr)
-{
-  int result;
-
-  try
-  {
-    NanoWinPreAllocatedBuffer<wchar_t> nativeFormat(wcslen(format) + 1);
-
-    NanoWinMsPrintfWFormatMs2Unix(nativeFormat.data(),format);
-
-    result = NanoWinMsPrintfNativeVFWPrintf(stream,nativeFormat.data(),argptr);
-  }
-  catch (...)
-  {
-    result = -1;
-    errno  = ENOMEM;
-  }
-
-  return result;
+  static thread_local NanoWin::WPrintfFormatLine Gate(0);
+  Gate.reset(NanoWinMsWPrintfFormatMs2UnixRequiredLength(srcFormat));
+  NanoWinMsWPrintfFormatMs2Unix(Gate.data(), srcFormat);
+  return(Gate.data());
 }
 
 #endif // NanoWinUseNativePrintfFormat

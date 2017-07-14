@@ -1583,6 +1583,7 @@ NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFFormatNoBufferTest)
 #ifndef __GNUC__
 NW_TEST(NanoWinMSExtraTestGroup, VSNWPrintFFormatNoBufferStrTest)
 {
+  // MS format policy
   NW_CHECK_EQUAL_INTS(10, vsnwprintf_test_helper(NULL, 0, L"%10s", "abcde"));
   NW_CHECK_EQUAL_INTS(10, vsnwprintf_test_helper(NULL, 0, L"%ld %.1f %s", 34L, 1.234, L"def"));
 }
