@@ -31,5 +31,70 @@ extern HANDLE NanoWinStdioFileAsFileHandle (FILE *fileStream);
 
 NW_EXTERN_C_END
 
+#ifdef __cplusplus
+
+namespace NanoWin
+{
+  template<typename T, size_t init_size = 256>
+  class PreAllocatedBuffer
+  {
+    public:
+
+    PreAllocatedBuffer (size_t size)
+    {
+      init(size);
+    }
+
+    void reset (size_t newsize)
+    {
+      done();
+      init(newsize);
+    }
+
+    ~PreAllocatedBuffer()
+    {
+      done();
+    }
+
+    T       *data()       { return buffer; }
+    const T *data() const { return buffer; }
+
+    private:
+
+    void init(size_t size)
+    {
+      if (size <= init_size)
+      {
+        buffer = fixed_buffer;
+      }
+      else
+      {
+        buffer = new T[size];
+      }
+    }
+
+    void done()
+    {
+      if (buffer != fixed_buffer)
+      {
+        delete[] buffer;
+      }
+    }
+
+    T  fixed_buffer[init_size];
+    T *buffer;
+
+    private:
+    PreAllocatedBuffer (const PreAllocatedBuffer &src) = delete;
+    PreAllocatedBuffer (PreAllocatedBuffer &&src) = delete;
+
+    private:
+    PreAllocatedBuffer& operator = (const PreAllocatedBuffer &src) = delete;
+    PreAllocatedBuffer& operator = (PreAllocatedBuffer &&src) = delete;
+  };
+}
+
+#endif
+
 #endif // linux
 #endif // ...Included
