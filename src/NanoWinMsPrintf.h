@@ -25,15 +25,15 @@
 
 #define NW_WPRINTF_FORMAT_REMAPPED // Flag that remapping is active
 
-#define swprintf(buffer, count, format, ...)          swprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__)
-#define vswprintf(buffer, count, format, va_args)     vswprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), va_args)
-#define wprintf(format, ...)                          wprintf(NW_FORMAT_2_UNIX(format), __VA_ARGS__)
-#define vwprintf(format, va_args)                     vwprintf(NW_FORMAT_2_UNIX(format), va_args)
-#define fwprintf(stream, format, ...)                 fwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__)
-#define vfwprintf(stream, format, va_args)            vfwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), va_args)
+#define swprintf(buffer, count, format, ...)          NW_WPRINTF_RESULT_2_UNIX(int,swprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vswprintf(buffer, count, format, va_args)     NW_WPRINTF_RESULT_2_UNIX(int,vswprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
+#define wprintf(format, ...)                          NW_WPRINTF_RESULT_2_UNIX(int,wprintf(NW_FORMAT_2_UNIX(format), __VA_ARGS__))
+#define vwprintf(format, va_args)                     NW_WPRINTF_RESULT_2_UNIX(int,vwprintf(NW_FORMAT_2_UNIX(format), va_args))
+#define fwprintf(stream, format, ...)                 NW_WPRINTF_RESULT_2_UNIX(int,fwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vfwprintf(stream, format, va_args)            NW_WPRINTF_RESULT_2_UNIX(int,vfwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
 
-#define snwprintf(buffer, count, format, ...)         snwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__)
-#define vsnwprintf(buffer, count, format, va_args)    vsnwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), va_args)
+#define snwprintf(buffer, count, format, ...)         NW_WPRINTF_RESULT_2_UNIX(int,snwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vsnwprintf(buffer, count, format, va_args)    NW_WPRINTF_RESULT_2_UNIX(int,vsnwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
 
 #endif // GCC
 

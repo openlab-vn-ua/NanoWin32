@@ -160,18 +160,35 @@ NW_EXTERN_C void NanoWinMsWFormatProcMs2Unix(wchar_t *destFormat, const wchar_t 
 // Function redefinition tools
 // -----------------------------------------
 
-static thread_local NanoWin::WFormatLine NanoWinMsWFormatProcMs2UnixCGate(0);
+#include "NanoWinInternal.h"
 
-NW_EXTERN_C const wchar_t *NanoWinMsWFormatProcMs2UnixCFormatGate  (const wchar_t *src_format)
+static thread_local NanoWin::PreAllocatedBuffer<wchar_t> NanoWinMsPrintfCGate(0);
+
+NW_EXTERN_C const wchar_t *NanoWinMsWFormatPrintfProcMs2UnixCFormatGate  (const wchar_t *src_format)
 {
-  NanoWinMsWFormatProcMs2UnixCGate.reset(NanoWinMsWFormatProcMs2UnixRequiredLength(src_format));
-  NanoWinMsWFormatProcMs2Unix(NanoWinMsWFormatProcMs2UnixCGate.data(), src_format);
-  return(NanoWinMsWFormatProcMs2UnixCGate.data());
+  NanoWinMsPrintfCGate.reset(NanoWinMsWFormatPrintfProcMs2UnixRequiredLength(src_format));
+  NanoWinMsWFormatProcMs2Unix(NanoWinMsPrintfCGate.data(), src_format);
+  return(NanoWinMsPrintfCGate.data());
 }
 
-NW_EXTERN_C intptr_t       NanoWinMsWFormatProcMs2UnixCResultFree (intptr_t       the_result)
+NW_EXTERN_C intptr_t       NanoWinMsWFormatPrintfProcMs2UnixCResultFree (intptr_t       the_result)
 {
-  NanoWinMsWFormatProcMs2UnixCGate.reset(0);
+  NanoWinMsPrintfCGate.reset(0);
+  return(the_result);
+}
+
+static thread_local NanoWin::PreAllocatedBuffer<wchar_t> NanoWinMsScanfCGate(0);
+
+NW_EXTERN_C const wchar_t *NanoWinMsWFormatScanfProcMs2UnixCFormatGate  (const wchar_t *src_format)
+{
+  NanoWinMsScanfCGate.reset(NanoWinMsWFormatScanfProcMs2UnixRequiredLength(src_format));
+  NanoWinMsWFormatProcMs2Unix(NanoWinMsScanfCGate.data(), src_format);
+  return(NanoWinMsScanfCGate.data());
+}
+
+NW_EXTERN_C intptr_t       NanoWinMsWFormatScanfProcMs2UnixCResultFree (intptr_t       the_result)
+{
+  NanoWinMsScanfCGate.reset(0);
   return(the_result);
 }
 

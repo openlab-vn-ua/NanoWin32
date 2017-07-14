@@ -30,12 +30,21 @@
 #include "NanoWinTypes.h"
 #include <wchar.h>
 
+// Internal use only
+
 // MS2UNIX wprintf/wscanf format string conversion : number of chars required for srcFormat string to convert to unix
 #define          NanoWinMsWFormatProcMs2UnixRequiredLength(srcFormat) (wcslen((srcFormat))+1)
 
 // MS2UNIX wprintf/wscanf format string conversion : convert srcFormat for ms-wprintf to destFormat unix-wprintf
 // Note: destFormat must have enough space to store NanoWinMsWFormatProcMs2UnixRequiredLength(srcFormat) wide characters
 NW_EXTERN_C void NanoWinMsWFormatProcMs2Unix(wchar_t *destFormat, const wchar_t *srcFormat);
+
+// Format proc functions (now, macros)
+
+#define          NanoWinMsWFormatPrintfProcMs2UnixRequiredLength     NanoWinMsWFormatProcMs2UnixRequiredLength
+#define          NanoWinMsWFormatPrintfProcMs2Unix                   NanoWinMsWFormatProcMs2Unix
+#define          NanoWinMsWFormatScanfProcMs2UnixRequiredLength      NanoWinMsWFormatProcMs2UnixRequiredLength
+#define          NanoWinMsWFormatScanfProcMs2Unix                    NanoWinMsWFormatProcMs2Unix
 
 // Function redefinition tools
 // -----------------------------------------
@@ -47,27 +56,50 @@ NW_EXTERN_C void NanoWinMsWFormatProcMs2Unix(wchar_t *destFormat, const wchar_t 
 
 namespace NanoWin
 {
-  class WFormatLine : public PreAllocatedBuffer<wchar_t>
+  class WFormatPrintfLine : public PreAllocatedBuffer<wchar_t>
   {
     public:
 
-    WFormatLine(const wchar_t *srcFormat) : PreAllocatedBuffer<wchar_t>(NanoWinMsWFormatProcMs2UnixRequiredLength(srcFormat))
+    WFormatPrintfLine(const wchar_t *srcFormat) : PreAllocatedBuffer<wchar_t>(NanoWinMsWFormatPrintfProcMs2UnixRequiredLength(srcFormat))
     {
-      NanoWinMsWFormatProcMs2Unix(data(), srcFormat);
+      NanoWinMsWFormatPrintfProcMs2Unix(data(), srcFormat);
+    }
+  };
+
+  class WFormatScanfLine : public PreAllocatedBuffer<wchar_t>
+  {
+    public:
+
+    WFormatScanfLine(const wchar_t *srcFormat) : PreAllocatedBuffer<wchar_t>(NanoWinMsWFormatScanfProcMs2UnixRequiredLength(srcFormat))
+    {
+      NanoWinMsWFormatScanfProcMs2Unix(data(), srcFormat);
     }
   };
 }
 
-#define NW_WPRINTF_FORMAT_2_UNIX(format)         NanoWin::WFormatLine(format).data()
-#define NW_WSCANF_FORMAT_2_UNIX(format)          NanoWin::WFormatLine(format).data()
+#endif
+
+// Gates for C compilation
+
+NW_EXTERN_C const wchar_t *NanoWinMsWFormatPrintfProcMs2UnixCFormatGate (const wchar_t *src_format); // Translates src_format using internal buffer, returns pointer to internal buffer
+NW_EXTERN_C intptr_t       NanoWinMsWFormatPrintfProcMs2UnixCResultFree (intptr_t       the_result); // Returns the_result and frees internal buffer for ...CFormatGate
+NW_EXTERN_C const wchar_t *NanoWinMsWFormatScanfProcMs2UnixCFormatGate  (const wchar_t *src_format); // Translates src_format using internal buffer, returns pointer to internal buffer
+NW_EXTERN_C intptr_t       NanoWinMsWFormatScanfProcMs2UnixCResultFree  (intptr_t       the_result); // Returns the_result and frees internal buffer for ...CFormatGate
+
+
+#ifdef __cplusplus
+
+#define NW_WPRINTF_FORMAT_2_UNIX(format)         NanoWin::WFormatPrintfLine(format).data()
+#define NW_WPRINTF_RESULT_2_UNIX(type,r)         r
+#define NW_WSCANF_FORMAT_2_UNIX(format)          NanoWin::WFormatScanfLine(format).data()
+#define NW_WSCANF_RESULT_2_UNIX(type,r)          r
 
 #else // C
 
-NW_EXTERN_C const wchar_t *NanoWinMsWFormatProcMs2UnixCFormatGate (const wchar_t *src_format); // Translates src_format using internal buffer, returns pointer to internal buffer
-NW_EXTERN_C intptr_t       NanoWinMsWFormatProcMs2UnixCResultFree (intptr_t       the_result); // Returns the_result and frees internal buffer for ...CFormatGate
-
-#define NW_WPRINTF_FORMAT_2_UNIX(format)         NanoWinMsWFormatProcMs2UnixCFormatGate(format)
-#define NW_WSCANF_FORMAT_2_UNIX(format)          NanoWinMsWFormatProcMs2UnixCFormatGate(format)
+#define NW_WPRINTF_FORMAT_2_UNIX(format)         NanoWinMsWFormatPrintfProcMs2UnixCFormatGate(format)
+#define NW_WPRINTF_RESULT_2_UNIX(type,r)         ((type)(NanoWinMsWFormatPrintfProcMs2UnixCResultFree(r)))
+#define NW_WSCANF_FORMAT_2_UNIX(format)          NanoWinMsWFormatScanfProcMs2UnixCFormatGate(format)
+#define NW_WSCANF_RESULT_2_UNIX(type,r)          ((type)(NanoWinMsWFormatScanfProcMs2UnixCResultFree(r)))
 
 #endif
 
