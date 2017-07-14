@@ -62,49 +62,49 @@ NW_TEST(PrintfWFormatMs2UnixTestGroup, PrintfWFormatMs2UnixSimpleTest)
   const wchar_t *srcS  = L"%s";
   wchar_t       destS[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destS, srcS);
+  NanoWinMsWFormatProcMs2Unix(destS, srcS);
   NW_CHECK_EQUAL_MEMCMP(L"%S", destS, 3 * sizeof(wchar_t));
 
   const wchar_t *srcC = L"%c";
   wchar_t       destC[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destC, srcC);
+  NanoWinMsWFormatProcMs2Unix(destC, srcC);
   NW_CHECK_EQUAL_MEMCMP(L"%C", destC, 3 * sizeof(wchar_t));
   
   const wchar_t *srcSs = L"%S";
   wchar_t       destSs[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destSs, srcSs);
+  NanoWinMsWFormatProcMs2Unix(destSs, srcSs);
   NW_CHECK_EQUAL_MEMCMP(L"%s", destSs, 3 * sizeof(wchar_t));
 
   const wchar_t *srcCs = L"%C";
   wchar_t       destCs[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destCs, srcCs);
+  NanoWinMsWFormatProcMs2Unix(destCs, srcCs);
   NW_CHECK_EQUAL_MEMCMP(L"%c", destCs, 3 * sizeof(wchar_t));
 
   const wchar_t *srcLS = L"%ls";
   wchar_t       destLS[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destLS, srcLS);
+  NanoWinMsWFormatProcMs2Unix(destLS, srcLS);
   NW_CHECK_EQUAL_MEMCMP(L"%ls", destLS, 4 * sizeof(wchar_t));
 
   const wchar_t *srcLC = L"%lc";
   wchar_t       destLC[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destLC, srcLC);
+  NanoWinMsWFormatProcMs2Unix(destLC, srcLC);
   NW_CHECK_EQUAL_MEMCMP(L"%lc", destLC, 4 * sizeof(wchar_t));
 
   const wchar_t *srcWS = L"%ws";
   wchar_t       destWS[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destWS, srcWS);
+  NanoWinMsWFormatProcMs2Unix(destWS, srcWS);
   NW_CHECK_EQUAL_MEMCMP(L"%ls", destWS, 4 * sizeof(wchar_t));
 
   const wchar_t *srcWC = L"%wc";
   wchar_t       destWC[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destWC, srcWC);
+  NanoWinMsWFormatProcMs2Unix(destWC, srcWC);
   NW_CHECK_EQUAL_MEMCMP(L"%lc", destWC, 4 * sizeof(wchar_t));
 }
 
@@ -113,37 +113,37 @@ NW_TEST(PrintfWFormatMs2UnixTestGroup, PrintfWFormatMs2UnixTest)
   const wchar_t *srcS = L"%5s %#20S";
   wchar_t       destS[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destS, srcS);
+  NanoWinMsWFormatProcMs2Unix(destS, srcS);
   NW_CHECK_EQUAL_MEMCMP(L"%5S %#20s", destS, 10 * sizeof(wchar_t));
 
   const wchar_t *srcF = L"%+0*f  %4.2f";
   wchar_t       destF[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destF, srcF);
+  NanoWinMsWFormatProcMs2Unix(destF, srcF);
   NW_CHECK_EQUAL_MEMCMP(L"%+0*f  %4.2f", destF, 13 * sizeof(wchar_t));
 
   const wchar_t *srcD = L"%+05lld   %-I64i %02I32u %#x%#X %#3o";
   wchar_t       destD[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destD, srcD);
+  NanoWinMsWFormatProcMs2Unix(destD, srcD);
   NW_CHECK_EQUAL_MEMCMP(L"%+05lld   %-I64i %02I32u %#x%#X %#3o", destD, 37 * sizeof(wchar_t));
 
   const wchar_t *srcC = L"%-c %5C %wc";
   wchar_t       destC[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destC, srcC);
+  NanoWinMsWFormatProcMs2Unix(destC, srcC);
   NW_CHECK_EQUAL_MEMCMP(L"%-C %5c %lc", destC, 12 * sizeof(wchar_t));
 
   const wchar_t *srcG = L"%-3lg %+5LG";
   wchar_t       destG[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destG, srcG);
+  NanoWinMsWFormatProcMs2Unix(destG, srcG);
   NW_CHECK_EQUAL_MEMCMP(L"%-3lg %+5LG", destG, 12 * sizeof(wchar_t));
 
   const wchar_t *srcA = L"%-*3.a   %+5#A";
   wchar_t       destA[256];
 
-  NanoWinMsWPrintfFormatMs2Unix(destA, srcA);
+  NanoWinMsWFormatProcMs2Unix(destA, srcA);
   NW_CHECK_EQUAL_MEMCMP(L"%-*3.a   %+5#A", destA, 15 * sizeof(wchar_t));
 }
 
