@@ -13,7 +13,7 @@
 #include "NanoWinMsSafeScanf.h"
 
 #define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
-#define return_after_err_handler(etext,earg,errcode) return(errcode)
+#define return_after_err_handler(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); }
 
 namespace
 {
