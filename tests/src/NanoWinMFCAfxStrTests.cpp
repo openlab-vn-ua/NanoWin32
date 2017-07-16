@@ -5,6 +5,7 @@
 #else
  //#include <windows.h>
  #include <afx.h>
+ #include <afxwin.h>
 #endif
 
 NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMFCAfxStrTestGroup)
@@ -666,6 +667,9 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringCA2WFormatTest)
   NW_CHECK_EQUAL_MEMCMP(L"123abc456", str.GetString(), 10 * sizeof(wchar_t));
 }
 
+// only for NanoWin implementation which contains AfxExtractSubString overloads for
+// both ANSI and UNICODE strings, or for MSVC in ANSI build
+#if defined(__linux) || !(defined(UNICODE) || defined(_UNICODE))
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringExtractSubStringTest)
 {
   CStringA str;
@@ -680,7 +684,11 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringExtractSubStringTest)
 
   NW_CHECK_FALSE(res);
 }
+#endif
 
+// only for NanoWin implementation which contains AfxExtractSubString overloads for
+// both ANSI and UNICODE strings, or for MSVC in UNICODE build
+#if defined(__linux) || (defined(UNICODE) || defined(_UNICODE))
 NW_TEST(NanoWinMFCAfxStrTestGroup, CStringExtractSubStringWTest)
 {
   CStringW str;
@@ -695,5 +703,6 @@ NW_TEST(NanoWinMFCAfxStrTestGroup, CStringExtractSubStringWTest)
 
   NW_CHECK_FALSE(res);
 }
+#endif
 
 NW_END_TEST_GROUP()
