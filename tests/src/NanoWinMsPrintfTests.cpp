@@ -55,6 +55,8 @@ static void ReadFile(FILE *stream, wchar_t *buff)
   }
 }
 
+#ifdef __GNUC__
+
 NW_BEGIN_TEST_GROUP_SIMPLE(PrintfWFormatMs2UnixTestGroup)
 
 NW_TEST(PrintfWFormatMs2UnixTestGroup, PrintfWFormatMs2UnixSimpleTest)
@@ -148,6 +150,8 @@ NW_TEST(PrintfWFormatMs2UnixTestGroup, PrintfWFormatMs2UnixTest)
 }
 
 NW_END_TEST_GROUP()
+
+#endif
 
 NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMsSWPrintfTestGroup)
 
@@ -351,3 +355,76 @@ NW_TEST(NanoWinMsFWPrintfTestGroup, NanoWinMsFWPrintfFTest)
 }
 
 NW_END_TEST_GROUP()
+
+#define NanoWinMsSWScanf   swscanf
+
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMsSWScanfTestGroup)
+
+NW_TEST(NanoWinMsSWScanfTestGroup,NanoWinMsSWScanfSimpleStringsTest)
+{
+  wchar_t wbuf1[256];
+  wchar_t wbuf2[256];
+  char    abuf1[256];
+  int     count;
+
+  count = NanoWinMsSWScanf(L"Hello, World!",L"Hello, %s",wbuf1);
+
+  NW_CHECK_EQUAL_INTS(1,count);
+  NW_CHECK_EQUAL_STRCMP(L"World!",wbuf1);
+
+  count = NanoWinMsSWScanf(L"Hello, UNICODE",L"Hello, %ls",wbuf1);
+
+  NW_CHECK_EQUAL_INTS(1,count);
+  NW_CHECK_EQUAL_STRCMP(L"UNICODE",wbuf1);
+
+  wbuf1[0] = L'\0';
+  wbuf2[0] = L'\0';
+
+  count = NanoWinMsSWScanf(L"one two",L"%*s %s",wbuf1,wbuf2);
+
+  NW_CHECK_EQUAL_INTS(1,count);
+  NW_CHECK_EQUAL_STRCMP(L"two",wbuf1);
+  NW_CHECK_EQUAL_STRCMP(L"",wbuf2);
+
+  count = NanoWinMsSWScanf(L"UNICODE ANSI",L"%s %S",wbuf1,abuf1);
+
+  NW_CHECK_EQUAL_INTS(2,count);
+  NW_CHECK_EQUAL_STRCMP(L"UNICODE",wbuf1);
+  NW_CHECK_EQUAL_STRCMP("ANSI",abuf1);
+}
+
+NW_TEST(NanoWinMsSWScanfTestGroup, NanoWinMsSWScanfSimpleCharsTest)
+{
+  wchar_t wch1;
+  wchar_t wch2;
+  char    ach1;
+  int     count;
+
+  count = NanoWinMsSWScanf(L"U",L"%c",&wch1);
+
+  NW_CHECK_EQUAL_INTS(1,count);
+  NW_CHECK_EQUAL_LONGS(L'U',wch1);
+
+  count = NanoWinMsSWScanf(L"V",L"%lc",&wch1);
+
+  NW_CHECK_EQUAL_INTS(1,count);
+  NW_CHECK_EQUAL_LONGS(L'V',wch1);
+
+  wch1 = L'\0';
+  wch2 = L'\0';
+
+  count = NanoWinMsSWScanf(L"A B",L"%*c %c",&wch1,&wch2);
+
+  NW_CHECK_EQUAL_INTS(1,count);
+  NW_CHECK_EQUAL_LONGS(L'B',wch1);
+  NW_CHECK_EQUAL_LONGS(0,wch2);
+
+  count = NanoWinMsSWScanf(L"U A",L"%c %C",&wch1,&ach1);
+
+  NW_CHECK_EQUAL_INTS(2,count);
+  NW_CHECK_EQUAL_LONGS(L'U',wch1);
+  NW_CHECK_EQUAL_LONGS('A',ach1);
+}
+
+NW_END_TEST_GROUP()
+ 
