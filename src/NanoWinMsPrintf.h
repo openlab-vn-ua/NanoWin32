@@ -35,6 +35,13 @@
 #define snwprintf(buffer, count, format, ...)         NW_WPRINTF_RESULT_2_UNIX(int,snwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
 #define vsnwprintf(buffer, count, format, va_args)    NW_WPRINTF_RESULT_2_UNIX(int,vsnwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
 
+#define swscanf(buffer, format, ...)                  NW_WSCANF_RESULT_2_UNIX(int,swscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vswscanf(buffer, format, va_args)             NW_WSCANF_RESULT_2_UNIX(int,vswscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
+#define wscanf(format, ...)                           NW_WSCANF_RESULT_2_UNIX(int,wscanf(NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vwscanf(format, va_args)                      NW_WSCANF_RESULT_2_UNIX(int,vwscanf(NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
+#define fwscanf(stream, format, ...)                  NW_WSCANF_RESULT_2_UNIX(int,fwscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vfwscanf(stream, format, va_args)             NW_WSCANF_RESULT_2_UNIX(int,vfwscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), av_args))
+
 #endif // GCC
 
 #endif // NanoWinForceNativePrintfFormat
