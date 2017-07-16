@@ -198,6 +198,16 @@ NW_TEST(NanoWinMsSWPrintfTestGroup, NanoWinMsSWPrintfSimpleTest)
   int count10 = NanoWinMsSWPrintf(str, 10, L"%f", 5.678f);
   NW_CHECK_EQUAL(8, count10);
   NW_CHECK_EQUAL_MEMCMP(L"5.678000", str, 9 * sizeof(wchar_t));
+
+  // 'h'-prefix in char and string fields checks
+
+  int count = NanoWinMsSWPrintf(str, sizeof(str) / sizeof(wchar_t), L"%hc",'A');
+  NW_CHECK_EQUAL(1,count);
+  NW_CHECK_EQUAL_STRCMP(L"A",str);
+
+  count = NanoWinMsSWPrintf(str, sizeof(str) / sizeof(wchar_t), L"%hs","multibyte string");
+  NW_CHECK_EQUAL(16,count);
+  NW_CHECK_EQUAL_STRCMP(L"multibyte string",str);
 }
 
 NW_TEST(NanoWinMsSWPrintfTestGroup, NanoWinMsSWPrintfTest)
