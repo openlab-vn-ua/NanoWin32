@@ -19,6 +19,7 @@
 #include <stdarg.h> // va_arg
 
 #include "NanoWinMsSafeString.h"
+#include "NanoWinMsSafePrintf.h" // printf_s
 #include "NanoWinMsExtra.h" // vsnwprintf
 
 #include "NanoWinTCHAR.h"
@@ -27,7 +28,7 @@
 #include <wchar.h>
 #include "NanoWinStrConvert.h"
 
-#include "NanoWinMsPrintf.h" // Use MS-compatible printf
+#include "NanoWinMsWFormatProc.h" // CStringW.Format uses ms-compatible format string
 
 class NanoWinStringUtils
 {
@@ -87,7 +88,11 @@ class NanoWinStringUtils
 
   static int vsnprintf_overload(wchar_t *buffer, size_t count, const wchar_t *format, va_list argptr)
   {
+    #ifdef NW_WPRINTF_FORMAT_REMAPPED
     return vsnwprintf(buffer,count,format,argptr);
+    #else
+    return vsnwprintf(buffer,count,NanoWin::WFormatPrintfLine(format).data(),argptr);
+    #endif
   }
 
   static int vsprintf_s_overload(char *buffer, size_t numberOfElements, const char *format, va_list argptr)
@@ -95,9 +100,13 @@ class NanoWinStringUtils
     return vsprintf_s(buffer,numberOfElements,format,argptr);
   }
 
-  static int vsprintf_s_overload(wchar_t *buffer, size_t numberOfElements, const wchar_t *format, va_list argptr )
+  static int vsprintf_s_overload(wchar_t *buffer, size_t numberOfElements, const wchar_t *format, va_list argptr)
   {
+    #ifdef NW_WPRINTF_FORMAT_REMAPPED
     return vswprintf_s(buffer,numberOfElements,format,argptr);
+    #else
+    return vsnwprintf(buffer,numberOfElements,NanoWin::WFormatPrintfLine(format).data(),argptr);
+    #endif
   }
 };
 
@@ -127,20 +136,34 @@ template<typename XCHAR>
 struct TStringContainer
 {
   #ifdef NW_DEBUG_TSTRING_CONTAINER
+  static constexpr uint32_t MAGIC1 = 0x0AB00CD0;
   uint32_t magic1;
   #endif
+
   size_t capacity;
+
   #ifdef NW_DEBUG_TSTRING_CONTAINER
+  static constexpr uint32_t MAGIC2 = 0x11223344;
   uint32_t magic2;
   #endif
+
   XCHAR  buffer[0];
 
   #ifdef NW_DEBUG_TSTRING_CONTAINER
+
+  #define NW_DEBUG_TSTRING_CONTAINER_SET_MAGIC(container) \
+   { container->magic1 = MAGIC1; \
+     container->magic2 = MAGIC2; }
+
   #define NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC(container) \
    assert(container->magic1 == MAGIC1); \
    assert(container->magic2 == MAGIC2);
+
   #else
+
+  #define NW_DEBUG_TSTRING_CONTAINER_SET_MAGIC(container)
   #define NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC(container)
+
   #endif
 
   static XCHAR *Allocate (size_t initialCapacity)
@@ -153,9 +176,8 @@ struct TStringContainer
 
       container->capacity = initialCapacity;
 
-      #ifdef NW_DEBUG_TSTRING_CONTAINER
-      SetMagics(container);
-      #endif
+      NW_DEBUG_TSTRING_CONTAINER_SET_MAGIC(container);
+
       return (XCHAR*)&container->buffer;
     }
     else
@@ -320,19 +342,8 @@ struct TStringContainer
 
   static constexpr size_t OPTIMAL_ALLOCATION_BLOCK_SIZE = 32;
 
-
-  #ifdef NW_DEBUG_TSTRING_CONTAINER
-  static void SetMagics(TStringContainer<XCHAR> *container)
-  {
-    container->magic1 = MAGIC1;
-    container->magic2 = MAGIC2;
-  }
-
-  static constexpr uint32_t MAGIC1 = 0x0AB00CD0;
-  static constexpr uint32_t MAGIC2 = 0x11223344;
-  #endif
-
   #undef NW_DEBUG_TSTRING_CONTAINER_CHECK_MAGIC
+  #undef NW_DEBUG_TSTRING_CONTAINER_SET_MAGIC
 };
 
 #pragma pack(pop)

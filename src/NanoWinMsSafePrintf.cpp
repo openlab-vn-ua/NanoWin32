@@ -13,6 +13,7 @@
 
 #include "NanoWinMsSafePrintf.h"
 
+// Borrowed from NanoWinMsSafeString.cpp
 #define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
 #define return_after_err_handler(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); }
 
@@ -78,9 +79,12 @@ NW_EXTERN_C_END
 // String format functions (wchar_t)
 // -----------------------------------------------------
 
+// Note: only processor included, function remapping not included, so all calls to wprintf form here are native
+#include "NanoWinMsWFormatProc.h"
+
 NW_EXTERN_C_BEGIN
 
-extern int     vswprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args)
+extern int     vswprintf_s_nt (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args)
 {
   #define FN "vwsprintf_s"
   #define ITEM wchar_t
@@ -114,12 +118,27 @@ extern int     vswprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *form
   #undef FN
 }
 
-extern int     swprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
+extern int     vswprintf_s_ms (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args)
+{
+  return(vswprintf_s_nt(dest, destsz, NanoWin::WFormatPrintfLine(format).data(), args));
+}
+
+extern int     swprintf_s_nt  (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
 {
   int result;
   va_list args;
   va_start (args, format);
-  result = vswprintf_s(dest, destsz, format, args);
+  result = vswprintf_s_nt(dest, destsz, format, args);
+  va_end (args);
+  return(result);
+}
+
+extern int     swprintf_s_ms  (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
+{
+  int result;
+  va_list args;
+  va_start (args, format);
+  result = vswprintf_s_ms(dest, destsz, format, args);
   va_end (args);
   return(result);
 }

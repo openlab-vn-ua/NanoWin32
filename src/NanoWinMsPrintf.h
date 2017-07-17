@@ -32,8 +32,24 @@
 #define fwprintf(stream, format, ...)                 NW_WPRINTF_RESULT_2_UNIX(int,fwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
 #define vfwprintf(stream, format, va_args)            NW_WPRINTF_RESULT_2_UNIX(int,vfwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
 
+// Redefine functions from NanoWinMsExtra.*
+
 #define snwprintf(buffer, count, format, ...)         NW_WPRINTF_RESULT_2_UNIX(int,snwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
 #define vsnwprintf(buffer, count, format, va_args)    NW_WPRINTF_RESULT_2_UNIX(int,vsnwprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
+
+// Redefine "safe" functions from NanoWinMsSafePrintf.* (bit tricky)
+
+#if defined(vswprintf_s)
+#undef  vswprintf_s
+#define vswprintf_s     vswprintf_s_ms
+#endif
+
+#if defined(swprintf_s)
+#undef  swprintf_s
+#define swprintf_s      swprintf_s_ms
+#endif
+
+#define NW_WSCANF_FORMAT_REMAPPED // Flag that remapping is active
 
 #define swscanf(buffer, format, ...)                  NW_WSCANF_RESULT_2_UNIX(int,swscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
 #define vswscanf(buffer, format, va_args)             NW_WSCANF_RESULT_2_UNIX(int,vswscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
