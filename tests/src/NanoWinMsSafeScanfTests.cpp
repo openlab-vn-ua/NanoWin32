@@ -742,7 +742,7 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharWithLModTest)
 
   NW_CHECK_EQUAL_INTS(1, count);
 
-  NW_CHECK_EQUAL_STRCMP(L'a', symb);
+  NW_CHECK_EQUAL(L'a', symb);
 }
 
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrWithHModTest)
@@ -1181,7 +1181,55 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FScanfStrTest2)
   NW_CHECK_EQUAL_INTS(1, count);
   NW_CHECK_EQUAL_STRCMP("123", str1);
 }
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FScanfCharWithLModTest)
+{
+  ScanfTestFile  input("abc");
+  wchar_t symb;
 
+  int count = fscanf_s(input.getStream(), "%lc", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL(L'a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FScanfStrWithHModTest)
+{
+  ScanfTestFile  input("abc");
+  char str[64];
+
+  int count = fscanf_s(input.getStream(), "%hS", &str, sizeof(str));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FScanfCharWithHModTest)
+{
+  ScanfTestFile  input("abc");
+  char symb;
+
+  int count = fscanf_s(input.getStream(), "%hC", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL('a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FScanfStrWithLModTest)
+{
+  ScanfTestFile  input("abc");
+  wchar_t str[64];
+
+  int count = fscanf_s(input.getStream(), "%ls", &str, sizeof(input) * sizeof(wchar_t));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP(L"abc", str);
+}
+#endif
 NW_TEST(NanoWinSafeFScanfTestGroup, FScanfPercentCharInFormatTest)
 {
   ScanfTestFile input("%37%%nn");
@@ -1450,7 +1498,55 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrTest2)
   NW_CHECK_EQUAL_INTS(1, count);
   NW_CHECK_EQUAL_MEMCMP(L"123", str1, 3 * sizeof(wchar_t));
 }
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FWScanfCharWithLModTest)
+{
+  ScanfTestFileW  input(L"abc");
+  wchar_t symb;
 
+  int count = fwscanf_s(input.getStream(), L"%lc", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL(L'a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FWScanfStrWithHModTest)
+{
+  ScanfTestFileW  input(L"abc");
+  char str[64];
+
+  int count = fwscanf_s(input.getStream(), L"%hS", &str, sizeof(str));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FWScanfCharWithHModTest)
+{
+  ScanfTestFileW  input(L"abc");
+  char symb;
+
+  int count = fwscanf_s(input.getStream(), L"%hC", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL('a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, FWScanfStrWithLModTest)
+{
+  ScanfTestFileW  input(L"abc");
+  wchar_t str[64];
+
+  int count = fwscanf_s(input.getStream(), L"%ls", &str, sizeof(input) * sizeof(wchar_t));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP(L"abc", str);
+}
+#endif
 NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrSymbolsCountTest)
 {
   ScanfTestFileW input(L"123  abc		4def5");
