@@ -691,6 +691,7 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrTest)
 	NW_CHECK_EQUAL_STRCMP("abc", str3);
 }
 
+
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharSimpleTest)
 {
 	const char  input[] = "abc";
@@ -731,7 +732,55 @@ NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharTest)
 	NW_CHECK_EQUAL('c', str[1]);
 	NW_CHECK_EQUAL(' ', str[2]);
 }
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharWithLModTest)
+{
+  const char  input[] = "abc";
+  wchar_t symb;
 
+  int count = sscanf_s(input, "%lc", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP(L'a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrWithHModTest)
+{
+  const char  input[] = "abc";
+  char str[64];
+
+  int count = sscanf_s(input, "%hS", &str, sizeof(input));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharWithHModTest)
+{
+  const char  input[] = "abc";
+  char symb;
+
+  int count = sscanf_s(input, "%hC", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL('a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfStrWithLModTest)
+{
+  const char  input[] = "abc";
+  wchar_t str[64];
+
+  int count = sscanf_s(input, "%ls", &str, sizeof(input) * sizeof(wchar_t));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP(L"abc", str);
+}
+#endif
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, SScanfCharAndIntTest)
 {
 	const char  input[] = "a12";
@@ -1788,7 +1837,55 @@ NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfCharTest)
   NW_CHECK_EQUAL(L'c', str[1]);
   NW_CHECK_EQUAL(L' ', str[2]);
 }
+#ifndef __GNUC__
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SWScanfCharWithLModTest)
+{
+  const wchar_t  input[] = L"abc";
+  wchar_t symb;
 
+  int count = swscanf_s(input, L"%lc", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL(L'a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SWScanfCharWithHModTest)
+{
+  const wchar_t  input[] = L"abc";
+  char symb;
+
+  int count = swscanf_s(input, L"%hC", &symb, 1);
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL('a', symb);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SWScanfStrWithHModTest)
+{
+  const wchar_t  input[] = L"abc";
+  char str[64];
+
+  int count = swscanf_s(input, L"%hS", &str, sizeof(input));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP("abc", str);
+}
+
+NW_TEST(NanoWinMsSafeSScanfSTestGroup, SWScanfStrWithLModTest)
+{
+  const wchar_t  input[] = L"abc";
+  wchar_t str[64];
+
+  int count = swscanf_s(input, L"%ls", &str, sizeof(input) * sizeof(wchar_t));
+
+  NW_CHECK_EQUAL_INTS(1, count);
+
+  NW_CHECK_EQUAL_STRCMP(L"abc", str);
+}
+#endif
 NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfCommonTest)
 {
   const wchar_t  input[] = L"abc123 4def5.6.7 nnn56.78";
