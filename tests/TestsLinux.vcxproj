@@ -100,6 +100,7 @@
     <ClCompile Include="..\src\NanoWinMsExtra.cpp" />
     <ClCompile Include="..\src\NanoWinMsPrintf.cpp" />
     <ClCompile Include="..\src\NanoWinMsSafeScanf.cpp" />
+    <ClCompile Include="..\src\NanoWinMsSafePrintf.cpp" />
     <ClCompile Include="..\src\NanoWinMsSafeString.cpp" />
     <ClCompile Include="..\src\NanoWinMsWFormatProc.cpp" />
     <ClCompile Include="..\src\NanoWinOther.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="..\src\NanoWinModule.h" />
     <ClInclude Include="..\src\NanoWinMsExtra.h" />
     <ClInclude Include="..\src\NanoWinMsPrintf.h" />
+    <ClInclude Include="..\src\NanoWinMsSafePrintf.h" />
     <ClInclude Include="..\src\NanoWinMsSafeScanf.h" />
     <ClInclude Include="..\src\NanoWinMsSafeString.h" />
     <ClInclude Include="..\src\NanoWinMsWFormatProc.h" />

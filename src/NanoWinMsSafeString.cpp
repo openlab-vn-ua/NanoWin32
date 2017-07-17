@@ -635,105 +635,6 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
 
 NW_EXTERN_C_END
 
-// String format functions
-// -----------------------------------------------------
-
-#include <stdio.h> // vsnprintf...
-
-#define sprintf_handle_errcode(errcode) { errno = (errcode); } // Define this as empty if you preffer not to set errno (C11 does not require that)
-
-NW_EXTERN_C_BEGIN
-
-extern int     vsprintf_s    (char *dest, rsize_t destsz, const char *format, va_list args)
-{
-  #define FN "vsprintf_s"
-  #define ITEM char
-  #define VSNPRINTF vsnprintf
-  // <body> // invaliant for sprintf_s and wsprintf_s
-  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); sprintf_handle_errcode(errcode); return(-1); }
-  #define return_after_err_FILLDST(etext,earg,errcode) { dest[0] = 0; return_after_err_WMARKER(etext,earg,errcode); }
-
-  if (dest  == NULL)           { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
-  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
-  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
-  // Now we have to fill something at dest, so we clear dest at error
-  if (format == NULL)          { return_after_err_FILLDST(FN SP "format is null"              , NULL, EINVAL); }
-
-  int result;
-  result = VSNPRINTF(dest, destsz, format, args);
-
-  if (result < 0)              { return_after_err_FILLDST(FN SP "format error detected"       , NULL, EINVAL); }
-  // (result >= destsz), string was truncated
-  if ((rsize_t)result>=destsz) { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
-
-  return(result);
-
-  #undef return_after_err_FILLDST
-  #undef return_after_err_WMARKER
-  #undef RSIZE_MAX_CNT
-  // </body>
-  #undef VSNPRINTF
-  #undef ITEM
-  #undef FN
-}
-
-extern int     vswprintf_s   (wchar_t *dest, rsize_t destsz, const wchar_t *format, va_list args)
-{
-  #define FN "vwsprintf_s"
-  #define ITEM wchar_t
-  #define VSNPRINTF vswprintf // strictly speaking vswprintf is not analog of vsnprintf, since vswprintf returns -1 on buffer overflow, but code down here handles that (just another error reported)
-  // <body> // invaliant for sprintf_s and wsprintf_s
-  #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
-  #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); sprintf_handle_errcode(errcode); return(-1); }
-  #define return_after_err_FILLDST(etext,earg,errcode) { dest[0] = 0; return_after_err_WMARKER(etext,earg,errcode); }
-
-  if (dest  == NULL)           { return_after_err_WMARKER(FN SP "dest is null"                , NULL, EINVAL); }
-  if (destsz <= 0)             { return_after_err_WMARKER(FN SP "destsz is zero"              , NULL, ERANGE); }
-  if (destsz >  RSIZE_MAX_CNT) { return_after_err_WMARKER(FN SP "destsz too large"            , NULL, ERANGE); }
-  // Now we have to fill something at dest, so we clear dest at error
-  if (format == NULL)          { return_after_err_FILLDST(FN SP "format is null"              , NULL, EINVAL); }
-
-  int result;
-  result = VSNPRINTF(dest, destsz, format, args);
-
-  if (result < 0)              { return_after_err_FILLDST(FN SP "format error detected"       , NULL, EINVAL); }
-  // (result >= destsz), string was truncated
-  if ((rsize_t)result>=destsz) { return_after_err_FILLDST(FN SP "destsz too small for result" , NULL, ERANGE); }
-
-  return(result);
-
-  #undef return_after_err_FILLDST
-  #undef return_after_err_WMARKER
-  #undef RSIZE_MAX_CNT
-  // </body>
-  #undef VSNPRINTF
-  #undef ITEM
-  #undef FN
-}
-
-extern int     sprintf_s     (char *dest, rsize_t destsz, const char *format, ...)
-{
-  int result;
-  va_list args;
-  va_start (args, format);
-  result = vsprintf_s(dest, destsz, format, args);
-  va_end (args);
-  return(result);
-}
-
-extern int     swprintf_s    (wchar_t *dest, rsize_t destsz, const wchar_t *format, ...)
-{
-  int result;
-  va_list args;
-  va_start (args, format);
-  result = vswprintf_s(dest, destsz, format, args);
-  va_end (args);
-  return(result);
-}
-
-NW_EXTERN_C_END
-
 // MS Extensions
 // -----------------------------------------------------
 
@@ -1111,9 +1012,6 @@ static int NanoWinMsSafeStringCompilationTest()
   strlwr_s(stest);
   strlwr_s(pdest, 2);
 
-  sprintf_s(tdest, _countof(tdest), "just a test %s and here %s %i", ptest, ptest, ntest);
-  sprintf_s(tdest, "just a test %s and here %s", ptest, ptest, ntest);
-
   wchar_t  wstest[] = L"stest";
   wchar_t *wptest   =  wstest;
   int      wntest   = NanoWinCountOf(wstest);
@@ -1140,9 +1038,6 @@ static int NanoWinMsSafeStringCompilationTest()
   wcslwr_s(wstest);
   wcslwr_s(wpdest, 2);
 
-  swprintf_s(wtdest, _countof(wtdest), L"just a test %s and here %s %i", wptest, wptest, wntest);
-  swprintf_s(wtdest, L"just a test %s and here %s", wptest, wptest, wntest);
-
   size_t outCount;
 
   mbstowcs_s(&outCount, wtdest, 2, stest, 1);
@@ -1150,7 +1045,6 @@ static int NanoWinMsSafeStringCompilationTest()
 
   wcstombs_s(&outCount, tdest, 2, wstest, 1);
   wcstombs_s(&outCount, tdest, wstest, 1);
-
 
   return(ntest);
 }
