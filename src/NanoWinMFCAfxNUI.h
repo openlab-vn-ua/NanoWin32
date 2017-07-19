@@ -447,6 +447,10 @@ inline VOID WINAPI PostQuitMessage(_In_ int nExitCode)
   if (App != NULL) { App->DoPostQuitMessage(nExitCode); }
 }
 
+// App main function template
+
+#include "NanoWinFileSys.h" // MAX_PATH
+
 inline int DoAppRunMain(int argc, char **argv)
 {
   auto App = AfxGetApp();
@@ -480,7 +484,7 @@ inline int DoAppRunMain(int argc, char **argv)
       CmdLine += CString(argv[i]);
     }
 
-    App->m_lpCmdLine = CmdLine;
+    App->m_lpCmdLine = CmdLine.GetBuffer(MAX_PATH);
   }
 
   if (App->InitInstance())
@@ -496,6 +500,7 @@ inline int DoAppRunMain(int argc, char **argv)
 
   if ((argc > 1) && (argv != NULL))
   {
+    CmdLine.ReleaseBuffer();
     App->m_lpCmdLine = NW_TCHAR_EMPTY_STR;
   }
 
