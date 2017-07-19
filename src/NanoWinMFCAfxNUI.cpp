@@ -9,21 +9,59 @@
 
 #include "NanoWinMFCAfxNUI.h"
 
+// NW specials
+// -----------------------------------------
+
+// Proc
+
+bool NanoWinNUIRunProc::TheNUILogActive = true;
+
+void NanoWinNUIRunProc::NanoWinNUIRunProc::Log(const char    *text)
+{
+  printf("NUILog: %s\n",text);
+}
+
+void NanoWinNUIRunProc::RunMessageLoopDoModal()
+{
+  while(!IsRunMessageLoopDoModalComplete())
+  {
+    Sleep(1*1000);
+    Log("RunMessageLoopDoModal::heartbeat");
+  }
+}
+
+void NanoWinNUIRunProc::RunMessageLoopApp()
+{
+  while(true)
+  {
+    auto App = AfxGetApp();
+    if (App != NULL) { App->IsPostQuitMessageDone();  break; }
+    Sleep(1*1000);
+    Log("RunMessageLoopApp::heartbeat");
+  }
+}
+
+static NanoWinNUIRunProc NanoWinNUIRunDefaultProc;
+NanoWinNUIRunProc *NanoWinNUIRunProc::TheCurrentProc = &NanoWinNUIRunDefaultProc;
+
 #define NW_STR_FMT_W "%ls"
 #define NW_STR_FMT_A "%s"
 
 static void NanoWinNUILog(const char *format, ...)
 {
-  CStringA str;
-  va_list  args;
+  auto Proc = NanoWinNUIRunGetProc();
 
-  va_start(args,format);
+  if ((Proc != NULL) && (Proc->IsNUILogActive()))
+  {
+    CStringA str;
+    va_list  args;
 
-  str.FormatV(format,args);
+    va_start(args,format);
+    str.FormatV(format,args);
+    va_end(args);
 
-  va_end(args);
-
-  printf("NUILog: %s\n",str.GetString());
+    Proc->Log(str.GetString());
+  }
 }
 
 void NanoWinTextStr::SetText(LPCSTR    lpszString)
@@ -45,6 +83,9 @@ void NanoWinTextStr::GetText (CStringW &rString) const
 {
   rString.SetString(CA2W(str.GetString()));
 }
+
+// MFC Controls subset
+// -----------------------------------------
 
 CWnd::CWnd()
 {
@@ -436,6 +477,9 @@ INT_PTR CDialog::DoModal()
 
   this->OnInitDialog();
 
+  auto Proc = NanoWinNUIRunGetProc();
+  if (Proc != NULL) { Proc->RunMessageLoopDoModal(); }
+
   OnCancel();
 
   return IDCANCEL;
@@ -526,3 +570,5 @@ void CFileDialog::ClearFileNameInfo()
 // MFC App
 
 CWinApp *CWinApp::TheCurrentApp = NULL;
+int      CWinApp::TheExitCode = 0;
+bool     CWinApp::TheExitCodeIsSet = false;

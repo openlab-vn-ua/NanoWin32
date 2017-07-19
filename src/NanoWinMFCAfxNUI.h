@@ -19,18 +19,11 @@
 #include "NanoWinMFCAfxCol.h"
 #include "NanoWinMFCAfxWin.h"
 
-// MFC Controls subset
+// NW specials
 // -----------------------------------------
 
-// NW specials
-
 // Empty TCHAR A/W invariant (We take advantage that L"" is empty string both for normal and wide char)
-#define NW_TCHAR_EMPTY_STR ((TCHAR*)(L"")) // TODO: This works only in Little endian system
-
-// Constants for CListCtrl
-#define LVCFMT_LEFT   0x0000
-#define LVCFMT_RIGHT  0x0001
-#define LVCFMT_CENTER 0x0002
+#define NW_TCHAR_EMPTY_STR ((TCHAR*)(L""))
 
 // Helper class for storing strings which supports both UNICODE and multibyte strings
 class NanoWinTextStr
@@ -46,6 +39,55 @@ class NanoWinTextStr
 
   CStringA str;
 };
+
+// Application run infrastructure simulator
+
+class NanoWinNUIRunProc // Abstract
+{
+  protected:
+
+  static NanoWinNUIRunProc *TheCurrentProc;
+
+  public :
+
+  static NanoWinNUIRunProc *GetCurrentProc() { return(TheCurrentProc); }
+  static void               SetCurrentProc(NanoWinNUIRunProc *pProc) { TheCurrentProc = pProc; };
+
+  protected:
+
+  static bool               TheNUILogActive;
+
+  public :
+
+  static void               SetNUILogActive(bool NewIsActive = true) { TheNUILogActive = NewIsActive; }
+  static bool               IsNUILogActive() { return(TheNUILogActive); } // Checked by NUI functions before call to Proc->Log
+
+  protected:
+
+  // Return true if message loop has to stop
+  virtual bool IsRunMessageLoopDoModalComplete() { return(false); }
+
+  public:
+
+  // Log support
+  virtual void Log(const char    *text);
+
+  // Called inside CDialog*::DoModal calls
+  virtual void RunMessageLoopDoModal();
+
+  // Called inside CWinApp::Run
+  virtual void RunMessageLoopApp();
+};
+
+inline NanoWinNUIRunProc *NanoWinNUIRunGetProc() { return(NanoWinNUIRunProc::GetCurrentProc()); }
+
+// MFC Controls subset
+// -----------------------------------------
+
+// Constants for CListCtrl
+#define LVCFMT_LEFT   0x0000
+#define LVCFMT_RIGHT  0x0001
+#define LVCFMT_CENTER 0x0002
 
 // Type modifier for message handlers
 #ifndef afx_msg
@@ -367,7 +409,15 @@ class CWinApp
 
   friend CWinApp     *AfxGetApp();
 
+  private:
+
+  static int          TheExitCode;
+  static bool         TheExitCodeIsSet;
+
   public:
+
+  static bool         IsPostQuitMessageDone() { return(TheExitCodeIsSet); }
+  static void         DoPostQuitMessage(int nExitCode) { TheExitCode = nExitCode; TheExitCodeIsSet = true; }
 
   CWinApp()
   {
@@ -375,7 +425,7 @@ class CWinApp
   }
 
   virtual BOOL InitInstance() { return(TRUE); }
-  virtual int  Run()          { return(0);    } // Do nothing here
+  virtual int  Run()          { auto Proc = NanoWinNUIRunGetProc(); if (Proc != NULL) { Proc->RunMessageLoopApp(); }; return(TheExitCode); }
   virtual BOOL ExitInstance() { return(TRUE); }
 
   HICON LoadIcon(UINT nIDResource) const { UNREFERENCED_PARAMETER(nIDResource); return(NULL); }
@@ -384,11 +434,73 @@ class CWinApp
 
   // members
 
-  CWnd  *m_pMainWnd  = NULL;
-  TCHAR *m_lpCmdLine = NW_TCHAR_EMPTY_STR;
+  CWnd        *m_pMainWnd   = NULL; // from CWinThread
+  const TCHAR *m_lpCmdLine  = NW_TCHAR_EMPTY_STR;
+  const TCHAR *m_pszExeName = NW_TCHAR_EMPTY_STR;
 };
 
 inline CWinApp *AfxGetApp() { return(CWinApp::GetCurrentApp()); }
+
+inline VOID WINAPI PostQuitMessage(_In_ int nExitCode)
+{
+  auto App = AfxGetApp();
+  if (App != NULL) { App->DoPostQuitMessage(nExitCode); }
+}
+
+inline int DoAppRunMain(int argc, char **argv)
+{
+  auto App = AfxGetApp();
+
+  if (App == NULL)
+  {
+    return(0);
+  }
+
+  int Result = 0;
+
+  CString ExeName;
+
+  if ((argc > 0) && (argv != NULL))
+  {
+    ExeName = CString(argv[0]);
+    App->m_pszExeName = ExeName;
+  }
+
+  CString CmdLine;
+
+  if ((argc > 1) && (argv != NULL))
+  {
+    for (int i = 1; i < argc; i++)
+    {
+      if (i > 1)
+      {
+        CmdLine += CString(" ");
+      }
+
+      CmdLine += CString(argv[i]);
+    }
+
+    App->m_lpCmdLine = CmdLine;
+  }
+
+  if (App->InitInstance())
+  {
+    Result = App->Run();
+    App->ExitInstance();
+  }
+
+  if ((argc > 0) && (argv != NULL))
+  {
+    App->m_pszExeName = NW_TCHAR_EMPTY_STR;
+  }
+
+  if ((argc > 1) && (argv != NULL))
+  {
+    App->m_lpCmdLine = NW_TCHAR_EMPTY_STR;
+  }
+
+  return(Result);
+}
 
 #define AfxEnableControlContainer() // Empty
 
