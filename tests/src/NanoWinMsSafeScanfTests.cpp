@@ -5,6 +5,7 @@
 #ifdef __linux
 #include <unistd.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "NanoWinMsSafeScanf.h"
 
@@ -1498,6 +1499,28 @@ NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrTest2)
   NW_CHECK_EQUAL_INTS(1, count);
   NW_CHECK_EQUAL_MEMCMP(L"123", str1, 3 * sizeof(wchar_t));
 }
+
+NW_TEST(NanoWinSafeFScanfTestGroup, FWScanfStrWithLocaleTest)
+{
+  setlocale(LC_CTYPE, "en_US.UTF-8");
+
+  ScanfTestFileW input(L"aaa bbb zzz");
+  wchar_t symb;
+  wchar_t str1[128];
+  wchar_t str2[128];
+  int symbCount;
+
+  int count = fwscanf_s(input.getStream(), L"%c%s%*s%2s%n", &symb, 1,
+                                                            str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                                                            str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)),
+                                                            &symbCount);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+  NW_CHECK_EQUAL(L'a', symb);
+  NW_CHECK_EQUAL_STRCMP(L"aa", str1);
+  NW_CHECK_EQUAL_MEMCMP(L"zz", str2, sizeof(wchar_t) * 2);
+  NW_CHECK_EQUAL(10, symbCount);
+}
 #ifndef __GNUC__
 NW_TEST(NanoWinMsSafeSScanfSTestGroup, FWScanfCharWithLModTest)
 {
@@ -1858,8 +1881,29 @@ NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfStrWithCounterTest)
   NW_CHECK_EQUAL_INTS(1, count);
   NW_CHECK_EQUAL_MEMCMP(L"123abc", str, 6 * sizeof(wchar_t));
 }
+#ifdef __GNUC__
+NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfStrWithCyrillicSymbolsTest)
+{
+  setlocale(LC_CTYPE, "en_US.UTF-8");
 
+  const wchar_t  input[] = L"абв ннн ммм";
+  wchar_t symb;
+  wchar_t str1[128];
+  wchar_t str2[128];
+  int symbCount;
 
+  int count = swscanf_s(input, L"%c%s%*s%2s%n", &symb, 1,
+                                              str1, (unsigned)(sizeof(str1) / sizeof(wchar_t)),
+                                              str2, (unsigned)(sizeof(str2) / sizeof(wchar_t)),
+                                              &symbCount);
+
+  NW_CHECK_EQUAL_INTS(3, count);
+  NW_CHECK_EQUAL(L'а', symb);
+  NW_CHECK_EQUAL_STRCMP(L"бв", str1);
+  NW_CHECK_EQUAL_MEMCMP(L"мм", str2, sizeof(wchar_t) * 2);
+  NW_CHECK_EQUAL(10, symbCount);
+}
+#endif
 NW_TEST(NanoWinMsSafeSWScanfSTestGroup, SWScanfStrTest)
 {
   const wchar_t  input[] = L"123  abc		4def5";
