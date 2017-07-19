@@ -435,7 +435,7 @@ class CWinApp
   // members
 
   CWnd        *m_pMainWnd   = NULL; // from CWinThread
-  const TCHAR *m_lpCmdLine  = NW_TCHAR_EMPTY_STR;
+        TCHAR *m_lpCmdLine  = NW_TCHAR_EMPTY_STR; // Some rare code may write something here, you have to provide buffer by youself in that case
   const TCHAR *m_pszExeName = NW_TCHAR_EMPTY_STR;
 };
 
