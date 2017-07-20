@@ -287,7 +287,9 @@ static FILE *OpenFileForCopyDst(const char *fileName, bool failIfExists)
 
   if (failIfExists)
   {
-    int handle = open(fileName,O_EXCL | O_CREAT);
+    // use the restrictive mode (owner read-write only) here assuming that after
+    // copying file content its mode will be copied from source file 
+    int handle = open(fileName,O_EXCL | O_CREAT, S_IRUSR | S_IWUSR);
 
     if (handle >= 0)
     {
