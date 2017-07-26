@@ -997,7 +997,6 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
   template<typename T>
   static inline const XCHAR *CStringArgAsFormatArg(const T &v, typename std::enable_if<std::is_base_of<CStringCanProvideStrOf<XCHAR>, T>::value, CStringCanProvideStrOf<XCHAR>>::type *tt = NULL)
   {
-//  const CStringCanProvideStrOf<XCHAR> *t = &v; return t->get_c_str();
     return v.get_c_str();
   }
 
