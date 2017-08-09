@@ -27,8 +27,8 @@
 
 #define swprintf(buffer, count, format, ...)          NW_WPRINTF_RESULT_2_UNIX(int,swprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
 #define vswprintf(buffer, count, format, va_args)     NW_WPRINTF_RESULT_2_UNIX(int,vswprintf(buffer, count, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
-#define wprintf(format, ...)                          NW_WPRINTF_RESULT_2_UNIX(int,wprintf(NW_FORMAT_2_UNIX(format), __VA_ARGS__))
-#define vwprintf(format, va_args)                     NW_WPRINTF_RESULT_2_UNIX(int,vwprintf(NW_FORMAT_2_UNIX(format), va_args))
+#define wprintf(format, ...)                          NW_WPRINTF_RESULT_2_UNIX(int,wprintf(NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vwprintf(format, va_args)                     NW_WPRINTF_RESULT_2_UNIX(int,vwprintf(NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
 #define fwprintf(stream, format, ...)                 NW_WPRINTF_RESULT_2_UNIX(int,fwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
 #define vfwprintf(stream, format, va_args)            NW_WPRINTF_RESULT_2_UNIX(int,vfwprintf(stream, NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
 
@@ -51,12 +51,12 @@
 
 #define NW_WSCANF_FORMAT_REMAPPED // Flag that remapping is active
 
-#define swscanf(buffer, format, ...)                  NW_WSCANF_RESULT_2_UNIX(int,swscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
-#define vswscanf(buffer, format, va_args)             NW_WSCANF_RESULT_2_UNIX(int,vswscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
-#define wscanf(format, ...)                           NW_WSCANF_RESULT_2_UNIX(int,wscanf(NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
-#define vwscanf(format, va_args)                      NW_WSCANF_RESULT_2_UNIX(int,vwscanf(NW_WPRINTF_FORMAT_2_UNIX(format), va_args))
-#define fwscanf(stream, format, ...)                  NW_WSCANF_RESULT_2_UNIX(int,fwscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
-#define vfwscanf(stream, format, va_args)             NW_WSCANF_RESULT_2_UNIX(int,vfwscanf(buffer,NW_WPRINTF_FORMAT_2_UNIX(format), av_args))
+#define swscanf(buffer, format, ...)                  NW_WSCANF_RESULT_2_UNIX(int,swscanf(buffer,NW_WSCANF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vswscanf(buffer, format, va_args)             NW_WSCANF_RESULT_2_UNIX(int,vswscanf(buffer,NW_WSCANF_FORMAT_2_UNIX(format), va_args))
+#define wscanf(format, ...)                           NW_WSCANF_RESULT_2_UNIX(int,wscanf(NW_WSCANF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vwscanf(format, va_args)                      NW_WSCANF_RESULT_2_UNIX(int,vwscanf(NW_WSCANF_FORMAT_2_UNIX(format), va_args))
+#define fwscanf(stream, format, ...)                  NW_WSCANF_RESULT_2_UNIX(int,fwscanf(buffer,NW_WSCANF_FORMAT_2_UNIX(format), ## __VA_ARGS__))
+#define vfwscanf(stream, format, va_args)             NW_WSCANF_RESULT_2_UNIX(int,vfwscanf(buffer,NW_WSCANF_FORMAT_2_UNIX(format), av_args))
 
 #endif // GCC
 
