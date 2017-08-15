@@ -291,6 +291,44 @@ class CList : public CObject
     return result;
   }
 
+  void RemoveAt(POSITION position)
+  {
+    REQUIRE(!IsEmpty());
+
+    Node *node = POSITION_TO_NODEPTR(position);
+
+    if (node->prev == NULL) // head or single element
+    {
+      if (node->next == NULL) // single element
+      {
+        head = NULL;
+        tail = NULL;
+      }
+      else
+      {
+        node->next->prev = NULL;
+        head             = node->next;
+      }
+    }
+    else
+    {
+      if (node->next == NULL) // tail
+      {
+        node->prev->next = NULL;
+        tail             = node->prev;
+      }
+      else // mid element
+      {
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+      }
+    }
+
+    count--;
+
+    delete node;
+  }
+
   // add before head or after tail
   POSITION AddHead(ARG_TYPE newElement)
   {
