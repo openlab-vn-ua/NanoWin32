@@ -54,29 +54,44 @@ class CSingleLock
   // CCriticalSection the only locker supported
   protected:
   CCriticalSection *mpObject;
+  bool              lockOwned;
 
   public:
-  CSingleLock(CCriticalSection *pObject)
+
+  CSingleLock(CCriticalSection *pObject, BOOL bInitialLock = FALSE)
   {
     mpObject = pObject;
+
+    if (bInitialLock)
+    {
+      pObject->Lock();
+    }
+
+    lockOwned = bInitialLock;
   }
-  // CSingleLock(CCriticalSection *pObject, BOOL bInitialLock = FALSE); // Not supported yet
 
   ~CSingleLock()
   {
+    if (lockOwned)
+    {
+      mpObject->Unlock();
+    }
   }
 
   void Lock()
   {
     mpObject->Lock();
+
+    lockOwned = true;
   }
 
   void Unlock()
   {
+    lockOwned = false;
+
     mpObject->Unlock();
   }
 };
-
 
 class CEvent
 {
