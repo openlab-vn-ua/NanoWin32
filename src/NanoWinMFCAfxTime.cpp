@@ -7,9 +7,27 @@
 
 #include "NanoWinMFCAfxTime.h"
 
+#define NanoWinCTimeYearBase (1900)
+
 CTime::CTime() throw()
 {
   timeValue = 0;
+}
+
+CTime::CTime(const SYSTEMTIME& st, int nDST) throw()
+{
+  //NOTE: only date range which can be represented by UNIX time_t value is supported
+  struct tm brokenTime;
+
+  brokenTime.tm_sec   = st.wSecond;
+  brokenTime.tm_min   = st.wMinute;
+  brokenTime.tm_hour  = st.wHour;
+  brokenTime.tm_mday  = st.wDay;
+  brokenTime.tm_mon   = st.wMonth - 1;
+  brokenTime.tm_year  = st.wYear - NanoWinCTimeYearBase;
+  brokenTime.tm_isdst = nDST;
+
+  timeValue = mktime(&brokenTime);
 }
 
 CTime CTime::GetCurrentTime() throw()
@@ -73,4 +91,72 @@ CStringA CTime::Format(_In_z_ LPCSTR pszFormat) const
 CStringW CTime::Format(_In_z_ LPCWSTR pszFormat) const
 {
  return CTimeFormatHelperFunc<CStringW,WCHAR,255 + 1>(timeValue,pszFormat,wcsftime);
+}
+
+int CTime::GetYear() const throw()
+{
+  struct tm brokenTime;
+
+  GetLocalTm(&brokenTime);
+
+  return brokenTime.tm_year + NanoWinCTimeYearBase;
+}
+
+int CTime::GetMonth() const throw()
+{
+  struct tm brokenTime;
+
+  GetLocalTm(&brokenTime);
+
+  return brokenTime.tm_mon + 1;
+}
+
+int CTime::GetDay() const throw()
+{
+  struct tm brokenTime;
+
+  GetLocalTm(&brokenTime);
+
+  return brokenTime.tm_mday;
+}
+
+int CTime::GetHour() const throw()
+{
+  struct tm brokenTime;
+
+  GetLocalTm(&brokenTime);
+
+  return brokenTime.tm_hour;
+}
+
+int CTime::GetMinute() const throw()
+{
+  struct tm brokenTime;
+
+  GetLocalTm(&brokenTime);
+
+  return brokenTime.tm_min;
+}
+
+int CTime::GetSecond() const throw()
+{
+  struct tm brokenTime;
+
+  GetLocalTm(&brokenTime);
+
+  return brokenTime.tm_sec;
+}
+
+int CTime::GetDayOfWeek() const throw()
+{
+  struct tm brokenTime;
+
+  GetLocalTm(&brokenTime);
+
+  return brokenTime.tm_wday + 1;
+}
+
+struct tm* CTime::GetLocalTm(struct tm* ptm) const
+{
+  return localtime_r(&timeValue,ptm);
 }

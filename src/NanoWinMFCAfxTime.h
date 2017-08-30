@@ -15,26 +15,35 @@
 #if defined LINUX
 
 #include "NanoWinMFCAfxStr.h"
+#include "NanoWinSystem.h"
 
+//NOTE: only date range which can be represented by UNIX time_t value is supported
+//      (for 32-bit Linux system time_t is 32-bit value and will overflow in 2038)
 class CTime
 {
   public :
 
-  CTime () throw();
+                   CTime          () throw();
+                   CTime          (const SYSTEMTIME& st, int nDST = - 1) throw();
 
-  static CTime WINAPI GetCurrentTime () throw();
+  static CTime     GetCurrentTime () throw();
 
-  CStringA Format(_In_z_ LPCSTR pszFormat) const;
-  CStringW Format(_In_z_ LPCWSTR pszFormat) const;
+  CStringA         Format         (_In_z_ LPCSTR pszFormat) const;
+  CStringW         Format         (_In_z_ LPCWSTR pszFormat) const;
+
+  int              GetYear        () const throw();
+  int              GetMonth       () const throw();
+  int              GetDay         () const throw();
+  int              GetHour        () const throw();
+  int              GetMinute      () const throw();
+  int              GetSecond      () const throw();
+  int              GetDayOfWeek   () const throw();
+
+  struct tm*       GetLocalTm     (struct tm* ptm) const;
 
   private :
 
-  //NOTE: on 32-bit Linux systems time_t is 32-bit signed integer and will overflow in 2038,
-  //      it is safe to use it in current implementation for the next 20 years since we only provide
-  //      ability to get current time. if additional methods to be implemented (for example constructor
-  //      with year,month etc), it will require to change internal date representation
-
-  time_t  timeValue;
+  time_t           timeValue;
 };
 
 #endif // linux
