@@ -291,6 +291,17 @@ class CRect : public RECT
   {
     InflateRect(isize.cx, isize.cy);
   }
+
+  BOOL IntersectRect( RECT *lpRect1, RECT *lpRect2 )
+  {
+    return ::IntersectRect( this, lpRect1, lpRect2 );
+  }
+
+  BOOL operator==(const RECT& rect) const // throw()
+  {
+    return ::EqualRect(this, &rect);
+  }
+
 };
 
 
