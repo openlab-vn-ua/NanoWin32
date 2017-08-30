@@ -403,6 +403,27 @@ class CList : public CObject
     return node->value;
    }
 
+  TYPE& GetAt(POSITION position)
+  {
+    REQUIRE(position != NULL);
+
+    return POSITION_TO_NODEPTR(position)->value;
+  }
+
+  const TYPE& GetAt(POSITION position) const
+  {
+    REQUIRE(position != NULL);
+
+    return POSITION_TO_NODEPTR(position)->value;
+  }
+
+  void SetAt(POSITION pos, ARG_TYPE newElement)
+  {
+    REQUIRE(pos != NULL);
+
+    POSITION_TO_NODEPTR(pos)->value = newElement;
+  }
+
   void RemoveAll()
   {
     Node *node = head;
