@@ -513,11 +513,27 @@ inline int DoAppRunMain(int argc, char **argv)
 
 #include "NanoWinThreads.h"
 
+class CWinThread
+{
+public:
+	HANDLE m_hThread;
+};
+
 typedef PTHREAD_START_ROUTINE AFX_THREADPROC;
-inline void AfxBeginThread(AFX_THREADPROC pfnThreadProc, LPVOID pParam)
+inline CWinThread* AfxBeginThread(AFX_THREADPROC pfnThreadProc, LPVOID pParam)
 {
   DWORD threadId;
-  CreateThread(NULL, 0, pfnThreadProc, pParam, 0, &threadId);
+
+  CWinThread *result = new CWinThread();
+
+  result->m_hThread = CreateThread(NULL, 0, pfnThreadProc, pParam, 0, &threadId);
+
+  return result;
+}
+
+inline CWinThread* AfxBeginThread(AFX_THREADPROC pfnThreadProc, LPVOID pParam, int nPriority)
+{
+	return AfxBeginThread(pfnThreadProc, pParam);
 }
 
 inline void AFXAPI AfxEndThread(UINT nExitCode)
