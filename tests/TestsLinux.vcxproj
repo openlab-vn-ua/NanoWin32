@@ -115,6 +115,7 @@
     <ClCompile Include="..\src\NanoWinStrConvert.cpp" />
     <ClCompile Include="..\src\NanoWinSystem.cpp" />
     <ClCompile Include="..\src\NanoWinThreads.cpp" />
+    <ClCompile Include="..\src\NanoWinWaitableTimer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\NanoWinBmpTests.cpp" />
     <ClCompile Include="src\NanoWinEnvTests.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="..\src\NanoWinTCHAR.h" />
     <ClInclude Include="..\src\NanoWinThreads.h" />
     <ClInclude Include="..\src\NanoWinTypes.h" />
+    <ClInclude Include="..\src\NanoWinWaitableTimer.h" />
     <ClInclude Include="src\NanoWinPrivateProfileTestTools.h" />
     <ClInclude Include="src\NWUnitTest.h" />
     <ClInclude Include="src\NWUnitTestTools.h" />
