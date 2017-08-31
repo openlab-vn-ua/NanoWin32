@@ -33,6 +33,12 @@ extern BOOL WINAPI   CloseWaitableTimerHandle (HANDLE                hObject);
 //NOTE: this function is NanoWin-specific and does not exist in WinAPI
 extern HANDLE        GetEventByWaitableTimer  (HANDLE                hTimer);
 
+#if defined(UNICODE) || defined(_UNICODE)
+#define CreateWaitableTimer CreateWaitableTimerW
+#else
+#define CreateWaitableTimer CreateWaitableTimerA
+#endif
+
 NW_EXTERN_C_END
 
 #endif
