@@ -730,6 +730,65 @@ class CMapStringToPtr : public CObject
   #undef REQUIRE
 };
 
+class CObArray : public CObject
+{
+  public :
+
+  INT_PTR Add(CObject *newElement)
+  {
+    INT_PTR newIndex = ptrArray.size();
+
+    ptrArray.push_back(newElement);
+
+    return newIndex;
+  }
+
+  INT_PTR GetSize() const
+  {
+    return ptrArray.size();
+  }
+
+  void RemoveAll()
+  {
+    ptrArray.clear();
+  }
+
+  CObject *operator [] (INT_PTR nIndex) const
+  {
+    return ptrArray[nIndex];
+  }
+
+  CObject *&operator [] (INT_PTR nIndex)
+  {
+    return ptrArray[nIndex];
+  }
+
+  private :
+
+  std::vector<CObject*> ptrArray;
+};
+
+template<class BASE_CLASS, class TYPE>
+class CTypedPtrArray : public BASE_CLASS
+{
+  public :
+
+  INT_PTR Add        (TYPE newElement)
+  {
+    return BASE_CLASS::Add(newElement);
+  }
+
+  TYPE    operator[] (INT_PTR nIndex) const
+  {
+    return (TYPE)(BASE_CLASS::operator[](nIndex));
+  }
+
+  TYPE&   operator[] (INT_PTR nIndex)
+  {
+    return (TYPE&)(BASE_CLASS::operator[](nIndex));
+  }
+};
+
 // Functions
 // ------------------------------------------
 
