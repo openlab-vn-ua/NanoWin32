@@ -40,7 +40,7 @@ extern HANDLE WINAPI CreateWaitableTimerA     (LPSECURITY_ATTRIBUTES lpTimerAttr
     waitableTimer->wtThread    = NULL;
     waitableTimer->milsTimeout = 200;
 
-    waitableTimer->eventHandle = CreateEventA(NULL, FALSE, FALSE, NULL);
+    waitableTimer->eventHandle = CreateEventA(NULL, bManualReset, FALSE, NULL);
 
     if (waitableTimer->eventHandle != NULL)
     {
