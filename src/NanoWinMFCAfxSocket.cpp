@@ -78,7 +78,7 @@ BOOL CSocket::Connect(LPCSTR lpszHostAddress, UINT nHostPort)
   memset(&serv_addr,0,sizeof(serv_addr));
 
   serv_addr.sin_family = AF_INET;
-  memcpy(server->h_addr,&serv_addr.sin_addr.s_addr,server->h_length);
+  memcpy(&serv_addr.sin_addr.s_addr,server->h_addr,server->h_length);
   serv_addr.sin_port = htons((uint16_t)nHostPort);
 
   return Connect((SOCKADDR*)&serv_addr, sizeof(serv_addr));
