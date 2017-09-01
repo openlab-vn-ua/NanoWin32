@@ -52,6 +52,9 @@ extern BOOL  WINAPI PathFileExistsW (LPCWSTR lpPath);
 extern DWORD WINAPI GetCurrentDirectoryA (_In_ DWORD nBufferLength, _Out_ LPSTR lpBuffer);
 extern DWORD WINAPI GetCurrentDirectoryW (_In_ DWORD nBufferLength, _Out_ LPWSTR lpBuffer);
 
+extern BOOL  WINAPI SetCurrentDirectoryA (_In_ LPCSTR lpPathName);
+extern BOOL  WINAPI SetCurrentDirectoryW (_In_ LPCWSTR lpPathName);
+
 extern BOOL  WINAPI CreateDirectoryA (_In_ LPCSTR  lpPathName, _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 extern BOOL  WINAPI CreateDirectoryW (_In_ LPCWSTR lpPathName, _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 
@@ -89,6 +92,7 @@ extern BOOL  SetFileAttributesW (_In_ LPCWSTR lpFileName, _In_ DWORD dwFileAttri
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define GetCurrentDirectory        GetCurrentDirectoryW
+#define SetCurrentDirectory        SetCurrentDirectoryW
 #define PathFileExists             PathFileExistsW
 #define CreateDirectory            CreateDirectoryW
 #define DeleteFile                 DeleteFileW
@@ -98,6 +102,7 @@ extern BOOL  SetFileAttributesW (_In_ LPCWSTR lpFileName, _In_ DWORD dwFileAttri
 #define MoveFile                   MoveFileW
 #else
 #define GetCurrentDirectory        GetCurrentDirectoryA
+#define SetCurrentDirectory        SetCurrentDirectoryA
 #define PathFileExists             PathFileExistsA
 #define CreateDirectory            CreateDirectoryA
 #define DeleteFile                 DeleteFileA

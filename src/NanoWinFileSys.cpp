@@ -221,6 +221,45 @@ extern DWORD WINAPI GetCurrentDirectoryW (_In_ DWORD nBufferLength, _Out_ LPWSTR
   return result;
 }
 
+extern BOOL WINAPI SetCurrentDirectoryA(_In_ LPCSTR lpPathName)
+{
+  if (chdir(lpPathName) != 0)
+  {
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
+
+    return FALSE;
+  }
+  else
+  {
+    return TRUE;
+  }
+}
+
+extern BOOL WINAPI SetCurrentDirectoryW(_In_ LPCWSTR lpPathName)
+{
+  try
+  {
+    NanoWin::WStrToStrClone lpPathNameMb(lpPathName);
+
+    if (lpPathNameMb.is_valid())
+    {
+      return SetCurrentDirectoryA(lpPathNameMb.c_str());
+    }
+    else
+    {
+      NanoWinSetLastError(ERROR_NO_UNICODE_TRANSLATION);
+
+      return FALSE;
+    }
+  }
+  catch (std::bad_alloc&)
+  {
+    NanoWinSetLastError(ERROR_NOT_ENOUGH_MEMORY);
+
+    return FALSE;
+  }
+}
+
 extern BOOL WINAPI CreateDirectoryA (_In_ LPCSTR lpPathName, _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
   mode_t mode = lpSecurityAttributes == NULL ? (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) : (S_IRWXU);
