@@ -87,8 +87,6 @@ static void *WaitableTimerThreadRoutine (void *paramPtr)
 {
   NanoWinWaitableTimer *waitableTimer = (NanoWinWaitableTimer*)paramPtr;
 
-  HANDLE tmp = (HANDLE)WaitableTimerThreadRoutine;
-
   while (true)
   {
     DWORD res = WaitForSingleEvent(waitableTimer->interEventHandle, waitableTimer->milsTimeout);
