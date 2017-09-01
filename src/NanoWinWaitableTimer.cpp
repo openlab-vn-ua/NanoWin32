@@ -8,6 +8,7 @@
 typedef struct
 {
   LONG       milsTimeout;
+  LONG       milsDue;
   pthread_t  wtThread;
   HANDLE     eventHandle;
   HANDLE     interEventHandle;
@@ -86,10 +87,12 @@ extern HANDLE WINAPI CreateWaitableTimerW     (LPSECURITY_ATTRIBUTES lpTimerAttr
 static void *WaitableTimerThreadRoutine (void *paramPtr)
 {
   NanoWinWaitableTimer *waitableTimer = (NanoWinWaitableTimer*)paramPtr;
+  DWORD waitMils = waitableTimer->milsDue;
 
   while (true)
   {
-    DWORD res = WaitForSingleEvent(waitableTimer->interEventHandle, waitableTimer->milsTimeout);
+    DWORD res = WaitForSingleEvent(waitableTimer->interEventHandle, waitMils);
+	waitMils = waitableTimer->milsTimeout;
 
     ResetEvent(waitableTimer->interEventHandle);
 
@@ -113,7 +116,7 @@ extern BOOL WINAPI   SetWaitableTimer         (HANDLE                hTimer,
                                                LPVOID                lpArgToCompletionRoutine,
                                                BOOL                  fResume)
 {
-  if (pDueTime != NULL                 ||
+  if (((pDueTime != NULL) &&  (pDueTime->QuadPart > 0L)) || // absolute utc time not supported yet
       pfnCompletionRoutine != NULL     ||
       lpArgToCompletionRoutine != NULL ||
       fResume) // not supported
@@ -124,6 +127,15 @@ extern BOOL WINAPI   SetWaitableTimer         (HANDLE                hTimer,
   }
 
   NanoWinWaitableTimer *waitableTimer = (NanoWinWaitableTimer*)hTimer;
+
+  if (pDueTime != NULL)
+  {
+    waitableTimer->milsDue = -(pDueTime->QuadPart) / 10000;
+  }
+  else
+  {
+    waitableTimer->milsDue = lPeriod;
+  }
 
   waitableTimer->milsTimeout = lPeriod;
 
