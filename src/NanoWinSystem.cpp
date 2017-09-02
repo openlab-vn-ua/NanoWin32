@@ -10,7 +10,9 @@
 #include "NanoWinModule.h"
 #include "NanoWinError.h"
 
+#include <sys/types.h>
 #include <limits.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
@@ -84,6 +86,21 @@ namespace
     else
     {
       return charCount + 1; // must return number of character including '\0'
+    }
+  }
+
+  template<typename S, typename D>
+  static void ProcMemCopyIntegralValueWithOverflowCheck (D *dst, S src)
+  {
+    S maxDestValue = (S)(D)(~((S)0));
+
+    if (src <= maxDestValue)
+    {
+      *dst = src;
+    }
+    else
+    {
+      *dst = (D)(-1);
     }
   }
 }
@@ -281,6 +298,117 @@ extern BOOL WINAPI GetProcessMemoryInfo
   ppsmemCounters->cb = cb;
 
   return(TRUE);
+}
+
+static const char ProcMemInfoFileName[] = "/proc/meminfo";
+static const char ProcStatusFileName[]  = "/proc/self/status";
+static const char ProcMemInfoKbSuffix[] = "kB\n";
+
+#define     ProcMemInfoFileLineMaxLen (511)
+#define     ProcStatusLineMaxLen      (127)
+#define     ProcMemInfoBytesInKByte   (1024)
+
+static void ReadProcFileEntries(const char *fileName, const char *paramNames[], unsigned long long *paramValues, unsigned int paramCount)
+{
+  char line[ProcMemInfoFileLineMaxLen + 1];
+
+  for (unsigned int paramIndex = 0; paramIndex < paramCount; paramIndex++)
+  {
+    paramValues[paramIndex] = 0;
+  }
+
+  FILE *srcFile = fopen(fileName,"rt");
+
+  if (srcFile != NULL)
+  {
+    unsigned int parsedParamCount = 0;
+
+    while (parsedParamCount < paramCount && fgets(line,sizeof(line),srcFile) != NULL)
+    {
+      char *colonPtr = strchr(line,':');
+
+      if (colonPtr != NULL)
+      {
+        *colonPtr = '\0';
+        colonPtr++; // skip ':'
+
+        bool paramParsed = false;
+
+        for (unsigned int paramIndex = 0; !paramParsed && paramIndex < paramCount; paramIndex++)
+        {
+          if (strcmp(line,paramNames[paramIndex]) == 0)
+          {
+            int readCount;
+
+            if (sscanf(colonPtr, "%llu%n", &paramValues[paramIndex], &readCount) == 1)
+            {
+              colonPtr += readCount;
+
+              while (*colonPtr == ' ')
+              {
+                colonPtr++;
+              }
+
+              if (strcmp(colonPtr, ProcMemInfoKbSuffix) == 0)
+              {
+                paramValues[paramIndex] *= ProcMemInfoBytesInKByte;
+              }
+            }
+
+            parsedParamCount++; // it doesn't matter if value was parsed successfully (we processed it anyway)
+          }
+        }
+      }
+    }
+
+    fclose(srcFile);
+  }
+}
+
+static const char *ProcMemInfoEntryNames[] = { "SwapTotal", "SwapFree", "VmallocTotal" };
+ //NOTE: order of enumerated entries must be consistent with entry names
+enum { ProcMemInfoEntrySwapTotal, ProcMemInfoEntrySwapFree, ProcMemInfoEntryVMallocTotal, ProcMemInfoTotalEntries };
+
+static const char *ProcStatusEntryNames[] = { "VmSize" };
+ //NOTE: order of enumerated entries must be consistent with entry names
+enum { ProcStatusEntryVmSize, ProcStatusTotalEntries };
+
+extern void WINAPI GlobalMemoryStatus(_Out_ LPMEMORYSTATUS lpBuffer)
+{
+  memset(lpBuffer,0,sizeof(MEMORYSTATUS));
+
+  lpBuffer->dwLength = sizeof(MEMORYSTATUS);
+
+  unsigned long long pageSize = sysconf(_SC_PAGESIZE);
+
+  unsigned long long totalPhysSize = pageSize * sysconf(_SC_PHYS_PAGES);
+  unsigned long long availPhysSize = pageSize * sysconf(_SC_AVPHYS_PAGES);
+
+  ProcMemCopyIntegralValueWithOverflowCheck(&lpBuffer->dwTotalPhys,totalPhysSize);
+  ProcMemCopyIntegralValueWithOverflowCheck(&lpBuffer->dwAvailPhys,availPhysSize);
+
+  unsigned long long memInfoEntryValues[ProcMemInfoTotalEntries];
+  unsigned long long procStatusEntryValues[ProcStatusTotalEntries];
+
+  ReadProcFileEntries(ProcMemInfoFileName,ProcMemInfoEntryNames,memInfoEntryValues,ProcMemInfoTotalEntries);
+  ReadProcFileEntries(ProcStatusFileName,ProcStatusEntryNames,procStatusEntryValues,ProcStatusTotalEntries);
+
+  ProcMemCopyIntegralValueWithOverflowCheck(&lpBuffer->dwTotalPageFile,totalPhysSize + memInfoEntryValues[ProcMemInfoEntrySwapTotal]);
+  ProcMemCopyIntegralValueWithOverflowCheck(&lpBuffer->dwAvailPageFile,availPhysSize + memInfoEntryValues[ProcMemInfoEntrySwapFree]);
+
+  ProcMemCopyIntegralValueWithOverflowCheck(&lpBuffer->dwTotalVirtual,memInfoEntryValues[ProcMemInfoEntryVMallocTotal]);
+  ProcMemCopyIntegralValueWithOverflowCheck(&lpBuffer->dwAvailVirtual,memInfoEntryValues[ProcMemInfoEntryVMallocTotal] - procStatusEntryValues[ProcStatusEntryVmSize]);
+
+  if (totalPhysSize > 0)
+  {
+    double loadFactor = (double)(totalPhysSize - availPhysSize) / totalPhysSize;
+
+    lpBuffer->dwMemoryLoad = (DWORD)(loadFactor * 100.0 + 0.5);
+  }
+  else
+  {
+    lpBuffer->dwMemoryLoad = 0;
+  }
 }
 
 NW_EXTERN_C_END

@@ -88,6 +88,17 @@ typedef  struct // Reasonable subset of proccess system resources consumption [e
   SIZE_T PrivateUsage;       // The Commit Charge value in bytes for this process. Commit Charge is the total amount of memory that the memory manager has committed for a running process. [Same as PagefileUsage]
 } PROCESS_MEMORY_COUNTERS_EX; NW_MAKE_PLP_TYPES_BY(PROCESS_MEMORY_COUNTERS_EX);
 
+typedef struct _MEMORYSTATUS {
+  DWORD  dwLength;
+  DWORD  dwMemoryLoad;
+  SIZE_T dwTotalPhys;
+  SIZE_T dwAvailPhys;
+  SIZE_T dwTotalPageFile;
+  SIZE_T dwAvailPageFile;
+  SIZE_T dwTotalVirtual;
+  SIZE_T dwAvailVirtual;
+} MEMORYSTATUS, *LPMEMORYSTATUS;
+
 // Supports only current proccess (so Process must be result of GetCurrentProcess() or be NULL)
 extern BOOL WINAPI GetProcessMemoryInfo
                    (
@@ -95,6 +106,8 @@ extern BOOL WINAPI GetProcessMemoryInfo
                      _Out_ PPROCESS_MEMORY_COUNTERS ppsmemCounters, // can be PPROCESS_MEMORY_COUNTERS_EX as well
                      _In_  DWORD                    cb
                    );
+
+extern void WINAPI GlobalMemoryStatus (_Out_ LPMEMORYSTATUS lpBuffer);
 
 #if defined(UNICODE) || defined(_UNICODE)
  #define GetTimeFormat GetTimeFormatW
