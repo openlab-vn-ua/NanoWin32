@@ -36,6 +36,10 @@ extern DWORD   WINAPI GetCurrentProcessId(void);
 extern HMODULE WINAPI GetModuleHandleA(LPCSTR_NULLONLY  lpModuleName);
 extern HMODULE WINAPI GetModuleHandleW(LPCWSTR_NULLONLY lpModuleName);
 
+//NOTE: only hModule == NULL argument is supported
+extern DWORD WINAPI   GetModuleFileNameA(_In_opt_ HMODULE hModule, _Out_ LPSTR lpFilename, _In_ DWORD nSize);
+extern DWORD WINAPI   GetModuleFileNameW(_In_opt_ HMODULE hModule, _Out_ LPWSTR lpFilename, _In_ DWORD nSize);
+
 // Dlls
 
 // Loads the specified module into the address space of the calling process. The specified module may cause other modules to be loaded.
@@ -58,9 +62,11 @@ extern FARPROC WINAPI GetProcAddress(_In_ HMODULE hModule, _In_ LPCSTR lpProcNam
 
 #if defined(UNICODE) || defined(_UNICODE)
 #define GetModuleHandle       GetModuleHandleW
+#define GetModuleFileName     GetModuleFileNameW
 #define LoadLibrary           LoadLibraryW
 #else
 #define GetModuleHandle       GetModuleHandleA
+#define GetModuleFileName     GetModuleFileNameA
 #define LoadLibrary           LoadLibraryA
 #endif
 

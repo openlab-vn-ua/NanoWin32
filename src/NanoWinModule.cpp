@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 #include <dlfcn.h>
+#include <string.h>
 #include <errno.h>
 
 NW_EXTERN_C_BEGIN
@@ -44,6 +45,140 @@ extern HMODULE WINAPI GetModuleHandleW(LPCWSTR_NULLONLY lpModuleName)
   } 
 
   return(NULL);
+}
+
+extern DWORD WINAPI   GetModuleFileNameA(_In_opt_ HMODULE hModule, _Out_ LPSTR lpFilename, _In_ DWORD nSize)
+{
+  if (hModule != NULL)
+  {
+    NanoWinSetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  ssize_t fileNameLen = readlink("/proc/self/exe",lpFilename,nSize);
+
+  if (fileNameLen >= 0)
+  {
+    if ((DWORD)fileNameLen < nSize)
+    {
+      lpFilename[fileNameLen] = '\0';
+
+      return fileNameLen;
+    }
+    else
+    {
+      if (nSize > 0)
+      {
+        lpFilename[nSize - 1] = '\0';
+      }
+
+      NanoWinSetLastError(ERROR_INSUFFICIENT_BUFFER);
+
+      return nSize;
+    }
+  }
+  else
+  {
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
+
+    return 0;
+  }
+}
+
+extern DWORD WINAPI   GetModuleFileNameW(_In_opt_ HMODULE hModule, _Out_ LPWSTR lpFilename, _In_ DWORD nSize)
+{
+  if (hModule != NULL)
+  {
+    NanoWinSetLastError(ERROR_NOT_SUPPORTED);
+
+    return 0;
+  }
+
+  char  mbBufferStatic[256];
+  char *mbBufferDynamic = NULL;
+
+  ssize_t mbBufferSize = sizeof(mbBufferStatic);
+
+  ssize_t fileNameLen      = readlink("/proc/self/exe",mbBufferStatic,mbBufferSize - 1);
+  bool    allocationFailed = false;
+
+  while (fileNameLen >= mbBufferSize - 1)
+  {
+    mbBufferSize *= 2;
+
+    char *tempBuffer = mbBufferDynamic;
+
+    tempBuffer = (char*)realloc(mbBufferDynamic,mbBufferSize);
+
+    if (tempBuffer != NULL)
+    {
+      mbBufferDynamic = tempBuffer;
+      fileNameLen     = readlink("/proc/self/exe",mbBufferDynamic,mbBufferSize - 1);
+    }
+    else
+    {
+      allocationFailed = true;
+    }
+  }
+
+  if      (allocationFailed)
+  {
+    fileNameLen = 0;
+
+    NanoWinSetLastError(ERROR_NOT_ENOUGH_MEMORY);
+  }
+  else if (fileNameLen < 0)
+  {
+    fileNameLen = 0;
+
+    NanoWinSetLastError(NanoWinErrorByErrnoAtFail(errno));
+  }
+  else
+  {
+    char *mbBuffer = mbBufferDynamic == NULL ? mbBufferStatic : mbBufferDynamic;
+
+    mbBuffer[fileNameLen] = '\0';
+
+    NanoWin::StrToWStrClone wideBuffer(mbBuffer);
+
+    if (wideBuffer.is_valid())
+    {
+      size_t requiredLen = wcslen(wideBuffer.c_str());
+
+      if (requiredLen < nSize)
+      {
+        wcscpy(lpFilename,wideBuffer.c_str());
+
+        fileNameLen = requiredLen;
+      }
+      else
+      {
+        if (nSize > 0)
+        {
+          memcpy(lpFilename,wideBuffer.c_str(),sizeof(WCHAR) * (nSize - 1));
+          lpFilename[nSize - 1] = L'\0';
+        }
+
+        fileNameLen = nSize;
+
+        NanoWinSetLastError(ERROR_INSUFFICIENT_BUFFER);
+      }
+    }
+    else
+    {
+      fileNameLen = 0;
+
+      NanoWinSetLastError(ERROR_NO_UNICODE_TRANSLATION);
+    }
+  }
+
+  if (mbBufferDynamic != NULL)
+  {
+    free(mbBufferDynamic);
+  }
+
+  return fileNameLen;
 }
 
 // Dlls
