@@ -479,3 +479,62 @@ NW_TEST(NanoWinFileSysMoveFileWTestGroup, BasenameTest)
 }
 
 NW_END_TEST_GROUP()
+
+
+NW_BEGIN_TEST_GROUP(NanoWinFileSysSetCurrDirTestGroup)
+
+NW_BEGIN_SETUP_TEARDOWN
+
+NW_SETUP_METHOD()
+{
+  CreateTestDir();
+}
+
+NW_TEARDOWN_METHOD()
+{
+  RemoveTestDir();
+}
+
+NW_END_SETUP_TEARDOWN
+
+NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryAUnexistTest)
+{
+  bool res = SetCurrentDirectoryA("/unexist/dir");
+  NW_CHECK_FALSE(res);
+}
+
+NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryATest)
+{
+  int  BUFF_SIZE = 512;
+  char buff[BUFF_SIZE];
+
+  bool res = SetCurrentDirectoryA("/home/vmbuilder/testDir");
+  NW_CHECK_TRUE(res);
+
+  if (getcwd(buff, BUFF_SIZE) != NULL)
+  {
+    NW_CHECK_EQUAL_STRCMP(buff, "/home/vmbuilder/testDir");
+  }
+}
+
+NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryWUnexistTest)
+{
+  bool res = SetCurrentDirectoryW(L"/unexist/dir");
+  NW_CHECK_FALSE(res);
+}
+
+NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryWTest)
+{
+  int     BUFF_SIZE = 512;
+  char    buff[BUFF_SIZE];
+
+  bool res = SetCurrentDirectoryW(L"/home/vmbuilder/testDir");
+  NW_CHECK_TRUE(res);
+
+  if (getcwd(buff, BUFF_SIZE) != NULL)
+  {
+    NW_CHECK_EQUAL_STRCMP(buff, "/home/vmbuilder/testDir");
+  }
+}
+
+NW_END_TEST_GROUP()
