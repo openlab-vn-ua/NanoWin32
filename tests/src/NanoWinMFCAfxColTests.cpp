@@ -359,6 +359,62 @@ NW_TEST(NanoWinMFCAfxColCListTestGroup, CListRemoveAll)
 	NW_CHECK_EQUAL_INTS(0, lst.GetCount());
 }
 
+NW_TEST(NanoWinMFCAfxColCListTestGroup, CListRemoveAt)
+{
+  CList<int> lst;
+
+  lst.AddTail(1);
+  lst.AddTail(2);
+  lst.AddTail(3);
+
+  POSITION pos = lst.Find(1);
+
+  lst.RemoveAt(pos);
+
+  NW_CHECK_EQUAL_INTS(2, lst.GetCount());
+
+  pos = lst.Find(2);
+  lst.RemoveAt(pos);
+  pos = lst.Find(3);
+  lst.RemoveAt(pos);
+
+  NW_CHECK_TRUE(lst.IsEmpty());
+  NW_CHECK_EQUAL_INTS(0, lst.GetCount());
+}
+
+NW_TEST(NanoWinMFCAfxColCListTestGroup, CListSetAt)
+{
+  CList<int> lst;
+
+  lst.AddTail(1);
+  lst.AddTail(2);
+  lst.AddTail(3);
+
+  POSITION pos = lst.Find(1);
+
+  lst.SetAt(pos, 100);
+
+  pos = lst.Find(100);
+  int res = lst.GetNext(pos);
+
+  NW_CHECK_EQUAL_INTS(3, lst.GetCount());
+  NW_CHECK_EQUAL_INTS(100, res);
+}
+
+NW_TEST(NanoWinMFCAfxColCListTestGroup, CListGetAt)
+{
+  CList<int> lst;
+
+  lst.AddTail(1);
+  lst.AddTail(2);
+  lst.AddTail(3);
+
+  POSITION pos = lst.Find(2);
+  int res = lst.GetAt(pos);
+
+  NW_CHECK_EQUAL_INTS(2, res);
+}
+
 NW_END_TEST_GROUP()
 
 NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMFCAfxColCMapTestGroup)
@@ -658,8 +714,6 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrGetNextAssoc)
 	NW_CHECK_EQUAL_STRCMP(str, _T("second"));
 }
 
-
-
 NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrLookup)
 {
 	CMapStringToPtr lst;
@@ -712,6 +766,91 @@ NW_TEST(NanoWinMFCAfxColCMapStringToPtrTestGroup, CMapStringToPtrSetAt)
 
 	NW_CHECK_TRUE(lst.Lookup(_T("second"), result));
 	NW_CHECK_EQUAL(&arr[1], result);
+}
+
+NW_END_TEST_GROUP()
+
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMFCAfxColCObArrayTestGroup)
+
+NW_TEST(NanoWinMFCAfxColCObArrayTestGroup, EmptyByDefaultArrGetSizeTest)
+{
+  CObArray arr;
+
+  long int size = arr.GetSize();
+
+  NW_CHECK_EQUAL(0, size);
+}
+
+NW_TEST(NanoWinMFCAfxColCObArrayTestGroup, CObArrayAddTest)
+{
+  CObArray arr;
+
+  CList<int, int> *cobj1 = new CList<int, int>();
+  CList<int, int> *cobj2 = new CList<int, int>();
+
+  long int index1 = arr.Add(cobj1);
+  long int index2 = arr.Add(cobj2);
+
+  NW_CHECK_EQUAL(0, index1);
+  NW_CHECK_EQUAL(1, index2);
+  NW_CHECK_EQUAL(2, arr.GetSize());
+
+  delete(cobj1);
+  delete(cobj2);
+}
+
+NW_TEST(NanoWinMFCAfxColCObArrayTestGroup, CObArrayRemoveAllTest)
+{
+  CObArray arr;
+
+  CList<int, int> *cobj1 = new CList<int, int>();
+  CList<int, int> *cobj2 = new CList<int, int>();
+
+  arr.Add(cobj1);
+  arr.Add(cobj2);
+
+  NW_CHECK_EQUAL(2, arr.GetSize());
+
+  arr.RemoveAll();
+
+  NW_CHECK_EQUAL(0, arr.GetSize());
+
+  delete(cobj1);
+  delete(cobj2);
+}
+
+NW_TEST(NanoWinMFCAfxColCObArrayTestGroup, CObArrayOperatorTest)
+{
+  CObArray arr;
+
+  CList<int, int> *cobj1 = new CList<int, int>();
+ 
+  long int index1 = arr.Add(cobj1);
+
+  NW_CHECK(arr[index1] == cobj1);
+
+  delete(cobj1);
+ }
+
+NW_END_TEST_GROUP()
+
+NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMFCAfxCTypedPtrArrayTestGroup)
+
+NW_TEST(NanoWinMFCAfxCTypedPtrArrayTestGroup, CTypedPtrArrayAddTest)
+{
+  CTypedPtrArray<CObArray, CList<int, int>*> arr;
+
+  CList<int, int> *cobj1 = new CList<int, int>();
+  CList<int, int> *cobj2 = new CList<int, int>();
+  
+  long int index1 = arr.Add(cobj1);
+  long int index2 = arr.Add(cobj2);
+
+  NW_CHECK(arr[index1] == cobj1);
+  NW_CHECK(arr[index2] == cobj2);
+
+  delete(cobj1);
+  delete(cobj2);
 }
 
 NW_END_TEST_GROUP()
