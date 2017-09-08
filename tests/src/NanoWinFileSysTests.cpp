@@ -505,15 +505,23 @@ NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryAUnexistTest)
 
 NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryATest)
 {
-  int  BUFF_SIZE = 512;
-  char buff[BUFF_SIZE];
+  char buff[PATH_MAX];
+  char startDir[PATH_MAX];
 
-  bool res = SetCurrentDirectoryA("/home/vmbuilder/testDir");
-  NW_CHECK_TRUE(res);
-
-  if (getcwd(buff, BUFF_SIZE) != NULL)
+  if (getcwd(startDir, PATH_MAX) != NULL)
   {
-    NW_CHECK_EQUAL_STRCMP(buff, "/home/vmbuilder/testDir");
+    bool res = SetCurrentDirectoryA("/home");
+    NW_CHECK_TRUE(res);
+
+    bool checkSetDir;
+
+    if (getcwd(buff, PATH_MAX) != NULL)
+    {
+      checkSetDir = strcmp(buff, "/home") == 0;
+    }
+
+    chdir(startDir);
+    NW_CHECK_TRUE(checkSetDir);
   }
 }
 
@@ -525,15 +533,23 @@ NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryWUnexistTest)
 
 NW_TEST(NanoWinFileSysSetCurrDirTestGroup, SetCurrentDirectoryWTest)
 {
-  int     BUFF_SIZE = 512;
-  char    buff[BUFF_SIZE];
+  char buff[PATH_MAX];
+  char startDir[PATH_MAX];
 
-  bool res = SetCurrentDirectoryW(L"/home/vmbuilder/testDir");
-  NW_CHECK_TRUE(res);
-
-  if (getcwd(buff, BUFF_SIZE) != NULL)
+  if (getcwd(startDir, PATH_MAX) != NULL)
   {
-    NW_CHECK_EQUAL_STRCMP(buff, "/home/vmbuilder/testDir");
+    bool res = SetCurrentDirectoryW(L"/home");
+    NW_CHECK_TRUE(res);
+
+    bool checkSetDir;
+
+    if (getcwd(buff, PATH_MAX) != NULL)
+    {
+      checkSetDir = strcmp(buff, "/home") == 0;
+    }
+
+    chdir(startDir);
+    NW_CHECK_TRUE(checkSetDir);
   }
 }
 
