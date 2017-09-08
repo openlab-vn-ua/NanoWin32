@@ -179,4 +179,53 @@ NW_TEST(NanoWinMFCAfxCRectTestGroup, InflateRectTest)
 	NW_CHECK_EQUAL_INTS(5, rect.bottom);
 }
 
+NW_TEST(NanoWinMFCAfxCRectTestGroup, IntersectRectTest)
+{
+  CRect rect1(1, 2, 3, 4);
+  CRect rect2(5, 6, 7, 8);
+
+  bool res1 = rect1.IntersectRect(&rect1, &rect2);
+
+  NW_CHECK_FALSE(res1);
+
+  CRect rect3(1, 2, 3, 4);
+  CRect rect4(2, 3, 7, 8);
+  
+  bool res2 = rect3.IntersectRect(&rect3, &rect4);
+
+  NW_CHECK_TRUE(res2);
+
+  CRect rect5(1, 2, 5, 6);
+  CRect rect6(2, 3, 4, 5);
+
+  bool res3 = rect5.IntersectRect(&rect5, &rect6);
+
+  NW_CHECK_TRUE(res3);
+
+  CRect rect7(1, 2, 3, 4);
+  CRect rect8(1, 2, 3, 4);
+
+  bool res4 = rect7.IntersectRect(&rect7, &rect8);
+
+  NW_CHECK_TRUE(res4);
+}
+
+NW_TEST(NanoWinMFCAfxCRectTestGroup, OperatorAreEqualRectTest)
+{
+  CRect rect1(1, 2, 3, 4);
+  CRect rect2(5, 6, 7, 8);
+
+  NW_CHECK_FALSE(rect1 == rect2);
+
+  CRect rect3(1, 2, 3, 4);
+  CRect rect4(1, 2, 3, 4);
+
+  NW_CHECK_TRUE(rect3 == rect4);
+
+  CRect rect5(1, 2, 3, 4);
+  CRect rect6(3, 4, 1, 2);
+
+  NW_CHECK_TRUE(rect3 == rect4);
+}
+
 NW_END_TEST_GROUP()
