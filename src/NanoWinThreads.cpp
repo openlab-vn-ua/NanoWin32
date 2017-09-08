@@ -36,15 +36,16 @@ static void NW32ThreadsCleanUpFuncSignalEvent(void *arg)
 
 static void *NW32ThreadsThreadFunc(void *params)
 {
-  NW32ThreadStartInfo    *startInfo = (NW32ThreadStartInfo*)params;
-  LPTHREAD_START_ROUTINE  startFunc = startInfo->startFunc;
-  LPVOID                  parameter = startInfo->parameter;
+  NW32ThreadStartInfo    *startInfo   = (NW32ThreadStartInfo*)params;
+  LPTHREAD_START_ROUTINE  startFunc   = startInfo->startFunc;
+  LPVOID                  parameter   = startInfo->parameter;
+  HANDLE                  eventHandle = startInfo->threadInfo->eventHandle;
 
   free(params);
 
   DWORD result = 0;
 
-  pthread_cleanup_push(NW32ThreadsCleanUpFuncSignalEvent,startInfo->threadInfo->eventHandle);
+  pthread_cleanup_push(NW32ThreadsCleanUpFuncSignalEvent,eventHandle);
 
   result = startFunc(parameter);
 
