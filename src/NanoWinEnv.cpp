@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "NanoWinMsSafeString.h"
 #include "NanoWinError.h"
