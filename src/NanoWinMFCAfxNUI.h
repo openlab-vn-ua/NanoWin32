@@ -364,9 +364,9 @@ inline BOOL AfxIsValidString(LPCWSTR lpsz, int nLength = -1)
 }
 
 #if defined(DEBUG) || defined(_DEBUG)
-#define TRACE          (0) && // Prevent evaluation of fail expression, since lasy evaluation policy: TRACE(x) becomes (0) && (x), so x would not evaluated
-#else
 #define TRACE          printf
+#else
+#define TRACE          (0) && // Prevent evaluation of fail expression, since lasy evaluation policy: TRACE(x) becomes (0) && (x), so x would not evaluated
 #endif // !DEBUG
 
 // Bindings
