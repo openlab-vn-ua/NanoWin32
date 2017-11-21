@@ -6,7 +6,7 @@
 // MFC UI emulation class
 
 #if !defined(NanoWinMFCAfxNUIIncluded)
-#define NanoWinErrorIncluded
+#define NanoWinMFCAfxNUIIncluded
 
 #include "NanoWinTypes.h"
 
