@@ -12,6 +12,7 @@ typedef struct
   pthread_t  wtThread;
   HANDLE     eventHandle;
   HANDLE     interEventHandle;
+  bool       exitFlag;
 } NanoWinWaitableTimer;
 
 extern HANDLE WINAPI CreateWaitableTimerA     (LPSECURITY_ATTRIBUTES lpTimerAttributes,
@@ -40,6 +41,7 @@ extern HANDLE WINAPI CreateWaitableTimerA     (LPSECURITY_ATTRIBUTES lpTimerAttr
   {
     waitableTimer->wtThread    = NULL;
     waitableTimer->milsTimeout = 200;
+    waitableTimer->exitFlag    = false;
 
     waitableTimer->eventHandle = CreateEventA(NULL, bManualReset, FALSE, NULL);
 
@@ -84,25 +86,33 @@ extern HANDLE WINAPI CreateWaitableTimerW     (LPSECURITY_ATTRIBUTES lpTimerAttr
   return CreateWaitableTimerA(lpTimerAttributes,bManualReset,NULL);
 }
 
-static void *WaitableTimerThreadRoutine (void *paramPtr)
+static void *WaitableTimerThreadRoutine (void *paramPtr) throw ()
 {
   NanoWinWaitableTimer *waitableTimer = (NanoWinWaitableTimer*)paramPtr;
   DWORD waitMils = waitableTimer->milsDue;
 
-  while (true)
+  //ENABLING THE CANCEL FUNCTIONALITY
+  int prevType;
+  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &prevType);
+
+  while (!waitableTimer->exitFlag)
   {
     DWORD res = WaitForSingleEvent(waitableTimer->interEventHandle, waitMils);
-	waitMils = waitableTimer->milsTimeout;
+    waitMils = waitableTimer->milsTimeout;
 
     ResetEvent(waitableTimer->interEventHandle);
 
-    if ((res == WAIT_TIMEOUT) || (res == WAIT_OBJECT_0))
+    if (waitableTimer->exitFlag)
+    {
+      break;
+    }
+    else if ((res == WAIT_TIMEOUT) || (res == WAIT_OBJECT_0))
     {
       SetEvent(waitableTimer->eventHandle);
     }
-    else
+    else // error
     {
-      break;
+       break;
     }
   }
 
@@ -167,22 +177,29 @@ extern BOOL WINAPI   CloseWaitableTimerHandle (HANDLE                hObject)
 
   NanoWinWaitableTimer *waitableTimer = (NanoWinWaitableTimer*)hObject;
 
+  if (waitableTimer->wtThread != NULL)
+  {
+    waitableTimer->exitFlag = true;
+    #ifdef WAITABLE_TIMER_CANCELABLE  // if defined appearing "no rethrow" exception (compiler dependent)
+    pthread_cancel(waitableTimer->wtThread);
+	pthread_join(waitableTimer->wtThread, NULL); // Future idea?
+    #else // stable version
+    SetEvent(waitableTimer->interEventHandle);
+    pthread_join(waitableTimer->wtThread, NULL);
+    #endif
+    waitableTimer->wtThread = NULL;
+  }
+
   if (waitableTimer->eventHandle != NULL)
   {
-    CloseEventHandle(waitableTimer->eventHandle);
-    waitableTimer->eventHandle = NULL;
+     CloseEventHandle(waitableTimer->eventHandle);
+     waitableTimer->eventHandle = NULL;
   }
 
   if (waitableTimer->interEventHandle != NULL)
   {
-    CloseEventHandle(waitableTimer->interEventHandle);
-    waitableTimer->interEventHandle = NULL;
-  }
-
-  if (waitableTimer->wtThread != NULL)
-  {
-    pthread_cancel(waitableTimer->wtThread);
-    waitableTimer->wtThread = NULL;
+     CloseEventHandle(waitableTimer->interEventHandle);
+     waitableTimer->interEventHandle = NULL;
   }
 
   free(waitableTimer);
