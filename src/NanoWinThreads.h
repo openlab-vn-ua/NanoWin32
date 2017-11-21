@@ -41,6 +41,9 @@ extern DWORD WaitForMultipleThreads // WaitForMultipleObjects implementation for
   DWORD         dwMilliseconds
 );
 
+//NOTE: this function is NanoWin-specific and does not exist in WinAPI
+extern HANDLE        GetEventByThread (HANDLE hThread);
+
 NW_EXTERN_C_END
 
 #endif

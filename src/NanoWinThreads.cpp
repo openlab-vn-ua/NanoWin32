@@ -241,3 +241,8 @@ BOOL CloseThreadHandle(HANDLE hThread)
 
   return TRUE;
 }
+
+HANDLE GetEventByThread(HANDLE hThread)
+{
+	return ((NanoWinThread*)hThread)->eventHandle;
+}
