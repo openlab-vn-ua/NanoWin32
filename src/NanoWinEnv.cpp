@@ -42,7 +42,15 @@ DWORD GetEnvironmentVariableA
 
   if ((nSize > 0) && (lpBuffer != NULL))
   {
-    strcpy_s(lpBuffer, nSize, result);
+    if (nSize > resultlen)
+    {
+      memcpy(lpBuffer, result, resultlen + 1);
+    }
+    else
+    {
+      memcpy(lpBuffer, result, nSize - 1);
+      lpBuffer[nSize - 1] = 0; // Null-terminate result
+    }
   }
 
   return(static_cast<DWORD>(nSize < resultlen + 1 ? resultlen + 1 : resultlen));
