@@ -81,7 +81,7 @@ class  invalid_parameter_handler_manager_class
 {
 	protected:
 	bool                       old_app_param_defined;
-    _invalid_parameter_handler old_app_invalid_parameter_handler;
+	_invalid_parameter_handler old_app_invalid_parameter_handler;
 	int                        old_app_crtdbg_report_mode;
 
 	public:
@@ -110,12 +110,12 @@ class  invalid_parameter_handler_manager_class
 
 	void set_fail_by_restore_default()
 	{
-	  if (old_app_param_defined)
-	  {
+		if (old_app_param_defined)
+		{
 		// app-wide old info available, restore it
-		_set_invalid_parameter_handler(old_app_invalid_parameter_handler);
-		_CrtSetReportMode(_CRT_ASSERT, old_app_crtdbg_report_mode);
-	  }
+			_set_invalid_parameter_handler(old_app_invalid_parameter_handler);
+			_CrtSetReportMode(_CRT_ASSERT, old_app_crtdbg_report_mode);
+		}
 	}
 
 };
@@ -133,7 +133,86 @@ static unsigned int invalid_parameter_handler_call_count_last_seen = 0;
 #define NW_CHECK_ERR_HANDLER_FIRED()     NW_CHECK(NW_ERR_HANDLER_IS_FIRED());  NW_RESET_ERR_HANDLER_COUNT();
 #define NW_CHECK_ERR_HANDLER_NOT_FIRED() NW_CHECK(!NW_ERR_HANDLER_IS_FIRED()); NW_RESET_ERR_HANDLER_COUNT();
 
-#else
+class NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS
+{
+	public:
+	NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS()  { NW_ERR_HANDLER_SET_FAIL_AS_REPORT_AND_CONTINUE(); }
+	~NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS() { NW_ERR_HANDLER_SET_FAIL_AS_DEFAULT(); }
+};
+
+#define NW_SETUP_ERR_HANDLER_FOR_TEST() NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS __NW__set_fail_auto_init_done_object; NW_RESET_ERR_HANDLER_COUNT();
+
+#elif 1 // NanoWin error handler
+
+namespace NanoWin {
+
+// TODO: Some static objects in .h file, Move me to .cpp file later [not critical, since this module included in tests only]
+
+static struct
+{
+	unsigned int call_count;
+	unsigned int call_count_last_seen;
+} invalid_parameter_handler_stat = { 0, 0 };
+
+static void invalid_parameter_handler_as_report_and_continue (const char *msg, void *ptr, errno_t error)
+{
+	invalid_parameter_handler_stat.call_count++;
+	#if 1
+	// //printf("Safety handler invoked with (msg=%s, ptr=%p, error=%d) [%p,total %d]\n", msg, ptr, (int)error, &invalid_parameter_handler_stat, (int)invalid_parameter_handler_stat.call_count);
+	// printf("Safety handler invoked with (msg=%s, ptr=%p, error=%d)\n", msg, ptr, (int)error);
+	//abort();
+	#endif
+	return;
+}
+
+static void invalid_parameter_handler_set_fail_as_report_and_continue(void)
+{
+	set_constraint_handler_s(NanoWin::invalid_parameter_handler_as_report_and_continue);
+}
+
+static void invalid_parameter_handler_set_fail_by_restore_default(void)
+{
+	set_constraint_handler_s(NULL);
+}
+
+static void invalid_parameter_handler_reset_counter(void)
+{
+	invalid_parameter_handler_stat.call_count_last_seen = invalid_parameter_handler_stat.call_count;
+}
+
+static bool invalid_parameter_handler_was_fired(void)
+{
+	//printf("ASK invalid_parameter_handler_was_fired [%p,last:%d,total:%d]", &invalid_parameter_handler_stat, invalid_parameter_handler_stat.call_count_last_seen, invalid_parameter_handler_stat.call_count);
+	return(invalid_parameter_handler_stat.call_count_last_seen != invalid_parameter_handler_stat.call_count);
+}
+
+class InitDoneCaller
+{
+	public:
+	typedef void (*func_t)(void);
+
+	protected:
+
+	func_t done;
+
+	public:
+	InitDoneCaller(func_t initFunc, func_t doneFunc) { initFunc(); this->done = doneFunc; }
+	~InitDoneCaller() { (this->done)(); }
+};
+
+} // namespace NanoWin
+
+#define NW_ERR_HANDLER_SET_FAIL_AS_REPORT_AND_CONTINUE()   invalid_parameter_handler_set_fail_as_report_and_continue()
+#define NW_ERR_HANDLER_SET_FAIL_AS_DEFAULT()		       invalid_parameter_handler_set_fail_by_restore_default()
+
+#define NW_ERR_HANDLER_IS_FIRED()        NanoWin::invalid_parameter_handler_was_fired()
+#define NW_RESET_ERR_HANDLER_COUNT()     { NanoWin::invalid_parameter_handler_reset_counter(); } // { printf("%s:%d:NW_RESET_ERR_HANDLER_COUNT()\n", __FILE__, __LINE__); }
+#define NW_CHECK_ERR_HANDLER_FIRED()     NW_CHECK(NW_ERR_HANDLER_IS_FIRED());  NW_RESET_ERR_HANDLER_COUNT();
+#define NW_CHECK_ERR_HANDLER_NOT_FIRED() NW_CHECK(!NW_ERR_HANDLER_IS_FIRED()); NW_RESET_ERR_HANDLER_COUNT();
+
+#define NW_SETUP_ERR_HANDLER_FOR_TEST()  NanoWin::InitDoneCaller __NW__set_fail_auto_init_done_object(NanoWin::invalid_parameter_handler_set_fail_as_report_and_continue, NanoWin::invalid_parameter_handler_set_fail_by_restore_default); NW_RESET_ERR_HANDLER_COUNT();
+
+#else // Stub just in case error handler is not tested
 
 #define NW_ERR_HANDLER_SET_FAIL_AS_REPORT_AND_CONTINUE() // nothing yet
 #define NW_ERR_HANDLER_SET_FAIL_AS_DEFAULT() // nothing yet
@@ -143,15 +222,8 @@ static unsigned int invalid_parameter_handler_call_count_last_seen = 0;
 #define NW_CHECK_ERR_HANDLER_FIRED()     // Nothing (yet)
 #define NW_CHECK_ERR_HANDLER_NOT_FIRED() // Nothing (yet)
 
+#define NW_SETUP_ERR_HANDLER_FOR_TEST()  // Nothing (yet)
+
 #endif
-
-class NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS
-{
-	public:
-	NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS()  { NW_ERR_HANDLER_SET_FAIL_AS_REPORT_AND_CONTINUE(); }
-	~NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS() { NW_ERR_HANDLER_SET_FAIL_AS_DEFAULT(); }
-};
-
-#define NW_SETUP_ERR_HANDLER_FOR_TEST() NW_ERR_HANDLER_SET_FAIL_FOR_TEST_AUTO_CLASS __NW__set_fail_auto_init_done_object; NW_RESET_ERR_HANDLER_COUNT();
 
 #endif
