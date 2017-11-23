@@ -8,7 +8,18 @@
 #include <windows.h>
 #endif
 
-NW_BEGIN_TEST_GROUP_SIMPLE(NanoWinMFCAfxNUITestGroup)
+NW_BEGIN_TEST_GROUP(NanoWinMFCAfxNUITestGroup)
+
+NW_BEGIN_SETUP_TEARDOWN
+NW_SETUP_METHOD()
+ {
+   NanoWinNUIRunGetProc()->SetNUILogActive(false);
+ }
+NW_TEARDOWN_METHOD()
+ {
+   NanoWinNUIRunGetProc()->SetNUILogActive(true);
+ }
+NW_END_SETUP_TEARDOWN
 
 NW_TEST(NanoWinMFCAfxNUITestGroup, SetWindowTextATest)
 {
