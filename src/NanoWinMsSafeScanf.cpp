@@ -12,7 +12,9 @@
 
 #include "NanoWinMsSafeScanf.h"
 
-#define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
+#include "NanoWinMsSafeString.h" // NanoWin_invoke_constraint_handler_s
+// Borrowed from NanoWinMsSafeString.cpp
+#define invoke_err_handler(etext,earg,errcode) { NanoWin_invoke_constraint_handler_s(etext,(void*)earg,errcode); }
 #define return_after_err_handler(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); }
 
 namespace

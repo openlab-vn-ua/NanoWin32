@@ -14,7 +14,7 @@
 #include "NanoWinMsSafePrintf.h"
 
 // Borrowed from NanoWinMsSafeString.cpp
-#define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
+#define invoke_err_handler(etext,earg,errcode) { NanoWin_invoke_constraint_handler_s(etext,(void*)earg,errcode); }
 #define return_after_err_handler(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); }
 
 #define RSIZE_GET_CNT(MAX_MEM,ITEM) (sizeof(ITEM) == 1 ? (MAX_MEM) : ((MAX_MEM) / sizeof(ITEM)))
