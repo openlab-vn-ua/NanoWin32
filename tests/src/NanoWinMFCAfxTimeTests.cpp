@@ -120,7 +120,7 @@ NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCSystemtimeTest)
 NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCGetLocalTmTest)
 {
   SYSTEMTIME systemtime;
-  struct tm *structTm;
+  struct tm  structTm;
 
   systemtime.wYear = 2017;
   systemtime.wMonth = 9;
@@ -132,15 +132,15 @@ NW_TEST(NanoWinMFCAfxTimeTestGroup, MFCGetLocalTmTest)
 
   CTime checkTime = CTime(systemtime);
 
-  checkTime.GetLocalTm(structTm);
+  checkTime.GetLocalTm(&structTm);
 
-  NW_CHECK_EQUAL(2017, structTm->tm_year + 1900);
-  NW_CHECK_EQUAL(9, structTm->tm_mon + 1);
-  NW_CHECK_EQUAL(2, structTm->tm_wday);
-  NW_CHECK_EQUAL(5, structTm->tm_mday);
-  NW_CHECK_EQUAL(10, structTm->tm_hour);
-  NW_CHECK_EQUAL(15, structTm->tm_min);
-  NW_CHECK_EQUAL(30, structTm->tm_sec);
+  NW_CHECK_EQUAL(2017, structTm.tm_year + 1900);
+  NW_CHECK_EQUAL(9, structTm.tm_mon + 1);
+  NW_CHECK_EQUAL(2, structTm.tm_wday);
+  NW_CHECK_EQUAL(5, structTm.tm_mday);
+  NW_CHECK_EQUAL(10, structTm.tm_hour);
+  NW_CHECK_EQUAL(15, structTm.tm_min);
+  NW_CHECK_EQUAL(30, structTm.tm_sec);
 }
 
 NW_END_TEST_GROUP()
