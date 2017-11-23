@@ -11,8 +11,8 @@
 
 #include <errno.h>
 #include <string.h>
-#include "NanoWinMsSafeString.h"
-#include "NanoWinFileSys.h"
+#include "NanoWinTypes.h" // errno_t
+#include "NanoWinFileSys.h" // NW_DIRECTORY_SEPARATOR_* constants
 
 #ifndef EOK
 #define EOK (0)
@@ -39,7 +39,15 @@ errno_t PathHookAlignSlashes::doTranslatePath(const char **poutpath, const char 
 
       if (result == EOK)
       {
-        result = strcpy_s(buffer, buffersz, srcpath);
+        size_t srclen = strlen(srcpath);
+        if (srclen >= buffersz)
+        {
+          result = ERANGE;
+        }
+        else
+        {
+          strcpy(buffer, srcpath);
+        }
       }
 
       if (result == EOK)

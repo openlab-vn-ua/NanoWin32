@@ -11,11 +11,10 @@
 // You can install path hooks to be used by functions:
 // file functions
 
-#include "NanoWinTypes.h"
+#include "NanoWinTypes.h" // errno_t
 
 #if defined LINUX
 
-#include "NanoWinFileSys.h"
 #include <string>
 
 namespace NanoWin {

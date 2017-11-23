@@ -61,7 +61,6 @@ static errno_t translate_path(const char **poutpath, const char *srcpath, char *
 // ==================================================================
 
 #include "NanoWinMsSafeString.h" // _countof(x)
-#include "NanoWinFileSys.h"
 
 // Middle level macros
 
