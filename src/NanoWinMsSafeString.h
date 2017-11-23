@@ -65,6 +65,71 @@ typedef size_t rsize_t;
 #define STRUNCATE (-11111)    // error_t value to return in case of truncation occurs
 #endif
 
+// Error handler to be risen in case of _s function fail
+// -----------------------------------------------------
+
+typedef void (*constraint_handler_t)( const char *msg, void *ptr, errno_t error);
+
+NW_EXTERN_C_BEGIN
+
+// Set handler as new set_constraint_handler function, return previous active handler (note: if handler is NULL sets system default handler)
+extern constraint_handler_t set_constraint_handler_s(constraint_handler_t handler);
+extern constraint_handler_t get_constraint_handler_s(void); // NW Extenstion
+
+// Set handler as new set_constraint_handler function for thread, return previous active handler (note: if handler is NULL global handler will be used)
+extern constraint_handler_t set_constraint_handler_thread_local_s(constraint_handler_t handler); // NW Extenstion
+extern constraint_handler_t get_constraint_handler_thread_local_s(void); // NW Extenstion
+
+#if defined(__cplusplus)
+// NW: Class to be thrown by throw_handler_s
+class constraint_throw_handler_s_called_exception
+{
+  public: const char *msg; void *ptr; errno_t error;
+};
+#endif
+
+// Ready to-use handlers
+
+// Abort application with error message hangler
+extern void abort_handler_s(const char *msg, void *ptr, errno_t error);  
+
+// Ignore error and continue handler (with error reported to caller)
+extern void ignore_handler_s(const char *msg, void *ptr, errno_t error);
+
+// Ignore error and continue handler (with error reported to caller) (NW: synonim to ignore_handler_s, just better named)
+extern void continue_handler_s(const char *msg, void *ptr, errno_t error);
+
+// NW: Throws constraint_handler_s_called_exception [usually unhandled, so terminates the app)
+extern void throw_handler_s(const char *msg, void *ptr, errno_t error); 
+
+// NW specific
+
+#define NanoWin_default_constraint_handler_s abort_handler_s // NW: The default handler (Just in case you interested)
+
+extern void NanoWin_invoke_constraint_handler_s(const char *msg, void *ptr, errno_t error); // NW: Invoke current handler
+
+// Class to set specific handler for enclosing { } block. Auto restore handler on block leave. Thread safe. Do not forget to declare var!
+// Usage: { NanoWinSetBlockConstraintHandler handler(continue_handler_s); ...
+class NanoWinSetBlockConstraintHandler
+{
+  protected:
+
+  constraint_handler_t old_handler;
+
+  public:
+  
+  NanoWinSetBlockConstraintHandler  (constraint_handler_t handler) { old_handler = set_constraint_handler_thread_local_s(handler); }
+  ~NanoWinSetBlockConstraintHandler () { set_constraint_handler_thread_local_s(old_handler); }
+};
+
+// NW: Made statement in context continue_handler_s (no matter what actual handler is) [primary use inside NW library itself]
+#define NW_SAFE_S(statement)       do { NanoWinSetBlockConstraintHandler NW___handler##__LINE__(continue_handler_s); { statement; } } while(false)
+
+// NW: Evaluate expression in context continue_handler_s (no matter what actual handler is) [primary use inside NW library itself] (Uses trick with comma operator)
+#define NW_SEXP_S(expression)      (NanoWinSetBlockConstraintHandler(continue_handler_s), (expression))
+
+NW_EXTERN_C_END
+
 // NanoWin add-ons
 // -----------------------------------------------------
 

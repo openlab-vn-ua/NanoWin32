@@ -19,6 +19,87 @@
 
 #include "NanoWinMsPrintf.h"
 
+// Error handler to be risen in case of _s function fail
+// -----------------------------------------------------
+
+#define NW_THREAD_VAR __thread // for GCC
+
+#include <stdlib.h> // abort
+
+NW_EXTERN_C_BEGIN
+
+static constraint_handler_t current_constraint_handler_s = NanoWin_default_constraint_handler_s;
+
+// Set handler as new set_constraint_handler function, return previous active handler (note: if handler is NULL sets system default handler)
+extern constraint_handler_t set_constraint_handler_s(constraint_handler_t handler)
+{
+  auto result = current_constraint_handler_s;
+  if (handler == NULL) { handler = NanoWin_default_constraint_handler_s; }
+  current_constraint_handler_s = handler;
+  return(result);
+}
+
+extern constraint_handler_t get_constraint_handler_s(void)
+{
+  return(current_constraint_handler_s);
+}
+
+static NW_THREAD_VAR constraint_handler_t current_constraint_handler_thread_local_s = NULL;
+
+// Set handler as new set_constraint_handler function for thread, return previous active handler (note: if handler is NULL global handler will be used)
+extern constraint_handler_t set_constraint_handler_thread_local_s(constraint_handler_t handler)
+{
+  auto result = current_constraint_handler_thread_local_s;
+  current_constraint_handler_thread_local_s = handler;
+  return(result);
+}
+
+extern constraint_handler_t get_constraint_handler_thread_local_s(void)
+{
+  return(current_constraint_handler_thread_local_s);
+}
+
+// Ready to-use handlers
+extern void throw_handler_s(const char *msg, void *ptr, errno_t error) // Throws constraint_handler_s_called_exception
+{
+  constraint_throw_handler_s_called_exception ex;
+  ex.msg = msg;
+  ex.ptr = ptr;
+  ex.error = error;
+  throw ex;
+}
+
+extern void abort_handler_s(const char *msg, void *ptr, errno_t error)
+{
+  #define err_stream stderr
+  if (msg == NULL) { msg = "(NULL)"; }
+  fprintf(err_stream, "\nApplication error:\nSafety handler invoked with (msg=%s, ptr=%p, error=%d)\n", msg, ptr, (int)error); fflush(err_stream);
+  abort();
+  #undef err_stream
+}
+
+extern void ignore_handler_s(const char *msg, void *ptr, errno_t error)
+{
+  // Do nothing
+}
+
+extern void continue_handler_s(const char *msg, void *ptr, errno_t error)
+{
+  // Do nothing
+}
+
+extern void NanoWin_invoke_constraint_handler_s(const char *msg, void *ptr, errno_t error)
+{
+  auto handler = current_constraint_handler_thread_local_s;
+  if (handler == NULL) { handler = current_constraint_handler_s; }
+  handler(msg, ptr, error);
+}
+
+NW_EXTERN_C_END
+
+// Usefull defs
+// -----------------------------------------------------
+
 #if !defined(EOK)
 #define  EOK  (0)
 #endif
@@ -28,7 +109,7 @@
 // Utility functions
 // -----------------------------------------------------
 
-#define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
+#define invoke_err_handler(etext,earg,errcode) { NanoWin_invoke_constraint_handler_s(etext,(void*)earg,errcode); }
 #define return_after_err_handler(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); }
 
 #define RSIZE_GET_CNT(MAX_MEM,ITEM) (sizeof(ITEM) == 1 ? (MAX_MEM) : ((MAX_MEM) / sizeof(ITEM)))
@@ -593,7 +674,11 @@ extern char   *strtok_r_s    (char *str, const char *delim, char **context)
   if (str == NULL)
   {
     // not a first call, (*context) should be valid
-    if ((*context) == NULL)    { return_after_err_WMARKER(FN SP "context is invalid"          , NULL, EINVAL); }
+    #ifdef LINUX
+    // For some reason, (*context) will be NULL if end of string reached since GCC standard library uses it as End-Of-Search marker, that is not quite right but it is how it is.
+    #else
+    if ((*context) == NULL)    { return_after_err_WMARKER(FN SP "context is invalid"          , NULL, EINVAL); } // Under
+    #endif
   }
 
   return(STRTOK_R(str, delim, context));
@@ -620,7 +705,11 @@ extern wchar_t*wcstok_r_s    (wchar_t *str, const wchar_t *delim, wchar_t **cont
   if (str == NULL)
   {
     // not a first call, (*context) should be valid
-    if ((*context) == NULL)    { return_after_err_WMARKER(FN SP "context is invalid"          , NULL, EINVAL); }
+    #ifdef LINUX
+    // For some reason, (*context) will be NULL if end of string reached since GCC standard library uses it as End-Of-Search marker, that is not quite right but it is how it is.
+    #else
+    if ((*context) == NULL)    { return_after_err_WMARKER(FN SP "context is invalid"          , NULL, EINVAL); } // Under
+    #endif
   }
 
   return(STRTOK_R(str, delim, context));
