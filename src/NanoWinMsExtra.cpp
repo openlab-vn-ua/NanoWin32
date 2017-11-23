@@ -22,7 +22,7 @@
 #endif
 
 // Borrowed from NanoWinMsSafeString.cpp
-#define invoke_err_handler(etext,earg,errcode) // TODO: call handler here
+#define invoke_err_handler(etext,earg,errcode) { NanoWin_invoke_constraint_handler_s(etext,(void*)earg,errcode); }
 #define return_after_err_handler(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); }
 
 #define RSIZE_GET_CNT(MAX_MEM,ITEM) (sizeof(ITEM) == 1 ? (MAX_MEM) : ((MAX_MEM) / sizeof(ITEM)))
@@ -125,7 +125,7 @@ extern wchar_t *wgetcwd(wchar_t *dest, size_t destsz)
 	if (destsz < size) { destsz = size; }
 	dest = static_cast<wchar_t*>(malloc(destsz * sizeof(wchar_t)));
 	if (dest == NULL) { errno=ENOMEM; return(NULL); }
-	if (wcscpy_s(dest, destsz, resultw.c_str()) != 0) { free(dest); errno=EINVAL; return(NULL); } // BUG trap
+	if (NW_SEXP_S(wcscpy_s(dest, destsz, resultw.c_str())) != 0) { free(dest); errno=EINVAL; return(NULL); } // BUG trap
 	return(dest);
   }
   else
@@ -137,7 +137,7 @@ extern wchar_t *wgetcwd(wchar_t *dest, size_t destsz)
     result = getcwd(tmp, sizeof(tmp));
     if (result == NULL) { return(NULL); }
     size_t countx = 0;
-    if (mbstowcs_s(&countx,dest,destsz,result,destsz) != 0) { dest[0] = 0; errno=ERANGE; return(NULL); }
+    if (NW_SEXP_S(mbstowcs_s(&countx,dest,destsz,result,destsz)) != 0) { dest[0] = 0; errno=ERANGE; return(NULL); }
     if (countx > destsz) { dest[0] = 0; errno=ERANGE; return(NULL); }
     return(dest);
   }
@@ -189,6 +189,7 @@ extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, r
   // <body> // invaliant for _fullpath and _wfullpath
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
   #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); pathfunc_handle_errcode(errcode); return(NULL); }
+  #define return_plain_err_no_hand(etext,earg,errcode) { pathfunc_handle_errcode(errcode); return(NULL); }  // Surprisely, error handler is NOT invoked under MS in that case [Just signal error]
 
   if (destabspath != NULL)
   {
@@ -202,7 +203,7 @@ extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, r
     if (destabspath != NULL)
     {
       ITEM *result = GETCWD(destabspath, destabspathsz);
-      if (result == NULL) { return_after_err_WMARKER(FN SP "destsz too small"  , NULL, ERANGE); }
+      if (result == NULL) { return_plain_err_no_hand(FN SP "destsz too small"  , NULL, ERANGE); }
       return(result);
     }
     else
@@ -216,12 +217,8 @@ extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, r
     // path start with "/", so this is absolute path already
     if (destabspath != NULL)
     {
-      errno_t err = STRCPY_S(destabspath, destabspathsz, srcrelpath);
-      if (err != EOK)
-      {
-        pathfunc_handle_errcode(err); // Error handler already been called
-        return(NULL);
-      }
+      errno_t err = NW_SEXP_S(STRCPY_S(destabspath, destabspathsz, srcrelpath));
+      if (err != EOK)     { return_plain_err_no_hand(FN SP "dest copy fail" , NULL, err); }
       return(destabspath);
     }
     else
@@ -239,25 +236,21 @@ extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, r
   if (destabspath != NULL)
   {
     ITEM *result = GETCWD(destabspath, destabspathsz);
-    if (result == NULL)        { return_after_err_WMARKER(FN SP "destsz too small"  , NULL, ERANGE); }
+    if (result == NULL)        { return_plain_err_no_hand(FN SP "destsz too small"  , NULL, ERANGE); }
     if (result != destabspath) { return_after_err_WMARKER(FN SP "dest pos shifted"  , NULL, EINVAL); } // BUG trap
     rsize_t len = STRLEN(result);
     if (len <= 0)              { return_after_err_WMARKER(FN SP "curr path is invalid" , NULL, EINVAL); } // BUG trap
-    if (len >= destabspathsz)  { return_after_err_WMARKER(FN SP "destsz too small."    , NULL, ERANGE); } // BUG trap
+    if (len >= destabspathsz)  { return_plain_err_no_hand(FN SP "destsz too small."    , NULL, ERANGE); } // BUG trap
     ITEM    *tail   = result + len;
     rsize_t  tailsz = destabspathsz - len;
-    if (tailsz <= 0)           { return_after_err_WMARKER(FN SP "destsz too small"     , NULL, ERANGE); } // No room for at least 1 char
+    if (tailsz <= 0)           { return_plain_err_no_hand(FN SP "destsz too small"     , NULL, ERANGE); } // No room for at least 1 char
     // add path separator (we have room at tail, since tailsz > 0)
     *tail = NW_DIRECTORY_SEPARATOR_CHAR;
     tail++;
     tailsz--;
     // copy remainder
-    errno_t  err = STRCPY_S(tail, tailsz, srcrelpath);
-    if (err != EOK)
-    {
-      pathfunc_handle_errcode(err); // Error handler already been called
-      return(NULL);
-    }
+    errno_t  err = NW_SEXP_S(STRCPY_S(tail, tailsz, srcrelpath));
+    if (err != EOK)            { return_plain_err_no_hand(FN SP "dest copy fail" , NULL, err); }
     return(destabspath);
   }
   else
@@ -279,12 +272,11 @@ extern char    *_fullpath    (char    *destabspath, const char    *srcrelpath, r
     tail++;
     tailsz--;
     // copy remainder
-    errno_t  err = STRCPY_S(tail, tailsz, srcrelpath);
+    errno_t  err = NW_SEXP_S(STRCPY_S(tail, tailsz, srcrelpath));
     if (err != EOK)
     {
       free(result);
-      pathfunc_handle_errcode(err); // Error handler already been called
-      return(NULL);
+      return_plain_err_no_hand(FN SP "dest copy fail" , NULL, err);
     }
     return(result);
   }
@@ -311,6 +303,7 @@ extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, r
   // <body> // invaliant for _fullpath and _wfullpath
   #define RSIZE_MAX_CNT        RSIZE_GET_CNT(RSIZE_MAX_STR, ITEM)
   #define return_after_err_WMARKER(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); pathfunc_handle_errcode(errcode); return(NULL); }
+  #define return_plain_err_no_hand(etext,earg,errcode) { pathfunc_handle_errcode(errcode); return(NULL); }  // Surprisely, error handler is NOT invoked under MS in that case [Just signal error]
 
   if (destabspath != NULL)
   {
@@ -324,7 +317,7 @@ extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, r
     if (destabspath != NULL)
     {
       ITEM *result = GETCWD(destabspath, destabspathsz);
-      if (result == NULL) { return_after_err_WMARKER(FN SP "destsz too small"  , NULL, ERANGE); }
+      if (result == NULL) { return_plain_err_no_hand(FN SP "destsz too small"  , NULL, ERANGE); }
       return(result);
     }
     else
@@ -338,12 +331,8 @@ extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, r
     // path start with "/", so this is absolute path already
     if (destabspath != NULL)
     {
-      errno_t err = STRCPY_S(destabspath, destabspathsz, srcrelpath);
-      if (err != EOK)
-      {
-        pathfunc_handle_errcode(err); // Error handler already been called
-        return(NULL);
-      }
+      errno_t err = NW_SEXP_S(STRCPY_S(destabspath, destabspathsz, srcrelpath));
+      if (err != EOK)     { return_plain_err_no_hand(FN SP "dest copy fail" , NULL, err); }
       return(destabspath);
     }
     else
@@ -361,25 +350,21 @@ extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, r
   if (destabspath != NULL)
   {
     ITEM *result = GETCWD(destabspath, destabspathsz);
-    if (result == NULL)        { return_after_err_WMARKER(FN SP "destsz too small"  , NULL, ERANGE); }
+    if (result == NULL)        { return_plain_err_no_hand(FN SP "destsz too small"  , NULL, ERANGE); }
     if (result != destabspath) { return_after_err_WMARKER(FN SP "dest pos shifted"  , NULL, EINVAL); } // BUG trap
     rsize_t len = STRLEN(result);
     if (len <= 0)              { return_after_err_WMARKER(FN SP "curr path is invalid" , NULL, EINVAL); } // BUG trap
-    if (len >= destabspathsz)  { return_after_err_WMARKER(FN SP "destsz too small."    , NULL, ERANGE); } // BUG trap
+    if (len >= destabspathsz)  { return_plain_err_no_hand(FN SP "destsz too small."    , NULL, ERANGE); } // BUG trap
     ITEM    *tail   = result + len;
     rsize_t  tailsz = destabspathsz - len;
-    if (tailsz <= 0)           { return_after_err_WMARKER(FN SP "destsz too small"     , NULL, ERANGE); } // No room for at least 1 char
+    if (tailsz <= 0)           { return_plain_err_no_hand(FN SP "destsz too small"     , NULL, ERANGE); } // No room for at least 1 char
     // add path separator (we have room at tail, since tailsz > 0)
     *tail = NW_DIRECTORY_SEPARATOR_CHAR;
     tail++;
     tailsz--;
     // copy remainder
-    errno_t  err = STRCPY_S(tail, tailsz, srcrelpath);
-    if (err != EOK)
-    {
-      pathfunc_handle_errcode(err); // Error handler already been called
-      return(NULL);
-    }
+    errno_t  err = NW_SEXP_S(STRCPY_S(tail, tailsz, srcrelpath));
+    if (err != EOK)            { return_plain_err_no_hand(FN SP "dest copy fail" , NULL, err); }
     return(destabspath);
   }
   else
@@ -401,12 +386,11 @@ extern wchar_t *_wfullpath   (wchar_t *destabspath, const wchar_t *srcrelpath, r
     tail++;
     tailsz--;
     // copy remainder
-    errno_t  err = STRCPY_S(tail, tailsz, srcrelpath);
+    errno_t  err = NW_SEXP_S(STRCPY_S(tail, tailsz, srcrelpath));
     if (err != EOK)
     {
       free(result);
-      pathfunc_handle_errcode(err); // Error handler already been called
-      return(NULL);
+      return_plain_err_no_hand(FN SP "dest copy fail" , NULL, err);
     }
     return(result);
   }
