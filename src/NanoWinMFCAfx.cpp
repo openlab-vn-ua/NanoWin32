@@ -19,7 +19,7 @@ CObject::~CObject()
 BOOL CException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (strcpy_s(lpszError, nMaxError, "general error") == 0)
+  if (NW_SEXP_S(strcpy_s(lpszError, nMaxError, "general error")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -37,7 +37,7 @@ const
 BOOL CException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (wcscpy_s(lpszError, nMaxError, L"general error") == 0)
+  if (NW_SEXP_S(wcscpy_s(lpszError, nMaxError, L"general error")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -63,7 +63,7 @@ void CException::Delete()
 BOOL CMemoryException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (strcpy_s(lpszError, nMaxError, "not enough memory") == 0)
+  if (NW_SEXP_S(strcpy_s(lpszError, nMaxError, "not enough memory")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -81,7 +81,7 @@ const
 BOOL CMemoryException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (wcscpy_s(lpszError, nMaxError, L"not enough memory") == 0)
+  if (NW_SEXP_S(wcscpy_s(lpszError, nMaxError, L"not enough memory")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -99,7 +99,7 @@ const
 BOOL CNotSupportedException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (strcpy_s(lpszError, nMaxError, "not supported") == 0)
+  if (NW_SEXP_S(strcpy_s(lpszError, nMaxError, "not supported")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -117,7 +117,7 @@ const
 BOOL CNotSupportedException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (wcscpy_s(lpszError, nMaxError, L"not supported") == 0)
+  if (NW_SEXP_S(wcscpy_s(lpszError, nMaxError, L"not supported")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -135,7 +135,7 @@ const
 BOOL CInvalidArgException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (strcpy_s(lpszError, nMaxError, "invalid argument") == 0)
+  if (NW_SEXP_S(strcpy_s(lpszError, nMaxError, "invalid argument")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -153,7 +153,7 @@ const
 BOOL CInvalidArgException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (wcscpy_s(lpszError, nMaxError, L"invalid argument") == 0)
+  if (NW_SEXP_S(wcscpy_s(lpszError, nMaxError, L"invalid argument")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -172,7 +172,7 @@ const
 BOOL CFileException::GetErrorMessage(LPSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (strcpy_s(lpszError, nMaxError, "file error") == 0)
+  if (NW_SEXP_S(strcpy_s(lpszError, nMaxError, "file error")) == 0)
   {
     if (pnHelpContext != NULL)
     {
@@ -190,7 +190,7 @@ const
 BOOL CFileException::GetErrorMessage(LPWSTR lpszError, UINT nMaxError, PUINT pnHelpContext)
 const
 {
-  if (wcscpy_s(lpszError, nMaxError, L"file error") == 0)
+  if (NW_SEXP_S(wcscpy_s(lpszError, nMaxError, L"file error")) == 0)
   {
     if (pnHelpContext != NULL)
     {
