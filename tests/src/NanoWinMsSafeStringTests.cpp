@@ -2770,6 +2770,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrTokSTest)
 	delm = " \t";
 	state = str2; // No matter where
 
+	NW_RESET_ERR_HANDLER_COUNT();
 	token = strtok_s(str1, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(strcmp(token,"Quick"),0);
@@ -2781,6 +2782,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrTokSTest)
 	NW_CHECK_EQUAL(strcmp(token,"fox"),0);
 	token = strtok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token == NULL);
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 
 	//--------------------------------------------------//
 
@@ -2788,10 +2790,20 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrTokSTest)
 	delm = " ";
 	state = str2; // No matter where, just non-null
 
+	NW_RESET_ERR_HANDLER_COUNT();
+
 	token = strtok_s(NULL, NULL, &state);
 	NW_CHECK_TRUE(token == NULL);
 	token = strtok_s(str1, NULL, &state);
 	NW_CHECK_TRUE(token == NULL);
+
+	#if defined(SKIP_MS)
+	// The handler not fired under MS (against the standard)
+	#else
+	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
+
+	NW_RESET_ERR_HANDLER_COUNT();
 
 	state = NULL;
 	token = strtok_s(NULL, delm, &state); // cannot continue with undefined state
@@ -2802,16 +2814,26 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrTokSTest)
 	token = strtok_s(str1, NULL, &state);
 	NW_CHECK_TRUE(token == NULL);
 
+	#if defined(SKIP_MS)
+	// The handler not fired under MS (against the standard)
+	#else
+	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
+
+	NW_RESET_ERR_HANDLER_COUNT();
 	token = strtok_s(str1, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(strcmp(token,"Test"),0);
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 	token = strtok_s(NULL, NULL, &state);
 	NW_CHECK_TRUE(token == NULL); // invalid delim, state should be unaffected
+	NW_CHECK_ERR_HANDLER_FIRED();
 	token = strtok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(strcmp(token,"Pattern"),0);
 	token = strtok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token == NULL);
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 
 	//--------------------------------------------------//
 
@@ -2836,6 +2858,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsTokSTest)
 	delm = L" \t";
 	state = str2; // No matter where
 
+	NW_RESET_ERR_HANDLER_COUNT();
 	token = wcstok_s(str1, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(wcscmp(token,L"Quick"),0);
@@ -2847,6 +2870,7 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsTokSTest)
 	NW_CHECK_EQUAL(wcscmp(token,L"fox"),0);
 	token = wcstok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token == NULL);
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 
 	//--------------------------------------------------//
 
@@ -2854,13 +2878,23 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsTokSTest)
 	delm = L" ";
 	state = str2; // No matter where, just non-null
 
+	NW_RESET_ERR_HANDLER_COUNT();
+
 	token = wcstok_s(NULL, NULL, &state);
 	NW_CHECK_TRUE(token == NULL);
 	token = wcstok_s(str1, NULL, &state);
 	NW_CHECK_TRUE(token == NULL);
+
+	#if defined(SKIP_MS)
+	// The handler not fired under MS (against the standard)
+	#else
+	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
+
+	NW_RESET_ERR_HANDLER_COUNT();
 
 	state = NULL;
-	token = wcstok_s(NULL, delm, &state); // cannot continue with undefined state
+	token = wcstok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token == NULL);
 
 	token = wcstok_s(NULL, NULL, &state);
@@ -2868,16 +2902,26 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsTokSTest)
 	token = wcstok_s(str1, NULL, &state);
 	NW_CHECK_TRUE(token == NULL);
 
+	#if defined(SKIP_MS)
+	// The handler not fired under MS (against the standard)
+	#else
+	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
+
+	NW_RESET_ERR_HANDLER_COUNT();
 	token = wcstok_s(str1, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(wcscmp(token,L"Test"),0);
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 	token = wcstok_s(NULL, NULL, &state);
 	NW_CHECK_TRUE(token == NULL); // invalid delim, state should be unaffected
+	NW_CHECK_ERR_HANDLER_FIRED();
 	token = wcstok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(wcscmp(token,L"Pattern"),0);
 	token = wcstok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token == NULL);
+	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 
 	//--------------------------------------------------//
 
