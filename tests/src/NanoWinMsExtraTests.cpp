@@ -1257,7 +1257,11 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_splitpath_s_Test)
 	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), outext,1); // no space for ext
     NW_CHECK_RC_ERR(rc);
     NW_CHECK_ERRNO_ERR();
-	NW_CHECK_ERR_HANDLER_NOT_FIRED(); // Under MS works this way // strange and non-consitent ???
+    #ifdef SKIP_MS
+    NW_CHECK_ERR_HANDLER_NOT_FIRED(); // Under MS works this way // strange and non-consitent ???
+    #else
+    NW_CHECK_ERR_HANDLER_FIRED(); // Much more consistent
+    #endif
     NW_CHECK_STR_EMPTY(outdrive);
     NW_CHECK_STR_EMPTY(outdir);
     NW_CHECK_STR_EMPTY(outfname);
@@ -1500,7 +1504,11 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_wsplitpath_s_Test)
 	rc = _SPLITPATH_S(TS("C:/path1/path2/name.aux2.ext"), PAIR(outdrive), PAIR(outdir), PAIR(outfname), outext,1); // no space for ext
     NW_CHECK_RC_ERR(rc);
     NW_CHECK_ERRNO_ERR();
-	NW_CHECK_ERR_HANDLER_NOT_FIRED(); // Under MS works this way // strange and non-consitent ???
+    #ifdef SKIP_MS
+    NW_CHECK_ERR_HANDLER_NOT_FIRED(); // Under MS works this way // strange and non-consitent ???
+    #else
+    NW_CHECK_ERR_HANDLER_FIRED(); // Much more consistent
+    #endif
     NW_CHECK_STR_EMPTY(outdrive);
     NW_CHECK_STR_EMPTY(outdir);
     NW_CHECK_STR_EMPTY(outfname);
