@@ -774,6 +774,12 @@ class CSimpleStringT
     }
   }
 
+  // Destructor
+  ~CSimpleStringT ()
+  {
+    container_type::Free(buffer);
+  }
+
   // Operators
 
   void operator= (const XCHAR *value)
