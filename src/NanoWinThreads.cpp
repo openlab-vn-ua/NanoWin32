@@ -17,6 +17,9 @@ namespace
   {
     pthread_t threadHandle;
     HANDLE eventHandle;
+
+    pthread_mutex_t refCountLock;
+    unsigned int    refCount;
   };
 
   struct NW32ThreadStartInfo
@@ -27,25 +30,45 @@ namespace
   };
 }
 
-static void NW32ThreadsCleanUpFuncSignalEvent(void *arg)
+static void NW32ThreadsCleanUpFunc (void *arg)
 {
-  HANDLE eventHandle = (HANDLE)arg;
+  NanoWinThread *threadInfo = (NanoWinThread*)arg;
 
-  SetEvent(eventHandle);
+  SetEvent(threadInfo->eventHandle);
+
+  CloseEventHandle(threadInfo->eventHandle);
+
+  bool released = false;
+
+  if (pthread_mutex_lock(&threadInfo->refCountLock) == 0)
+  {
+    threadInfo->refCount--;
+
+    released = threadInfo->refCount == 0;
+
+    pthread_mutex_unlock(&threadInfo->refCountLock);
+  }
+
+  if (released)
+  {
+    pthread_mutex_destroy(&threadInfo->refCountLock);
+
+    free(threadInfo);
+  }
 }
 
 static void *NW32ThreadsThreadFunc(void *params)
 {
-  NW32ThreadStartInfo    *startInfo   = (NW32ThreadStartInfo*)params;
-  LPTHREAD_START_ROUTINE  startFunc   = startInfo->startFunc;
-  LPVOID                  parameter   = startInfo->parameter;
-  HANDLE                  eventHandle = startInfo->threadInfo->eventHandle;
+  NW32ThreadStartInfo    *startInfo  = (NW32ThreadStartInfo*)params;
+  LPTHREAD_START_ROUTINE  startFunc  = startInfo->startFunc;
+  LPVOID                  parameter  = startInfo->parameter;
+  NanoWinThread          *threadInfo = startInfo->threadInfo;
 
   free(params);
 
   DWORD result = 0;
 
-  pthread_cleanup_push(NW32ThreadsCleanUpFuncSignalEvent,eventHandle);
+  pthread_cleanup_push(NW32ThreadsCleanUpFunc,threadInfo);
 
   result = startFunc(parameter);
 
@@ -99,16 +122,24 @@ HANDLE CreateThread(LPSECURITY_ATTRIBUTES  lpThreadAttributes,
     threadStartInfo->threadInfo = threadInfo;
 
     threadInfo->eventHandle = CreateEventA(NULL,TRUE,FALSE,NULL);
+    threadInfo->refCount    = 2; // one for cancellation routing and one for CloseThreadHandle
 
     if (threadInfo->eventHandle != NULL)
     {
-      if (pthread_create(&threadInfo->threadHandle, NULL, NW32ThreadsThreadFunc, threadStartInfo) == 0)
+      if (pthread_mutex_init(&threadInfo->refCountLock, NULL) == 0)
       {
-        result = (HANDLE)threadInfo;
-
-        if (lpThreadId != NULL)
+        if (pthread_create(&threadInfo->threadHandle, NULL, NW32ThreadsThreadFunc, threadStartInfo) == 0)
         {
-          GenerateThreadIdByThreadHandle(lpThreadId, threadInfo->threadHandle);
+          result = (HANDLE)threadInfo;
+
+          if (lpThreadId != NULL)
+          {
+            GenerateThreadIdByThreadHandle(lpThreadId, threadInfo->threadHandle);
+          }
+        }
+        else
+        {
+          pthread_mutex_destroy(&threadInfo->refCountLock);
         }
       }
     }
@@ -235,9 +266,27 @@ BOOL CloseThreadHandle(HANDLE hThread)
   //FIXME: simplified implementation - just trying to detach the thread
   //       without tracking if it was already joined in WaitForSingleThread call
 
-  pthread_detach(((NanoWinThread*)hThread)->threadHandle);
+  NanoWinThread *threadInfo = (NanoWinThread*)hThread;
 
-  CloseEventHandle(((NanoWinThread*)hThread)->eventHandle);
+  pthread_detach(threadInfo->threadHandle);
+
+  bool released = false;
+
+  if (pthread_mutex_lock(&threadInfo->refCountLock) == 0)
+  {
+    threadInfo->refCount--;
+
+    released = threadInfo->refCount == 0;
+
+    pthread_mutex_unlock(&threadInfo->refCountLock);
+  }
+
+  if (released)
+  {
+    pthread_mutex_destroy(&threadInfo->refCountLock);
+
+    free(threadInfo);
+  }
 
   return TRUE;
 }

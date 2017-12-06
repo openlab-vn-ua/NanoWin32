@@ -39,7 +39,19 @@ namespace {
 
     unsigned int                         ref_count;
 
-    typedef std::vector<NW32EventWaiter*> WaiterList;
+    struct WaiterInfo
+    {
+      NW32EventWaiter *waiter;
+      bool             notified;
+
+      WaiterInfo(NW32EventWaiter *waiter)
+      {
+        this->waiter   = waiter;
+        this->notified = false;
+      }
+    };
+
+    typedef std::vector<WaiterInfo>      WaiterList;
 
     mutable pthread_mutex_t              state_lock;
     bool                                 state;
@@ -160,13 +172,17 @@ namespace {
       {
         try
         {
-          (*it)->Signal(this);
-
-          if (auto_reset)
+          if (!it->notified)
           {
-            state = false;
+            it->notified = true;
+            it->waiter->Signal(this);
 
-            break;
+            if (auto_reset)
+            {
+              state = false;
+
+              break;
+            }
           }
         }
         catch (...)
@@ -178,7 +194,12 @@ namespace {
 
       if (!auto_reset)
       {
-        waiters.clear();
+        for (WaiterList::iterator it = waiters.begin();
+             it != waiters.end();
+             ++it)
+        {
+          it->notified = true;
+        }
       }
     }
 
@@ -210,15 +231,15 @@ namespace {
       throw NW32EventError();
     }
 
-    IncRef();
-
     bool signaled = state;
 
     if (!signaled)
     {
       try
       {
-        waiters.push_back(waiter);
+        waiters.push_back(WaiterInfo(waiter));
+
+        IncRef();
       }
       catch (...)
       {
@@ -228,15 +249,7 @@ namespace {
       }
     }
 
-    // neither DecRef nor DecRefSafe can be used (it may cause dead-lock)
-    unsigned int updated_ref_count = --ref_count;
-
     pthread_mutex_unlock(&state_lock);
-
-    if (updated_ref_count == 0)
-    {
-      delete this;
-    }
 
     return signaled;
   }
@@ -248,15 +261,13 @@ namespace {
       throw NW32EventError();
     }
 
-    IncRef();
+    bool removed = false;
 
     try
     {
-      bool removed = false;
-
       for (WaiterList::size_type i = 0; i < waiters.size() && !removed; i++)
       {
-        if (waiters[i] == waiter)
+        if (waiters[i].waiter == waiter)
         {
           removed = true;
 
@@ -273,7 +284,10 @@ namespace {
 
     pthread_mutex_unlock(&state_lock);
 
-    DecRefSafe();
+    if (removed)
+    {
+      DecRefSafe();
+    }
   }
 
   NW32EventWaiter::NW32EventWaiter()
