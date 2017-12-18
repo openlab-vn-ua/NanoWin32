@@ -17,8 +17,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-#include <wchar.h>
 #include <string>
+#include <wchar.h>
+#include <stdlib.h>
 
 NW_EXTERN_C_BEGIN
 

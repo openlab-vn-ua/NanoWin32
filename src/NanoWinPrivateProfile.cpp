@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <wchar.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #if defined(LINUX)
 #include <sys/types.h>

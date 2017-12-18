@@ -17,6 +17,7 @@
 #include <string>
 #include <string.h> // strlen
 #include <stdarg.h> // va_arg
+#include <stdlib.h>
 
 #include "NanoWinMsSafeString.h"
 #include "NanoWinMsSafePrintf.h" // printf_s

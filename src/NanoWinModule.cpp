@@ -14,6 +14,7 @@
 #include <dlfcn.h>
 #include <string.h>
 #include <errno.h>
+#include <stdlib.h>
 
 NW_EXTERN_C_BEGIN
 
