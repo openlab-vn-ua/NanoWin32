@@ -68,7 +68,7 @@ class NanoWinStringUtils
   	if (result == 0) { return(0); } // Nothing to output and out already clear
     out.Preallocate(result+1); // this->Preallocate(result+1)
     XCHAR *dst = out.LockBuffer(); // this->LockBuffer()
-    error_t cresult;
+    int cresult;
     cresult = vsprintf_s_overload(dst, result + 1, lpszFormat, argsCopy);
     va_end(argsCopy);
     out.UnlockBuffer();

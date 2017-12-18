@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <wchar.h>
 #include <string>
 
 NW_EXTERN_C_BEGIN
@@ -193,7 +194,7 @@ extern DWORD WINAPI GetCurrentDirectoryW (_In_ DWORD nBufferLength, _Out_ LPWSTR
       {
         if (nBufferLength > wideCurrDirLen)
         {
-          wcpcpy(lpBuffer, wideCurrDir.c_str());
+          wcscpy(lpBuffer, wideCurrDir.c_str());
 
           result = static_cast<DWORD>(wideCurrDirLen);
         }

@@ -188,6 +188,7 @@ DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds)
 
   if (dwMilliseconds != INFINITE)
   {
+    #ifndef __ANDROID_API__
     struct timespec timeout;
 
     if (clock_gettime(CLOCK_REALTIME, &timeout) != 0)
@@ -198,6 +199,9 @@ DWORD WaitForSingleThread(HANDLE hThread, DWORD dwMilliseconds)
     TimeSpecAddTimeInMillis(&timeout, dwMilliseconds);
 
     join_status = pthread_timedjoin_np(((NanoWinThread*)hThread)->threadHandle, &threadResult, &timeout);
+    #else
+    return WaitForSingleEvent(((NanoWinThread*)hThread)->eventHandle,dwMilliseconds);
+    #endif
   }
   else
   {
@@ -253,7 +257,13 @@ BOOL TerminateThread(HANDLE hThread, DWORD dwExitCode)
 {
   //FIXME: dwExitCode is not used (no GetExitCodeThread call is implemented)
 
+  #ifndef __ANDROID_API__
   return pthread_cancel(((NanoWinThread*)hThread)->threadHandle) == 0 ? TRUE : FALSE;
+  #else
+  //FIXME: temp fix for android
+  CloseThreadHandle(hThread);
+  return TRUE;
+  #endif
 }
 
 VOID ExitThread(_In_ DWORD dwExitCode)

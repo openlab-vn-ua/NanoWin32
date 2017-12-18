@@ -93,7 +93,10 @@ static void *WaitableTimerThreadRoutine (void *paramPtr) throw ()
 
   //ENABLING THE CANCEL FUNCTIONALITY
   int prevType;
+
+  #ifndef __ANDROID_API__
   pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &prevType);
+  #endif
 
   while (!waitableTimer->exitFlag)
   {

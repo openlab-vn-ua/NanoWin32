@@ -12,6 +12,7 @@
 
 #if defined LINUX
 
+#include <stdlib.h>
 #include <libgen.h>
 
 #include "NanoWinFileFind.h"

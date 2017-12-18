@@ -17,6 +17,10 @@
 #define invoke_err_handler(etext,earg,errcode) { NanoWin_invoke_constraint_handler_s(etext,(void*)earg,errcode); }
 #define return_after_err_handler(etext,earg,errcode) { invoke_err_handler(etext,earg,errcode); return(errcode); }
 
+#if defined(__ANDROID_API__)
+#define ftello64 ftello
+#endif
+
 namespace
 {
   class InputFailure {};

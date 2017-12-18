@@ -18,7 +18,7 @@
 #include "NanoWinFileSys.h"
 #include "NanoWinStrConvert.h"
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__ANDROID_API__)
  #define open_nw    open64
  #define fseeko_nw  fseeko64
  #define ftello_nw  ftello64
