@@ -2827,7 +2827,13 @@ NW_TEST(NanoWinMsSafeStringTestGroup, StrTokSTest)
 	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 	token = strtok_s(NULL, NULL, &state);
 	NW_CHECK_TRUE(token == NULL); // invalid delim, state should be unaffected
+
+	#if defined(SKIP_MS)
+	// The handler not fired under MS (against the standard)
+	#else
 	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
+
 	token = strtok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(strcmp(token,"Pattern"),0);
@@ -2915,7 +2921,13 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsTokSTest)
 	NW_CHECK_ERR_HANDLER_NOT_FIRED();
 	token = wcstok_s(NULL, NULL, &state);
 	NW_CHECK_TRUE(token == NULL); // invalid delim, state should be unaffected
+
+	#if defined(SKIP_MS)
+	// The handler not fired under MS (against the standard)
+	#else
 	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
+
 	token = wcstok_s(NULL, delm, &state);
 	NW_CHECK_TRUE(token != NULL);
 	NW_CHECK_EQUAL(wcscmp(token,L"Pattern"),0);
