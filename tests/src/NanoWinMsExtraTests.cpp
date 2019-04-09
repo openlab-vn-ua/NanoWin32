@@ -195,7 +195,11 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_fullpath_Test)
 	result = _FULLPATH(out, rexp1, 0);
     NW_CHECK_TRUE(result == NULL);
     NW_CHECK_ERRNO_ERR();
+	#if defined(SKIP_MS)
+	NW_RESET_ERR_HANDLER_COUNT(); // The handler may/may not be fired under MS (against the standard) // not fired VS2019
+	#else
 	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
 
 	NW_RESET_VAR_FILL_5A(out);
 	result = _FULLPATH(out, rexp1, 1);
@@ -416,7 +420,11 @@ NW_TEST(NanoWinMSExtraTestGroup, Path_wfullpath_Test)
 	result = _FULLPATH(out, rexp1, 0);
     NW_CHECK_TRUE(result == NULL);
     NW_CHECK_ERRNO_ERR();
+	#if defined(SKIP_MS)
+	NW_RESET_ERR_HANDLER_COUNT(); // The handler may/may not be fired under MS (against the standard) // not fired VS2019
+	#else
 	NW_CHECK_ERR_HANDLER_FIRED();
+	#endif
 
 	NW_RESET_VAR_FILL_5A(out);
 	result = _FULLPATH(out, rexp1, 1);
