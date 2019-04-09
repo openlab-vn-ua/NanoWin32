@@ -691,7 +691,8 @@ class CSimpleStringT
   void Truncate(int nNewLength)
   {
     REQUIRE(nNewLength >= 0);
-    if (GetLength() > nNewLength)
+    // convert to unsigned to prevent optimization warning
+    if (static_cast<unsigned int>(GetLength()) > static_cast<unsigned int>(nNewLength))
     {
       buffer[nNewLength] = '\0';
     }
@@ -1171,7 +1172,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
     else
     {
       int    thisLen      = this->GetLength();
-      int    srcLen       = NanoWinStringUtils::base_tcslen(src);
+      int    srcLen       = static_cast<int>(NanoWinStringUtils::base_tcslen(src));
       size_t requiredSize = thisLen + srcLen + 1;
 
       parent::container_type::ExtendIfNeeded(&this->buffer,requiredSize);
@@ -1283,7 +1284,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
           memcpy(&this->buffer[currPos],lpszNew,newLen * sizeof(XCHAR));
 
           thisLen += deltaLen;
-          currPos += newLen;
+          currPos += static_cast<int>(newLen);
 
           replaceCount++;
         }
@@ -1300,7 +1301,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
           memcpy(&this->buffer[currPos],lpszNew,newLen * sizeof(XCHAR));
 
           thisLen -= deltaLen;
-          currPos += newLen;
+          currPos += static_cast<int>(newLen);
 
           replaceCount++;
         }
@@ -1310,7 +1311,7 @@ class CStringT : public CSimpleStringT<TXCHAR, TYCHAR>
     {
       for (int currPos = this->Find(lpszOld); currPos >= 0; currPos = this->Find(lpszOld,currPos))
       {
-        this->Delete(currPos,oldLen);
+        this->Delete(currPos, static_cast<int>(oldLen));
 
         replaceCount++;
       }

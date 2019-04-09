@@ -177,7 +177,7 @@ class CListCtrl
 
   int     GetColumnCount() const // Get the column count.
   {
-    return(columnHeaders.size());
+    return(static_cast<int>(columnHeaders.size()));
   }
 
   int     InsertItem  (int nItem, LPCSTR lpszItem);

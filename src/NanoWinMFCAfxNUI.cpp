@@ -218,7 +218,7 @@ int CListCtrl::InsertColumn (int nCol, LPCSTR lpszColumnHeading, int /*nFormat*/
       it->push_back(CStringA());
     }
 
-    return columnHeaders.size() - 1;
+    return static_cast<int>(columnHeaders.size() - 1);
   }
 
   return nCol;
@@ -248,7 +248,7 @@ int CListCtrl::InsertColumn (int nCol, LPCWSTR lpszColumnHeading, int /*nFormat*
       it->push_back(CStringA());
     }
 
-    return columnHeaders.size() - 1;
+    return static_cast<int>(columnHeaders.size() - 1);
   }
 
   return nCol;
@@ -281,7 +281,7 @@ int CListCtrl::InsertItem (int nItem, LPCSTR lpszItem)
   }
   else
   {
-    nItem = items.size();
+    nItem = static_cast<int>(items.size());
 
     items.push_back(CStringVector());
   }
@@ -306,7 +306,7 @@ int CListCtrl::InsertItem (int nItem, LPCWSTR lpszItem)
   }
   else
   {
-    nItem = items.size();
+    nItem = static_cast<int>(items.size());
 
     items.push_back(CStringVector());
   }

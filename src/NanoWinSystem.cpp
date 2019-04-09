@@ -85,7 +85,7 @@ namespace
     }
     else
     {
-      return charCount + 1; // must return number of character including '\0'
+      return static_cast<int>(charCount + 1); // must return number of characters including '\0'
     }
   }
 

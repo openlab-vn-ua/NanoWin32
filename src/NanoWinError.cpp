@@ -269,7 +269,7 @@ extern DWORD WINAPI FormatMessageA(_In_     DWORD   dwFlags,
       }
     }
 
-    return messageLen;
+    return static_cast<DWORD>(messageLen);
   }
   else
   {
@@ -387,7 +387,7 @@ extern DWORD WINAPI FormatMessageW(_In_     DWORD   dwFlags,
       }
     }
 
-    return messageLen;
+    return static_cast<DWORD>(messageLen);
   }
   else
   {

@@ -65,7 +65,7 @@ extern DWORD WINAPI   GetModuleFileNameA(_In_opt_ HMODULE hModule, _Out_ LPSTR l
     {
       lpFilename[fileNameLen] = '\0';
 
-      return fileNameLen;
+      return static_cast<DWORD>(fileNameLen);
     }
     else
     {
@@ -179,7 +179,7 @@ extern DWORD WINAPI   GetModuleFileNameW(_In_opt_ HMODULE hModule, _Out_ LPWSTR 
     free(mbBufferDynamic);
   }
 
-  return fileNameLen;
+  return static_cast<DWORD>(fileNameLen);
 }
 
 // Dlls
