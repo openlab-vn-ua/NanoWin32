@@ -407,8 +407,11 @@ typedef DWORD LCID;
 
 #define INFINITE                  (0xFFFFFFFF)
 
+#endif // linux
+
 // Other misc stuff
 // -----------------------------------------------------------------------
+// Usefull macroses for all platforms
 
 #ifndef NW_EXTERN_C
 #if defined(__cplusplus)
@@ -432,9 +435,6 @@ typedef DWORD LCID;
 #endif
 #endif
 
-#endif // linux
-
-// Usefull macroses for all platforms
 #define NW_NOCOPY_CONSTRUCTOR(ClassName) private: ClassName(const ClassName &src) { }
 #define NW_NOASSIGN_OPERATOR(ClassName)  private: void operator= (const ClassName &src) { }
 
