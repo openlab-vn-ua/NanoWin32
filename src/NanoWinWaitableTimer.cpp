@@ -136,7 +136,7 @@ extern BOOL WINAPI   SetWaitableTimer         (HANDLE                hTimer,
   {
     NanoWinSetLastError(ERROR_NOT_SUPPORTED);
 
-    return NULL;
+    return FALSE;
   }
 
   NanoWinWaitableTimer *waitableTimer = (NanoWinWaitableTimer*)hTimer;
@@ -185,7 +185,7 @@ extern BOOL WINAPI   CloseWaitableTimerHandle (HANDLE                hObject)
     waitableTimer->exitFlag = true;
     #ifdef WAITABLE_TIMER_CANCELABLE  // if defined appearing "no rethrow" exception (compiler dependent)
     pthread_cancel(waitableTimer->wtThread);
-	pthread_join(waitableTimer->wtThread, NULL); // Future idea?
+    pthread_join(waitableTimer->wtThread, NULL); // Future idea?
     #else // stable version
     SetEvent(waitableTimer->interEventHandle);
     pthread_join(waitableTimer->wtThread, NULL);
