@@ -42,7 +42,7 @@ namespace NanoWin
 
     result.reserve(requiredLen);
 
-    #ifdef __linux
+    #if defined(LINUX) || defined(__linux)
     char charBuffer[MB_CUR_MAX];
     #else
     char charBuffer[6];
@@ -410,7 +410,7 @@ extern int WideCharToMultiByte(_In_      UINT    CodePage,
   size_t         tailLen = cchWideChar == -1 ? wcslen(lpWideCharStr) + 1 : cchWideChar;
   int            byteCounter = 0;
 
-  #ifdef __linux
+  #if defined(LINUX) || defined(__linux)
   char charBuffer[MB_CUR_MAX];
   #else
   char charBuffer[6];
@@ -443,7 +443,7 @@ extern int WideCharToMultiByte(_In_      UINT    CodePage,
       }
       else
       {
-        byteCounter += byteCount;
+        byteCounter += static_cast<int>(byteCount);
       }
 
       tailLen--;
