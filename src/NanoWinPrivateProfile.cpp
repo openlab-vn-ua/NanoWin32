@@ -380,7 +380,6 @@ extern DWORD NanoWinGetPrivateProfileStringW
       if (result == (size_t)-1)
       {
         result = 0;
-
         NanoWinSetLastError(NanoWinErrorByErrnoAtFail(EILSEQ));
       }
     }
@@ -388,7 +387,7 @@ extern DWORD NanoWinGetPrivateProfileStringW
   catch (...)
   {
     // exceptions during string conversions are treated as errors (zero is returned)
-
+    result = 0;
     NanoWinSetLastError(NanoWinErrorByErrnoAtFail(EILSEQ));
   }
 
@@ -400,7 +399,7 @@ extern DWORD NanoWinGetPrivateProfileStringW
     }
   }
 
-  return result;
+  return static_cast<DWORD>(result);
 }
 
 extern DWORD NanoWinGetPrivateProfileSectionA
@@ -814,7 +813,6 @@ extern BOOL NanoWinWritePrivateProfileStringW
   catch (...)
   {
     ok = FALSE;
-
     NanoWinSetLastError(NanoWinErrorByErrnoAtFail(EILSEQ));
   }
 
