@@ -1,7 +1,7 @@
 #ifndef __NWUNITTEST_H__
 #define __NWUNITTEST_H__
 
-#ifdef __linux
+#if defined(LINUX) || defined(__linux)
  #define NW_UNIT_TEST_USE_CPPUTEST (1)
 
  #include <CppUTest/TestHarness.h>
