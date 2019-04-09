@@ -145,6 +145,7 @@
     <ClCompile Include="src\NanoWinSystemTests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\NanoWin.h" />
     <ClInclude Include="..\src\NanoWinBmp.h" />
     <ClInclude Include="..\src\NanoWinCriticalSection.h" />
     <ClInclude Include="..\src\NanoWinEnv.h" />
