@@ -248,6 +248,13 @@ namespace {
         throw;
       }
     }
+    else
+    {
+      if (auto_reset)
+      {
+        state = false;
+      }
+    }
 
     pthread_mutex_unlock(&state_lock);
 
