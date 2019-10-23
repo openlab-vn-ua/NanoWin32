@@ -19,15 +19,19 @@
 #ifndef NW_NO_MS_DECLSPEC
 
 #ifndef __declspec
-#define __declspec(spec)     // None
+#define __declspec(spec)     // Declaration of dynamic linkange for the function [Empty for Linux]
 #endif
 
 #ifndef dllexport
-#define dllexport            // None
+#define dllexport            // Export this function to dynamic linking [Empty for Linux]
 #endif
 
 #ifndef dllimport
-#define dllimport            // None
+#define dllimport            // Export this function with dynamic linking [Empty for Linux]
+#endif
+
+#if !defined(_declspec)
+#define _declspec(spec) __declspec(spec) // Single undescore alias for __declspec (non-stanard, but supported by MSVC)
 #endif
 
 #endif
