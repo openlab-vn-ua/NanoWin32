@@ -114,8 +114,11 @@ extern BOOL  SetFileAttributesW (_In_ LPCWSTR lpFileName, _In_ DWORD dwFileAttri
 
 NW_EXTERN_C_END
 
+#endif // linux
+
 // Nano Win extra
 // ------------------------------------------
+// Available on both Windows and Linux
 
 #if 0 // Reserved
 #if defined(LINUX)
@@ -130,19 +133,23 @@ NW_EXTERN_C_END
 #endif
 
 #if defined(LINUX)
-#define NW_DIRECTORY_SEPARATOR_CHAR      '/'
-#define NW_DIRECTORY_SEPARATOR_WCHAR     L'/'
-#define NW_DIRECTORY_SEPARATOR_STR       "/"
-#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '\\'  // Not directly allowed by API, but can be supported via hook
-#define NW_DIRECTORY_SEPARATOR_ALT_WCHAR L'\\' // Not directly allowed by API, but can be supported via hook
-#define NW_DIRECTORY_SEPARATOR_ALT_STR   "\\"  // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_CHAR      '/'   // MAIN Path separator as char: '/'
+#define NW_DIRECTORY_SEPARATOR_WCHAR     L'/'  // MAIN Path separator as wchar_t: L'/'
+#define NW_DIRECTORY_SEPARATOR_STR       "/"   // MAIN Path separator as str: "/"
+#define NW_DIRECTORY_SEPARATOR_WSTR      L"/"  // MAIN Path separator as wstr: L"/"
+#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '\\'  // ALT  Path separator as char: '\\'     // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_ALT_WCHAR L'\\' // ALT  Path separator as wchar_t: L'\\' // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_ALT_STR   "\\"  // ALT  Path separator as str: "\\"      // Not directly allowed by API, but can be supported via hook
+#define NW_DIRECTORY_SEPARATOR_ALT_WSTR  L"\\" // ALT  Path separator as wstr: L"\\"    // Not directly allowed by API, but can be supported via hook
 #else // Win native
-#define NW_DIRECTORY_SEPARATOR_CHAR      '\\'
-#define NW_DIRECTORY_SEPARATOR_WCHAR     L'\\'
-#define NW_DIRECTORY_SEPARATOR_STR       "\\"
-#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '/'  // Allowed in API
-#define NW_DIRECTORY_SEPARATOR_ALT_WCHAR L'/' // Allowed in API
-#define NW_DIRECTORY_SEPARATOR_ALT_STR   "/"  // Allowed in API
+#define NW_DIRECTORY_SEPARATOR_CHAR      '\\'  // MAIN Path separator as char: '\\'
+#define NW_DIRECTORY_SEPARATOR_WCHAR     L'\\' // MAIN Path separator as wchar_t: L'\\'
+#define NW_DIRECTORY_SEPARATOR_STR       "\\"  // MAIN Path separator as str: "\\"
+#define NW_DIRECTORY_SEPARATOR_WSTR      L"\\" // MAIN Path separator as wstr: L"\\"
+#define NW_DIRECTORY_SEPARATOR_ALT_CHAR  '/'   // ALT  Path separator as char: '/'      // Allowed in Win32 API
+#define NW_DIRECTORY_SEPARATOR_ALT_WCHAR L'/'  // ALT  Path separator as wchar_t: L'/'  // Allowed in Win32 API
+#define NW_DIRECTORY_SEPARATOR_ALT_STR   "/"   // ALT  Path separator as str: "/"       // Allowed in Win32 API
+#define NW_DIRECTORY_SEPARATOR_ALT_WSTR  L"/"  // ALT  Path separator as wstr: L"/"     // Allowed in Win32 API
 #endif
 
 #define NW_DIRECTORY_NAME_PARENT         ".."
@@ -151,5 +158,4 @@ NW_EXTERN_C_END
 #define NW_FILE_EXT_SEPARATOR_CHAR       '.'  // separator between fname (AKA stem) and ext (AKA extension)
 #define NW_FILE_EXT_SEPARATOR_WCHAR      L'.' // separator between fname (AKA stem) and ext (AKA extension)
 
-#endif // linux
 #endif // ...Included
