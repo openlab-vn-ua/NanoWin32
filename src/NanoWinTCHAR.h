@@ -32,7 +32,7 @@ What about _T? Okay, I don't know about that one. Maybe it was just to save some
 typedef wchar_t              TCHAR;
 typedef LPCWSTR              LPCTSTR;
 typedef LPWSTR               LPTSTR;
-#define __T(text)            L##text
+#define __T(text)            L ## text
 #else
 typedef char                 TCHAR;
 typedef LPCSTR               LPCTSTR;
