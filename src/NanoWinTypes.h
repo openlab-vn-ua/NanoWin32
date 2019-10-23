@@ -368,14 +368,6 @@ NW_MAKE_PTYPE_NULLONLY(LPCSTR);
 NW_MAKE_PTYPE_NULLONLY(PCWSTR);
 NW_MAKE_PTYPE_NULLONLY(LPCWSTR);
 
-// Other usefull stuff
-// -----------------------------------------------------------------------
-
-#define NW_WIDE_STR(s)                 L##s
-#define NW_FORCE_COMPILE_ERROR         ....|....<....>....|.... // This will force compile error
-// More macroses like BUILD_BUG() used on linux
-#define NW_BUILD_BUG()                 NW_FORCE_COMPILE_ERROR
-
 // Some aux macroses (maybe later we have to add refix to them?)
 // -----------------------------------------------------------------------
 
@@ -386,11 +378,11 @@ typedef SECURITY_ATTRIBUTES      *PSECURITY_ATTRIBUTES;
 
 // Locale-related definitions
 typedef DWORD LCID;
-#define LOCALE_USER_DEFAULT   (0x0400)
-#define LOCALE_SYSTEM_DEFAULT (0x0800)
+#define LOCALE_USER_DEFAULT       (0x0400)
+#define LOCALE_SYSTEM_DEFAULT     (0x0800)
 
-#define LANG_NEUTRAL          (0x00)
-#define SUBLANG_DEFAULT       (0x01)
+#define LANG_NEUTRAL              (0x00)
+#define SUBLANG_DEFAULT           (0x01)
 
 #define MAKELANGID(lang,sublang)  (((WORD)(sublang) << 10) | ((WORD)(lang)))
 
@@ -435,9 +427,22 @@ typedef DWORD LCID;
 #endif
 #endif
 
+// Class definitions helpers
+
 #define NW_NOCOPY_CONSTRUCTOR(ClassName) private: ClassName(const ClassName &src) { }
 #define NW_NOASSIGN_OPERATOR(ClassName)  private: void operator= (const ClassName &src) { }
 
 #define NW_UNREFERENCED_PARAMETER(p)     if ((&(p)) != NULL) { }
+
+// Wide string
+
+#define NW_WIDE_STR_(s)                L ## s // Inner macro used for double expansion, so NW_WIDE_STR(identifier) will work
+#define NW_WIDE_STR(s)                 NW_WIDE_STR_(s) // macro to define wide string
+
+// Compiler error force
+
+#define NW_FORCE_COMPILE_ERROR         ....|....<....>....|.... // This will force compile error
+// More macroses like BUILD_BUG() used on linux
+#define NW_BUILD_BUG()                 NW_FORCE_COMPILE_ERROR
 
 #endif // ...Included

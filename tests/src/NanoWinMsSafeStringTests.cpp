@@ -2940,4 +2940,23 @@ NW_TEST(NanoWinMsSafeStringTestGroup, WcsTokSTest)
 	#undef LEN
 }
 
+#include <NanoWinTypes.h>
+
+NW_TEST(NanoWinMsSafeStringTestGroup, NW_WIDE_STR_Check)
+{
+	NW_CHECK_EQUAL(wcscmp(L"TEST_STR", NW_WIDE_STR("TEST_STR")), 0);
+
+	#define TEST_STR "TEST_STR"
+	NW_CHECK_EQUAL(wcscmp(L"TEST_STR", NW_WIDE_STR(TEST_STR)), 0);
+
+	#define TEST_STR_D(x) x
+	NW_CHECK_EQUAL(wcscmp(L"TEST_STR", NW_WIDE_STR(TEST_STR_D("TEST_STR"))), 0);
+	NW_CHECK_EQUAL(wcscmp(L"TEST_STR", NW_WIDE_STR(TEST_STR_D(TEST_STR))), 0);
+	NW_CHECK_EQUAL(wcscmp(L"TEST_STR", NW_WIDE_STR(TEST_STR_D(TEST_STR_D("TEST_STR")))), 0);
+	NW_CHECK_EQUAL(wcscmp(L"TEST_STR", NW_WIDE_STR(TEST_STR_D(TEST_STR_D(TEST_STR)))), 0);
+
+	#undef TEST_STR
+	#undef TEST_STR_D
+}
+
 NW_END_TEST_GROUP()
