@@ -15,6 +15,8 @@ typedef struct
   bool       exitFlag;
 } NanoWinWaitableTimer;
 
+#define PTHREAD_T_NULL ((pthread_t)(NULL))    // NULL value for pthread_t
+
 extern HANDLE WINAPI CreateWaitableTimerA     (LPSECURITY_ATTRIBUTES lpTimerAttributes,
                                                BOOL                  bManualReset,
                                                LPCSTR                lpTimerName)
@@ -39,7 +41,7 @@ extern HANDLE WINAPI CreateWaitableTimerA     (LPSECURITY_ATTRIBUTES lpTimerAttr
 
   if (waitableTimer != NULL)
   {
-    waitableTimer->wtThread    = NULL;
+    waitableTimer->wtThread    = PTHREAD_T_NULL;
     waitableTimer->milsTimeout = 200;
     waitableTimer->exitFlag    = false;
 
@@ -152,7 +154,7 @@ extern BOOL WINAPI   SetWaitableTimer         (HANDLE                hTimer,
 
   waitableTimer->milsTimeout = lPeriod;
 
-  if (waitableTimer->wtThread != NULL)
+  if (waitableTimer->wtThread != PTHREAD_T_NULL)
   {
     SetEvent(waitableTimer->interEventHandle);
   }
@@ -180,7 +182,7 @@ extern BOOL WINAPI   CloseWaitableTimerHandle (HANDLE                hObject)
 
   NanoWinWaitableTimer *waitableTimer = (NanoWinWaitableTimer*)hObject;
 
-  if (waitableTimer->wtThread != NULL)
+  if (waitableTimer->wtThread != PTHREAD_T_NULL)
   {
     waitableTimer->exitFlag = true;
     #ifdef WAITABLE_TIMER_CANCELABLE  // if defined appearing "no rethrow" exception (compiler dependent)
@@ -190,7 +192,7 @@ extern BOOL WINAPI   CloseWaitableTimerHandle (HANDLE                hObject)
     SetEvent(waitableTimer->interEventHandle);
     pthread_join(waitableTimer->wtThread, NULL);
     #endif
-    waitableTimer->wtThread = NULL;
+    waitableTimer->wtThread = PTHREAD_T_NULL;
   }
 
   if (waitableTimer->eventHandle != NULL)
