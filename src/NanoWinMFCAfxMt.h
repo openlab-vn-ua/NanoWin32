@@ -85,6 +85,11 @@ class CSingleLock
     lockOwned = true;
   }
 
+  BOOL IsLocked()
+  {
+      return lockOwned ? TRUE : FALSE;
+  }
+
   void Unlock()
   {
     lockOwned = false;
