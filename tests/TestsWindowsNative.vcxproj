@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\NanoWinStrConvert.cpp" />
     <ClCompile Include="src\NanoWinBmpTests.cpp" />
+    <ClCompile Include="src\NanoWinCompileTest.c" />
     <ClCompile Include="src\NanoWinEnvTests.cpp" />
     <ClCompile Include="src\NanoWinEventsTests.cpp" />
     <ClCompile Include="src\NanoWinFileTests.cpp" />
