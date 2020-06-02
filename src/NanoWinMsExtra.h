@@ -210,6 +210,8 @@ NW_EXTERN_C_END
 NW_T_STR_DN_S4Param(errno_t, _makepath_s , const char*   , const char*   , const char*   , const char*);
 NW_T_STR_DN_S4Param(errno_t, _wmakepath_s, const wchar_t*, const wchar_t*, const wchar_t*, const wchar_t*);
 
+#ifdef __cplusplus
+
 template <rsize_t destdrivesz, rsize_t destdirsz, rsize_t destfnamesz, rsize_t destextsz>  
 errno_t _splitpath_s
 (
@@ -229,6 +231,8 @@ errno_t _wsplitpath_s
    wchar_t       (&destfname)[destfnamesz],
    wchar_t       (&destext  )[destextsz]
 ) { return(_wsplitpath_s(srcpath, destdrive, destdrivesz, destdir, destdirsz, destfname, destfnamesz, destext, destextsz)); }
+
+#endif
 
 // Unicode versions of some calls
 // ---------------------------------------------

@@ -108,6 +108,8 @@ extern void throw_handler_s(const char *msg, void *ptr, errno_t error);
 
 extern void NanoWin_invoke_constraint_handler_s(const char *msg, void *ptr, errno_t error); // NW: Invoke current handler
 
+#if defined(__cplusplus)
+
 // Class to set specific handler for enclosing { } block. Auto restore handler on block leave. Thread safe. Do not forget to declare var!
 // Usage: { NanoWinSetBlockConstraintHandler handler(continue_handler_s); ...
 class NanoWinSetBlockConstraintHandler
@@ -127,6 +129,8 @@ class NanoWinSetBlockConstraintHandler
 
 // NW: Evaluate expression in context continue_handler_s (no matter what actual handler is) [primary use inside NW library itself] (Uses trick with comma operator)
 #define NW_SEXP_S(expression)      (NanoWinSetBlockConstraintHandler(continue_handler_s), (expression))
+
+#endif
 
 NW_EXTERN_C_END
 
@@ -186,14 +190,23 @@ O_t strfunc_s(TD (&dest)[sizeD], arg1_t arg1, arg2_t arg2, arg3_t arg3, arg4_t a
   return(strfunc_s(dest, sizeD, arg1, arg2, arg3, arg4));                                \
 };
 
+#else 
 
-// Templates for funcs that return errno_t
+// Pure C : no templates shortcuts available
+
+#define NW_T_STR_DN_S0Param(O_t,strfunc_s)
+#define NW_T_STR_DN_S1Param(O_t,strfunc_s,arg1_t)
+#define NW_T_STR_DN_S2Param(O_t,strfunc_s,arg1_t,arg2_t)
+#define NW_T_STR_DN_S3Param(O_t,strfunc_s,arg1_t,arg2_t,arg3_t)
+#define NW_T_STR_DN_S4Param(O_t,strfunc_s,arg1_t,arg2_t,arg3_t,arg4_t)
+
+#endif
+
+// Templates for funcs that return errno_t (cpp only)
 
 #define NW_STR_DN0Param(strfunc_s)                                   NW_T_STR_DN_S0Param(errno_t,strfunc_s)
 #define NW_STR_DN1Param(strfunc_s,arg1_t)                            NW_T_STR_DN_S1Param(errno_t,strfunc_s,arg1_t)
 #define NW_STR_DN2Param(strfunc_s,arg1_t,arg2_t)                     NW_T_STR_DN_S2Param(errno_t,strfunc_s,arg1_t,arg2_t)
-
-#endif
 
 // Memory functions
 // -----------------------------------------------------

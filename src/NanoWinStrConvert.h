@@ -8,6 +8,8 @@
 #ifndef __NANOWINSTRCONVERT_H__
 #define __NANOWINSTRCONVERT_H__
 
+#ifdef __cplusplus
+
 #include <string>
 
 #include "NanoWinTypes.h"
@@ -115,6 +117,8 @@ namespace NanoWin
     NW_NOASSIGN_OPERATOR(WStrByStrResultBag);
   };
 }
+
+#endif // __cplusplus
 
 // Win32: Code conversion
 
